@@ -1,4 +1,71 @@
+'use client';
+
+import { ChangeEvent, FormEvent, useState } from "react";
+
+
+
 export default function RegisterBtns() {
+
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value); // Update confirm password state
+  };
+
+  // Handle form submission with correct typing
+  const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if(!name || !email || !password){
+      setError("All fields are necessary.");
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords don't match.");
+      return; 
+    }
+
+    try {
+      const res = await fetch('api/register',{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name, email,password
+        }),
+      });
+
+      if (res.ok){
+        setError("");
+        const form = e.target as HTMLFormElement;
+        form.reset();
+      }else{
+        console.log("User registration Failed")
+      }
+    } catch (error) {
+      console.log("Error during registration: ", error)
+      
+    }
+  };
+  
+
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -8,19 +75,34 @@ export default function RegisterBtns() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form action="#" method="POST" className="space-y-6">
+        <form action="#" onSubmit={handleSubmit} method="POST" className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
+              Name
+            </label>
+            <div className="mt-2">
+              <input
+                onChange = {handleNameChange}
+                id="name"
+                name="name"
+                type="name"
+                autoComplete="name"
+                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
               Email address
             </label>
             <div className="mt-2">
               <input
+                onChange = {handleEmailChange}
                 id="email"
                 name="email"
                 type="email"
-                required
                 autoComplete="email"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -33,12 +115,12 @@ export default function RegisterBtns() {
             </div>
             <div className="mt-2">
               <input
+                onChange = {handlePasswordChange}
                 id="password"
                 name="password"
                 type="password"
-                required
                 autoComplete="current-password"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -46,18 +128,18 @@ export default function RegisterBtns() {
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+              <label htmlFor="confirm-password" className="block text-sm font-medium leading-6 text-gray-900">
                 Confirm Password
               </label>
             </div>
             <div className="mt-2">
               <input
-                id="password"
-                name="password"
+                onChange = {handleConfirmPasswordChange}
+                id="confirm-password"
+                name="confirm-password"
                 type="password"
-                required
-                autoComplete="current-password"
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                autoComplete="confirm-password"
+                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -73,8 +155,8 @@ export default function RegisterBtns() {
               >
               </input>
               <div className="ml-3 text-sm">
-                <label className="font-light text-black">I accept the 
-                  <a className="font-medium text-primary-600 hover:underline dark:text-primary-500" href="#">Terms and Conditions</a>
+                <label className="font-light text-black">I accept the
+                  <a className="font-medium text-primary-600 hover:underline dark:text-primary-500" href="#"> Terms and Conditions</a>
                 </label>
               </div>
 
@@ -83,9 +165,6 @@ export default function RegisterBtns() {
 
           </div>
 
-
-
-
           <div>
             <button
               type="submit"
@@ -93,8 +172,16 @@ export default function RegisterBtns() {
             >
               Sign Up
             </button>
+            {error && (
+              <div className="bg-red-500 text-white w-fit text-sm py-1 rounded-md px-2 mt-2">
+                {error}
+              </div>
+            )
+            }
+
           </div>
         </form>
+
 
         <p className="mt-10 text-center text-sm text-gray-500">
           Already Have An Account?{''}
