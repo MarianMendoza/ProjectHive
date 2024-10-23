@@ -1,14 +1,17 @@
 'use client';
 
 import { ChangeEvent, FormEvent, useState } from "react";
+import { useRouter } from 'next/navigation';
+
 
 
 
 export default function RegisterBtns() {
-
+  const router = useRouter();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [role, setRole] = useState<'student' | 'lecturer'>('student');
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
@@ -48,19 +51,24 @@ export default function RegisterBtns() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          name, email,password
+          name, email,password, role
         }),
       });
 
       if (res.ok){
         setError("");
+        const data = await res.json();
+        localStorage.setItem('token', data.token);  
         const form = e.target as HTMLFormElement;
         form.reset();
+        router.push('/register2')
       }else{
-        console.log("User registration Failed")
+        const data = await res.json();
+        setError(data.message || "User registration Failed")
       }
     } catch (error) {
-      console.log("Error during registration: ", error)
+      console.log("Error during registration: ", error);
+      setError("An error occurred, please try again.")
       
     }
   };
@@ -174,7 +182,7 @@ export default function RegisterBtns() {
             </button>
             {error && (
               <div className="bg-red-500 text-white w-fit text-sm py-1 rounded-md px-2 mt-2">
-                {error}
+                {error} 
               </div>
             )
             }
