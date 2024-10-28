@@ -61,7 +61,7 @@ export default function RegisterBtns() {
         localStorage.setItem('token', data.token);  
         const form = e.target as HTMLFormElement;
         form.reset();
-        router.push('/register2')
+        router.push('/pages/register2')
       }else{
         const data = await res.json();
         setError(data.message || "User registration Failed")

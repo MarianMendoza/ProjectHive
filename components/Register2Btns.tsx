@@ -38,7 +38,7 @@ export default function RegisterBtn2() {
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem('token', data.token); // Save token in local storage
-        router.push('/sign-in');
+        router.push('/pages/sign-in');
       } else {
         const data = await res.json();
         setError(data.message || "Failed to save role.");

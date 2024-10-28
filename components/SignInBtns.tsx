@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
 
+
 export default function SignInBtns() {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -24,7 +25,7 @@ export default function SignInBtns() {
             if (res.ok) {
                 const data = await res.json();
                 localStorage.setItem('token', data.token); // Store token in local storage
-                router.push('/profile'); // Redirect to the profile or dashboard
+                router.push('/'); // Redirect to the profile or dashboard
             } else {
                 const errorData = await res.json();
                 setError(errorData.message || "Failed to log in");
