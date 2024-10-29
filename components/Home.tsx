@@ -19,11 +19,10 @@ export default function Home() {
             
           </div>
   
-          {/* Image Column */}
-          <div className="w-full md:w-1/2">
+          <div className="w-full h-full md:w-1/2">
             <div className="relative w-full h-64 md:h-96">
               <img
-                src="/images/project-management.jpg" // Replace with your image path
+                src="app/images/iStock-1206750602.jpg" // Replace with your image path
                 alt="Project Management"
                 className="rounded-lg shadow-lg"
               />

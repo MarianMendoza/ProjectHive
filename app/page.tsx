@@ -1,4 +1,3 @@
-import Home from "@/components/Home";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 

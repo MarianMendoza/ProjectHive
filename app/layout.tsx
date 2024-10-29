@@ -1,10 +1,9 @@
 // components/RootLayout.tsx
 import type { Metadata } from "next";
-import { Libre_Baskerville, Livvic } from "next/font/google"
+import { Libre_Baskerville } from "next/font/google"
 import './globals.css'
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Home from "@/components/Home";
 
 const libre = Libre_Baskerville( {weight: '400' ,subsets: ["latin"]}) ;
 
