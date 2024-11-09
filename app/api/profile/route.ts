@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import connectMongo from '../../lib/mongoose'; // Adjust the path according to your structure
-import User from '../../models/User'; // Adjust the path according to your structure
+import User from '../../(models)/User'; // Adjust the path according to your structure
 import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.NEXTAUTH_SECRET || 'your-default-secret';

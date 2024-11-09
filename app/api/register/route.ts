@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectMongo from "../../lib/mongoose"; // Adjust the path according to your structure
-import User, { IUser } from "../../models/User"; // Adjust the path according to your structure
+import User, { IUser } from "../../(models)/User"; // Adjust the path according to your structure
 import bcrypt from "bcryptjs"; // For password hashing
 import { signToken } from '../../lib/tokenUtils'; // Import the JWT utility
 

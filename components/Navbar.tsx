@@ -1,40 +1,13 @@
-'use client'
+// 'use client'
+import Link from "next/link";
+// import { useEffect, useState } from "react";
+import { getServerSession } from "next-auth";
+import { options } from "../app/api/auth/[...nextauth]/options";
 
-import { useEffect, useState } from "react";
 
 
-export default function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const checkLoginStatus = () => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
-    console.log(token)
-  };
-
-  useEffect(() => {
-    checkLoginStatus();
-
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'token') {
-        checkLoginStatus(); // Update the state when the token changes
-      }
-    };
-
-      window.addEventListener('storage', handleStorageChange);
-
-      // Cleanup the event listener on component unmount
-      return () => {
-        window.removeEventListener('storage', handleStorageChange);
-      };
-    }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    window.location.href = '/pages/home'
-  };
-
+export default async function Navbar() {
+  const session = await getServerSession(options);
   return (
     <div>
       <nav className="bg-white border-gray-200 shadow-md">
@@ -52,34 +25,18 @@ export default function Navbar() {
           </button>
           <div className="hidden w-full md:block md:w-auto" id="navbar-default">
             <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border md:flex-row md:space-x-12 rtl:space-x-reverse md:mt-0 md:border-0 ">
-              <li>
-                <a href="/pages/home" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Home</a>
-              </li>
-              <li>
-                <a href="/pages/projects" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Projects</a>
-              </li>
-              <li>
-                <a href="/pages/past-projects" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Past Projects</a>
-              </li>
-              {isLoggedIn ? (
+              <Link href = "/pages/home" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Home</Link>
+              <Link href = "/pages/projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Projects</Link>
+              <Link href = "/pages/past-projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Past Projects</Link>
+              {session ?( <Link href = "/api/auth/signout?callbackUrl=/">Logout</Link>) :
+              (
                 <>
-                  <li>
-                    <a href="/pages/profile" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Profile</a>
-                  </li>
-                  <li>
-                    <button onClick={handleLogout} className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Logout</button>
-                  </li>
+                <Link href = "/pages/sign-in" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Login</Link>
+                <Link href = "/pages/register" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Register</Link>
                 </>
-              ) : (
-                <>
-                  <li>
-                    <a href="/pages/sign-in" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Login</a>
-                  </li>
-                  <li>
-                    <a href="/pages/register" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Register</a>
-                  </li>
-                </>
-              )}
+              )
+              }
+            
             </ul>
           </div>
         </div>
