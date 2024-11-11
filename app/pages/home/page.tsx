@@ -8,7 +8,7 @@ export default function home(){
         <div className="w-full md:w-1/2">
             <div className="relative w-full h-70 md:h-70">
               <img
-                src= {"../../public/images/image1.jpg"} // Replace with your image path
+                src= {"../image1.jpg"} // Replace with your image path
                 alt="Project Management"
                 className="rounded-lg shadow-lg"
               />

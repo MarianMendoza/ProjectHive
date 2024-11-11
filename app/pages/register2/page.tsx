@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Register2(){
-    const router = useRouter();
+  const router = useRouter();
   const [role, setRole] = useState<'student' | 'lecturer' | null>(null);
   const [error, setError] = useState<string>("");
 

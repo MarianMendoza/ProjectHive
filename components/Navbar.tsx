@@ -1,13 +1,13 @@
 // 'use client'
 import Link from "next/link";
-// import { useEffect, useState } from "react";
-import { getServerSession } from "next-auth";
-import { options } from "../app/api/auth/[...nextauth]/options";
-
+import { useSession } from "next-auth/react";
+import  { getServerSession} from "next-auth";
+import { authOptions } from "@/app/lib/auth";
 
 
 export default async function Navbar() {
-  const session = await getServerSession(options);
+  const session = await getServerSession(authOptions);
+  // console.log(session);
   return (
     <div>
       <nav className="bg-white border-gray-200 shadow-md">

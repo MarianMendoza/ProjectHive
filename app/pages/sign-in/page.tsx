@@ -1,7 +1,8 @@
 'use client';
-
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
+import Link from "next/link";
+
 export default function SignIn(){
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -20,7 +21,7 @@ export default function SignIn(){
                 body: JSON.stringify({ email, password }), // Send the email and password
             });
 
-            if (res.ok) {
+            if (res?.ok) {
                 const data = await res.json();
                 localStorage.setItem('token', data.token); // Store token in local storage
                 router.push('/'); // Redirect to the profile or dashboard
@@ -104,9 +105,9 @@ export default function SignIn(){
 
                 <p className="mt-10 text-center text-sm text-gray-500">
                     Don't Have An Account?{''}
-                    <a href="/register" className="font-semibold leading-6 text-lime-600 hover:text-lime-500">
+                    <Link href="/register" className="font-semibold leading-6 text-lime-600 hover:text-lime-500">
                         Sign Up Here!
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>

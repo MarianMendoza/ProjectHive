@@ -1,9 +1,13 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
+import { SessionProvider } from "next-auth/react";
 
 export default function Page() {
-  redirect('/pages/home');
-
+  return(
+    <SessionProvider>
+      { redirect('/pages/home')}
+    </SessionProvider>
+  )
 }
 
 

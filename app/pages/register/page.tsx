@@ -1,6 +1,5 @@
 // import RegisterBtns from "@/components/RegisterBtns";
 'use client';
-
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from 'next/navigation';
 
@@ -53,7 +52,7 @@ export default function Register(){
         }),
       });
 
-      if (res.ok){
+      if (res?.ok){
         setError("");
         const data = await res.json();
         localStorage.setItem('token', data.token);  

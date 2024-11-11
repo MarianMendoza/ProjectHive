@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Libre_Baskerville } from "next/font/google"
 import './globals.css'
+import { Provider } from  "./provider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -19,10 +20,11 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         className={`antialiased flex flex-col min-h-screen`}
       >
         <Navbar />
-
+        <Provider>
         <main className="flex-grow">
           {children}
         </main>
+        </Provider>
         <Footer />
       </body>
     </html>
