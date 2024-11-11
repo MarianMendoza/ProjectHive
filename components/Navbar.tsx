@@ -1,13 +1,11 @@
-// 'use client'
+'use client'
 import Link from "next/link";
-import { useSession } from "next-auth/react";
-import  { getServerSession} from "next-auth";
-import { authOptions } from "@/app/lib/auth";
+import { useSession, signOut } from "next-auth/react";
 
 
-export default async function Navbar() {
-  const session = await getServerSession(authOptions);
-  // console.log(session);
+
+export default function Navbar() {
+  const {data: session} = useSession();
   return (
     <div>
       <nav className="bg-white border-gray-200 shadow-md">
@@ -28,7 +26,12 @@ export default async function Navbar() {
               <Link href = "/pages/home" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Home</Link>
               <Link href = "/pages/projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Projects</Link>
               <Link href = "/pages/past-projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Past Projects</Link>
-              {session ?( <Link href = "/api/auth/signout?callbackUrl=/">Logout</Link>) :
+              {session ?(
+                <>
+                  <Link href="/pages/profile" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600">Profile</Link>
+                  <button onClick={() => signOut({ callbackUrl:"/pages/home"})} className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Logout</button>
+                </>
+              ) :
               (
                 <>
                 <Link href = "/pages/sign-in" className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Login</Link>

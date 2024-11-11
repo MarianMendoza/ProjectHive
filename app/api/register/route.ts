@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
-import connectMongo from "../../lib/mongodb"; // Adjust the path according to your structure
+import connectMongo from "../../../lib/mongodb"; // Adjust the path according to your structure
 import User, { IUser } from "../../models/User"; // Adjust the path according to your structure
 import bcrypt from "bcryptjs"; // For password hashing
-import { signToken } from '../../lib/tokenUtils'; // Import the JWT utility
+import { signToken } from '../../../lib/tokenUtils'; // Import the JWT utility
 
-export const register = async (values: any) => {
-    const { email, password, name } = values;
-}
+
 export async function POST(req: Request){
     try {
         const{name, email, password}: {name:string; email: string; password:string} = await req.json();

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import connectMongo from '../../lib/mongodb'; // Adjust the path according to your structure
+import connectMongo from '../../../lib/mongodb'; // Adjust the path according to your structure
 import User from '../../models/User'; // Adjust the path according to your structure
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';

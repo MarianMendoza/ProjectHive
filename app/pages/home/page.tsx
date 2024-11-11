@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 export default function home(){
     return (
@@ -21,12 +22,7 @@ export default function home(){
             <p className="mt-4 text-gray-600">
                 Your Final Year Project Manager.
             </p>
-            <button
-              type="submit"
-              className=" mt-2 w-40 flex  justify-center rounded-md bg-lime-600 px-1 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600"
-            >
-              Sign Up
-            </button>
+            <Link href = "/pages/register" className="mt-2 w-40 flex  justify-center rounded-md bg-lime-600 px-1 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600">Sign Up!</Link>
             
           </div>
   

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export default function SignIn(){
     const [email, setEmail] = useState<string>("");
@@ -13,6 +14,13 @@ export default function SignIn(){
         event.preventDefault(); // Prevent the default form submission
 
         try {
+
+            const result = await signIn("credentials", {
+                redirect:false,
+                email,
+                password,
+            })
+
             const res = await fetch('../api/login', {
                 method: 'POST',
                 headers: {
@@ -24,7 +32,7 @@ export default function SignIn(){
             if (res?.ok) {
                 const data = await res.json();
                 localStorage.setItem('token', data.token); // Store token in local storage
-                router.push('/'); // Redirect to the profile or dashboard
+                router.push('/pages/profile'); // Redirect to the profile or dashboard
             } else {
                 const errorData = await res.json();
                 setError(errorData.message || "Failed to log in");

@@ -2,9 +2,10 @@
 import type { Metadata } from "next";
 import { Libre_Baskerville } from "next/font/google"
 import './globals.css'
-import { Provider } from  "./provider";
+import { SessionProvider } from "next-auth/react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Provider } from "./provider";
 
 const libre = Libre_Baskerville( {weight: '400' ,subsets: ["latin"]}) ;
 
@@ -19,13 +20,13 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <body 
         className={`antialiased flex flex-col min-h-screen`}
       >
-        <Navbar />
         <Provider>
+        <Navbar />
         <main className="flex-grow">
           {children}
         </main>
-        </Provider>
         <Footer />
+        </Provider>
       </body>
     </html>
   );
