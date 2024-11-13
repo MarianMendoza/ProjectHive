@@ -61,13 +61,13 @@ export default function Register2(){
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label>
-              <input type="radio" value="student" checked={role === 'Student'} onChange={handleRoleChange} />
+              <input type="radio" value="Student" checked={role === 'Student'} onChange={handleRoleChange} />
               Student
             </label>
           </div>
           <div>
             <label>
-              <input type="radio" value="lecturer" checked={role === 'Lecturer'} onChange={handleRoleChange} />
+              <input type="radio" value="Lecturer" checked={role === 'Lecturer'} onChange={handleRoleChange} />
               Lecturer
             </label>
           </div>

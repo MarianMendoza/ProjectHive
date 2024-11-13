@@ -6,16 +6,19 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string; // Custom field to store the user ID
+      imageUrl: string;
+      course: string;
+      description: string;
       name: string;
       email: string;
-      role: 'student' | 'lecturer' | 'admin'; // Custom role field
+      role: 'Student' | 'Lecturer' | 'Admin'; // Custom role field
       approved: boolean; // Custom approved field
     };
   }
 
   interface User extends IUser {
     id: string;
-    role: 'student' | 'lecturer' | 'admin';
+    role: 'Student' | 'Lecturer' | 'Admin';
     approved: boolean;
   }
 }

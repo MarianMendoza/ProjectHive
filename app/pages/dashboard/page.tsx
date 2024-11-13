@@ -1,14 +1,23 @@
+"use client";
+
+import { useSession } from "next-auth/react";
+import StudentDashboard from "@/components/StudentDashboard";
+import LecturerDashboard from "@/components/LecturerDashboard";
+import AdminDashboard from "@/components/AdminDashboard";
+
 export default function Dashboard() {
+  const { data: session } = useSession();
+
+  if (!session){
+    return <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">You must be logged in to view this page</h2>
+  }
+  const role = session.user.role;
+
   return (
     <div >
-            <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                    This is your dashboard!
-                </h2>
-            </div>
-        </div>
-
+        {role === "Student" && <StudentDashboard />}
+        {role === "Lecturer" && <LecturerDashboard />}
+        {role === "Admin" && <AdminDashboard />}
     </div>
   );
 }
