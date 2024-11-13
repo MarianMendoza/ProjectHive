@@ -18,8 +18,11 @@ export async function POST(req: Request){
 
         // Create the new user
         const newUser: IUser = new User({
+            imageUrl,
             name,
             email,
+            course,
+            description,
             password: hashedPassword,
             role: "student", // Automatically assign role as student
             approved: true, // Automatically approve students

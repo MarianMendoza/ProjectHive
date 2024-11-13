@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     }
   
     user.role = role; // Set the user's role
-    user.approved = role === 'lecturer' ? false : true; // Set approved based on role
+    user.approved = role === 'Lecturer' ? false : true; // Set approved based on role
     await user.save();
   
     return NextResponse.json({ message: "Role saved successfully!" }, { status: 200 });
