@@ -8,9 +8,9 @@ export interface IUser extends Document {
   name: string;
   email: string;
   course: string;
-  description:string;
+  description: string,
   password: string;
-  role: 'student' | 'lecturer' | 'admin'; // Use a union type for better type safety
+  role: 'Student' | 'Lecturer' | 'Admin'; // Use a union type for better type safety
   approved: boolean; // Indicates whether the user is approved
 }
 
@@ -21,7 +21,7 @@ const UserSchema: Schema = new Schema({
   course: {type: String, required:false},
   description:{type:String, required:false},
   password: { type: String, required: true },
-  role: { type: String, enum: ['Student', 'Lecturer', 'Admin'], default: 'student' },
+  role: { type: String, enum: ['Student', 'Lecturer', 'Admin'], default: 'Student' },
   approved: { type: Boolean, default: false }, // Default to false for non-admin users
 });
 

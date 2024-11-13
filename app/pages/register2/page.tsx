@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 
 export default function Register2(){
   const router = useRouter();
-  const [role, setRole] = useState<'student' | 'lecturer' | null>(null);
+  const [role, setRole] = useState<'Student' | 'Lecturer' | null>(null);
   const [error, setError] = useState<string>("");
 
   const handleRoleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setRole(e.target.value as 'student' | 'lecturer');
+    setRole(e.target.value as 'Student' | 'Lecturer');
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -61,13 +61,13 @@ export default function Register2(){
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label>
-              <input type="radio" value="student" checked={role === 'student'} onChange={handleRoleChange} />
+              <input type="radio" value="student" checked={role === 'Student'} onChange={handleRoleChange} />
               Student
             </label>
           </div>
           <div>
             <label>
-              <input type="radio" value="lecturer" checked={role === 'lecturer'} onChange={handleRoleChange} />
+              <input type="radio" value="lecturer" checked={role === 'Lecturer'} onChange={handleRoleChange} />
               Lecturer
             </label>
           </div>
