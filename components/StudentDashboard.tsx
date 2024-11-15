@@ -4,6 +4,4 @@ export default function StudentDashboard() {
         Welcome, this is your student dashboard.
         </h2>
     ) 
-       
-   
 }

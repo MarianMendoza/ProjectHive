@@ -1,33 +1,26 @@
-import { NextApiResponse, NextApiRequest } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import Projects from "@/app/models/Projects";
 import connectMongo from '../../../lib/mongodb'; // Adjust the path according to your structure
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+
+
+export async function GET() {
+    try {
     await connectMongo();
-
-    switch (req.method) {
-        case "GET":
-            try {
-                const projects = await Projects.find();
-                return res.status(200).json(projects);
-
-            } catch (error) {
-                return res.status(500).json({ message: "Failed to fetch projects" });
-
-            }
-
-        case "POST":
-            try {
-                const project = new Projects(req.body);
-                await project.save();
-                return res.status(201).json(project);
-            } catch (error) {
-                return res.status(400).json({ message: "Method not allowed" });
-
-            }
-
-        default: return res.status(405).json({ message: "Method is not allowed" });
-
+    const projects = await Projects.find();
+      return NextResponse.json(projects, { status: 200 });
+    } catch (error) {
+      return NextResponse.json({ message: "Failed to fetch projects" }, { status: 500 });
     }
-};
-export default handler;
+  }
+  
+  export async function POST(req: NextRequest) {
+    try {
+      await connectMongo();
+      const body = await req.json();
+      const project = await Projects.create(body);
+      return NextResponse.json(project, { status: 201 });
+    } catch (error) {
+      return NextResponse.json({ message: "Failed to create project" }, { status: 500 });
+    }
+  }

@@ -49,7 +49,7 @@ export default function Projects() {
 
     try {
       const method = formData._id ? "PUT" : "POST";
-      const url = formData._id ? `../api/projects/${formData._id}` : "../api/projects";
+      const url = formData._id ? `/api/projects/${formData._id}` : "/api/projects";
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -103,7 +103,7 @@ export default function Projects() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Projects</h1>
       <button
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+        className="bg-lime-600  text-white px-4 py-2 rounded mb-4"
         onClick={() => setIsModalOpen(true)}
       >
         Create Project
