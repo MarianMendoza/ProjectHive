@@ -1,43 +1,47 @@
-import { NextRequest, NextResponse } from "next/server";
-import Projects from "@/app/models/Projects";
-import connectMongo from '../../../lib/mongodb'; 
+import type { NextApiRequest, NextApiResponse } from 'next';
+import Projects from "../../models/Projects"; // adjust if necessary
+import connectMongo from "../../../lib/mongodb"; // Adjust the path according to your structure
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { id } = req.query;
+
+  await connectMongo(); // Make sure MongoDB connection is established
+
+  if (req.method === 'GET') {
+    // Get a specific project by ID
     try {
-      await connectMongo();
-      const project = await Projects.findById(params.id);
+      const project = await Projects.findById(id);
       if (!project) {
-        return NextResponse.json({ message: "Project not found" }, { status: 404 });
+        return res.status(404).json({ message: 'Project not found' });
       }
-      return NextResponse.json(project, { status: 200 });
+      res.status(200).json(project);
     } catch (error) {
-      return NextResponse.json({ message: "Failed to fetch project" }, { status: 500 });
+      res.status(500).json({ message: 'Error fetching project', error });
     }
-  }
-  
-  export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  } else if (req.method === 'PUT') {
+    // Update a specific project by ID
     try {
-      await connectMongo()
-      const body = await req.json();
-      const updatedProject = await Projects.findByIdAndUpdate(params.id, body, { new: true });
+      const updatedProject = await Projects.findByIdAndUpdate(id, req.body, { new: true });
       if (!updatedProject) {
-        return NextResponse.json({ message: "Project not found" }, { status: 404 });
+        return res.status(404).json({ message: 'Project not found' });
       }
-      return NextResponse.json(updatedProject, { status: 200 });
+      res.status(200).json(updatedProject);
     } catch (error) {
-      return NextResponse.json({ message: "Failed to update project" }, { status: 500 });
+      res.status(500).json({ message: 'Error updating project', error });
     }
-  }
-  
-  export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  } else if (req.method === 'DELETE') {
+    // Delete a specific project by ID
     try {
-      await connectMongo()
-      const deletedProject = await Projects.findByIdAndDelete(params.id);
+      const deletedProject = await Projects.findByIdAndDelete(id);
       if (!deletedProject) {
-        return NextResponse.json({ message: "Project not found" }, { status: 404 });
+        return res.status(404).json({ message: 'Project not found' });
       }
-      return NextResponse.json({ message: "Project deleted successfully" }, { status: 200 });
+      res.status(200).json({ message: 'Project deleted' });
     } catch (error) {
-      return NextResponse.json({ message: "Failed to delete project" }, { status: 500 });
+      res.status(500).json({ message: 'Error deleting project', error });
     }
+  } else {
+    res.status(405).json({ message: 'Method not allowed' });
   }
+}
