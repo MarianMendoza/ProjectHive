@@ -37,7 +37,6 @@ const UsersPage = () => {
         <div className="container mx-auto p-4 flex">
             {/* User Table */}
             <div className="w-3/4 pr-4">
-                <h1 className="text-2xl font-bold mb-6 text-center">Users</h1>
                 <div className="space-y-4">
                     {users.map((user) => (
                         <div
