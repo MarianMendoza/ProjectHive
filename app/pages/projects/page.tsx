@@ -72,7 +72,6 @@ const ProjectsPage = () => {
   // Render loading state or project cards
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">Projects</h1>
 
       <div className="flex items-center mb-6 space-x-4">
         {/* Create New Project Button */}
@@ -148,7 +147,7 @@ const ProjectsPage = () => {
                       href={`/pages/update-project/${selectedProject._id}`}
                       className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
                     >
-                      Update
+                      ✏️ Edit
                     </Link>
                     <button
                       onClick={() => confirmDelete(selectedProject._id)} // Open modal on delete

@@ -11,6 +11,8 @@
   "dependencies": {
     "@auth/mongodb-adapter": "^3.7.3",
     "bcryptjs": "^2.4.3",
+    "datatables.net": "^2.1.8",
+    "datatables.net-dt": "^2.1.8",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.10.0",
     "mongoose": "^8.7.3",
