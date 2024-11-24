@@ -1,31 +1,38 @@
 import { NextResponse } from 'next/server';
-import connectMongo from '../../../lib/mongodb'; // Adjust the path based on your project structure
-import User from '../../models/User'; // Adjust the path based on your project structure
+import connectMongo from '../../../lib/mongodb'; 
+import User, { IUser } from '../../models/User';
+import bcrypt from "bcryptjs"; 
+import { signToken } from "@/lib/tokenUtils";
 
-// POST: Create a new user
-export async function POST(req: Request) {
-    await connectMongo();
-
-    const { imageUrl, name, email, course, description, password, role, approved } = await req.json();
-
+//POST: Create a new user
+export async function POST(req: Request){
     try {
-        const newUser = new User({
-            imageUrl,
+        const{name, email, password}: {name:string; email: string; password:string} = await req.json();
+        await connectMongo();
+
+        const existingUser = await User.findOne({email});
+        if (existingUser) {
+            return NextResponse.json({ message: "User already exists!" }, { status: 400 });
+        }
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        // Create the new user
+        const newUser: IUser = new User({
             name,
             email,
-            course,
-            description,
-            password,
-            role,
-            approved,
+            password: hashedPassword,  
+            role: "Student", 
+            approved: true, 
         });
 
         await newUser.save();
+        const token = signToken(newUser._id.toString());
+        console.log(token)
 
-        return NextResponse.json({ message: 'User created successfully', user: newUser }, { status: 201 });
+        return NextResponse.json({ token, message: "User registered successfully!" }, { status: 201 });
     } catch (error) {
-        console.error("Error creating user:", error);
-        return NextResponse.json({ message: 'Error creating user' }, { status: 400 });
+        console.error("Error occurred:", error); 
+        return NextResponse.json({ message: "Error Occurred" }, { status: 500 });
     }
 }
 
@@ -43,11 +50,10 @@ export async function GET(req: Request) {
     }
 }
 
-// GET: Fetch a specific user by ID
 export async function GET_BY_ID(req: Request) {
     await connectMongo();
 
-    const id = req.url.split("/").pop() as string; // Assuming the ID is part of the URL path, e.g., /api/users/{id}
+    const id = req.url.split("/").pop() as string;
 
     try {
         const user = await User.findById(id);

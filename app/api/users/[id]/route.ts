@@ -3,6 +3,7 @@ import connectMongo from "@/lib/mongodb";
 import User from "@/app/models/User";
 
 
+
 // GET: Retrieve a user by ID.
 export async function GET(req: Request){
     await connectMongo();

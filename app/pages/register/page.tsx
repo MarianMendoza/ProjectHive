@@ -1,4 +1,3 @@
-// import RegisterBtns from "@/components/RegisterBtns";
 'use client';
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from 'next/navigation';
@@ -42,7 +41,7 @@ export default function Register(){
     }
 
     try {
-      const res = await fetch('../api/register',{
+      const res = await fetch('../api/users',{
         method: "POST",
         headers: {
           "Content-Type": "application/json"
