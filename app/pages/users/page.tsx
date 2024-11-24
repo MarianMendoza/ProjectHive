@@ -2,12 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { User } from "@/types/users";
+import Link from "next/link";
 
 const UsersPage = () => {
   const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [lecturers, setLecturers] = useState<User[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showDeclineModal, setShowDeclineModal] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
@@ -30,7 +32,35 @@ const UsersPage = () => {
     fetchUsers();
   }, []);
 
-  //Handle delete functionality
+  const handleApproveLecturer = async (id: string) => {
+    try {
+      const res = await fetch(`../api/users/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ approved: true }),
+      });
+
+      if (res.ok) {
+        // Update the frontend state
+        setLecturers((prevLecturers) =>
+          prevLecturers.filter((lecturer) => lecturer._id !== id)
+        );
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === id ? { ...user, approved: true } : user
+          )
+        );
+      } else {
+        console.error("Failed to approve the lecturer.");
+      }
+    } catch (error) {
+      console.error("Error during lecturer approval:", error);
+    }
+  };
+
+  // Handle delete functionality
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`../api/users/${id}`, {
@@ -50,13 +80,6 @@ const UsersPage = () => {
     }
   };
 
-  
-  // Open modal for deletion confirmation
-  const confirmDelete = (id: string) => {
-    setUserToDelete(id);
-    setShowModal(true);
-  };
-
   // Handle closing the modal without deleting
   const closeModal = () => {
     setShowModal(false);
@@ -65,11 +88,15 @@ const UsersPage = () => {
 
   const handleRowClick = (user: User) => {
     setSelectedUser(user);
-  }
+  };
 
   return (
     <div className="container mx-auto p-4 flex">
-      <div className="w-3/4 pr-4">
+      <div
+        className={`${
+          session?.user?.role !== "Admin" ? "w-full" : "w-3/4 pr-4"
+        }`}
+      >
         <div className="space-y-4">
           {users.map((user) => (
             <div
@@ -111,14 +138,27 @@ const UsersPage = () => {
 
               {session?.user?.role === "Admin" && (
                 <div className="flex space-x-2">
-                  <button className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition">
-                    ✏️ Edit
-                  </button>
-                  <button 
-                  onClick={() => setShowModal(true)}
-                  className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition">
-                    🗑️ Delete
-                  </button>
+                  {/* Disable delete and edit buttons for the current logged-in user */}
+                  {user._id !== session.user.id &&  (
+                    <>
+                      <Link
+                        key={user._id}
+                        href={`/pages/update-user/${user._id}`}
+                        className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
+                      >
+                        ✏️ Edit
+                      </Link>
+                      {user.role !== "Admin" && (
+                        <button
+                        onClick={() => setShowModal(true)}
+                        className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
+                      >
+                        🗑️ Delete
+                      </button>
+                      )}
+                      
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -126,32 +166,44 @@ const UsersPage = () => {
         </div>
       </div>
 
-      {session?.user?.role === "Admin" && lecturers.length > 0 && (
-        <div className="w-1/4 h-1/2 overflow-y-auto bg-gray-50 shadow-md rounded-lg p-4 ml-4">
-          <h2 className="text-xl font-semibold mb-4">
+      {session?.user?.role === "Admin" && (
+        <div className="w-full sm:w-3/4 lg:w-1/4 h-auto overflow-hidden bg-gray-50 shadow-md rounded-lg p-4 ml-4">
+          <h2 className="text-xl font-semibold mb-4 text-center sm:text-left">
             Pending Lecturer Approvals
           </h2>
-          <div className="space-y-4">
-            {lecturers.map((lecturer) => (
-              <div
-                key={lecturer._id}
-                className="flex justify-between items-center p-4 border-b last:border-b-0 bg-white shadow-sm rounded-md"
-              >
-                <div>
-                  <h3 className="font-semibold">{lecturer.name}</h3>
-                  <p className="text-gray-500 text-sm">{lecturer.email}</p>
+          {lecturers.length === 0 ? (
+            <p className="text-center text-gray-500">
+              No lecturers pending approval
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {lecturers.map((lecturer) => (
+                <div
+                  key={lecturer._id}
+                  className="justify-between items-center p-4 border-b last:border-b-0 bg-white shadow-sm rounded-md"
+                >
+                  <div className=" flex-col sm:items-center">
+                    <h3 className="font-semibold mb-2">{lecturer.name}</h3>
+                    <p className="flex text-gray-500 text-sm">{lecturer.email}</p>
+                  </div>
+                  <div className="space-x-2 mt-2 sm:mt-0">
+                    <button
+                      onClick={() => handleApproveLecturer(lecturer._id)}
+                      className="px-3 py-2 bg-lime-600 text-white text-sm rounded m-2 hover:bg-lime-700 transition"
+                    >
+                      ✅ Approve
+                    </button>
+                    <button
+                      onClick={() => setShowDeclineModal(true)}
+                      className="px-3 py-2 bg-lime-600 text-white text-sm rounded m-2 hover:bg-red-700 transition"
+                    >
+                      ❌ Decline
+                    </button>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <button className="px-3 py-2 bg-lime-600 text-white text-sm rounded m-2 hover:bg-lime-700 transition">
-                    ✅ Approve
-                  </button>
-                  <button className="px-3 py-2 bg-lime-600 text-white text-sm rounded m-2 hover:bg-lime-700  transition">
-                    ❌ Decline
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -176,6 +228,31 @@ const UsersPage = () => {
                 className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
               >
                 Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeclineModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-6 w-1/3">
+            <h2 className="text-xl font-bold text-center">Decline Lecturer</h2>
+            <p className="text-center text-gray-700 mt-2">
+              Are you sure you want to decline this lecturer's application?
+            </p>
+            <div className="mt-4 flex justify-between">
+              <button
+                onClick={() => setShowDeclineModal(false)}
+                className="bg-gray-200 px-4 py-2 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setShowDeclineModal(false)}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg"
+              >
+                Decline
               </button>
             </div>
           </div>

@@ -50,15 +50,16 @@ export async function GET(req: Request) {
     }
 }
 
+// GET: Fetch a specific user by ID
 export async function GET_BY_ID(req: Request) {
     await connectMongo();
 
-    const id = req.url.split("/").pop() as string;
+    const id  = req.url.split("/").pop() as string; // Assuming the ID is part of the URL path, e.g., /api/projects/{id}
 
     try {
         const user = await User.findById(id);
         if (!user) {
-            return NextResponse.json({ message: 'User not found' }, { status: 404 });
+            return NextResponse.json({ message: 'user not found' }, { status: 404 });
         }
 
         return NextResponse.json(user, { status: 200 });

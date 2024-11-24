@@ -1,18 +1,14 @@
-// /app/api/projects/[id]/route.ts
 import { NextResponse } from "next/server";
-import connectMongo from "../../../../lib/mongodb"; // Adjust the path based on your project structure
-import Projects from "../../../models/Projects";  // Ensure you import your Project model
+import connectMongo from "../../../../lib/mongodb";
+import Projects from "../../../models/Projects";  
 
-
+// GET: Retrieve a project by ID.
 export async function GET(req: Request) {
     await connectMongo();
-
-    // Extract the project ID from the URL
     const url = new URL(req.url);
     const id = url.pathname.split("/").pop();
 
     try {
-        // Fetch the project by ID
         const project = await Projects.findById(id);
 
         if (!project) {
@@ -25,16 +21,15 @@ export async function GET(req: Request) {
         return NextResponse.json({ message: "Error fetching project" }, { status: 500 });
     }
 }
+
 // DELETE: Delete a project by ID
 export async function DELETE(req: Request) {
     await connectMongo();
 
-    // Get the project ID from the URL parameters
     const url = new URL(req.url)
     const id = url.pathname.split("/").pop();
 
     try {
-        // Attempt to delete the project by ID
         const deletedProject = await Projects.findByIdAndDelete(id);
 
         if (!deletedProject) {

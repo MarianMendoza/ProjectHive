@@ -123,7 +123,7 @@ const ProjectsPage = () => {
           </div>
         </div>
 
-        <div className="w-2/3 p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto"> {/* White background and subtle box shadow */}
+        <div className="w-2/3 p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto"> 
           {selectedProject ? (
             <>
               <h2 className="text-2xl font-semibold text-lime-600">{selectedProject.title}</h2>
@@ -140,7 +140,7 @@ const ProjectsPage = () => {
                       ✏️ Edit
                     </Link>
                     <button
-                      onClick={() => confirmDelete(selectedProject._id)} // Open modal on delete
+                      onClick={() => confirmDelete(selectedProject._id)} 
                       className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
                     >
                       Delete

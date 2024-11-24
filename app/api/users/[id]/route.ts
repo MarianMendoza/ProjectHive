@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import connectMongo from "@/lib/mongodb";
 import User from "@/app/models/User";
 
-
-
 // GET: Retrieve a user by ID.
 export async function GET(req: Request){
     await connectMongo();
@@ -48,7 +46,7 @@ export async function DELETE(req: Request){
 export async function PUT(req: Request) {
     await connectMongo();
 
-    const  id  = req.url.split("/").pop() as string; // Assuming the ID is part of the URL path, e.g., /api/projects/{id}
+    const  id  = req.url.split("/").pop() as string; 
     const { imageUrl, name, email, course, description, password, role, approved  } = await req.json();
 
     try {
@@ -69,4 +67,33 @@ export async function PUT(req: Request) {
     }
 }
 
-  
+//PATCH to update a user role 
+export async function PATCH(req: Request) {
+    await connectMongo();
+
+    const id = req.url.split("/").pop() as string;
+
+    const updateFields = await req.json();
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            updateFields, 
+            { new: true, runValidators: true } 
+        );
+
+        if (!updatedUser) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+
+        return NextResponse.json(
+            { message: "User updated successfully", user: updatedUser },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error("Error updating User:", error);
+        return NextResponse.json({ message: "Error updating User" }, { status: 400 });
+    }
+}
+
+
