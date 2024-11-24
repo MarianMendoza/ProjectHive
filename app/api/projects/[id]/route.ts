@@ -1,7 +1,7 @@
 // /app/api/projects/[id]/route.ts
-import { NextResponse } from 'next/server';
-import connectMongo from '../../../../lib/mongodb'; // Adjust the path based on your project structure
-import Projects from '../../../models/Projects';  // Ensure you import your Project model
+import { NextResponse } from "next/server";
+import connectMongo from "../../../../lib/mongodb"; // Adjust the path based on your project structure
+import Projects from "../../../models/Projects";  // Ensure you import your Project model
 
 
 export async function GET(req: Request) {
@@ -9,20 +9,20 @@ export async function GET(req: Request) {
 
     // Extract the project ID from the URL
     const url = new URL(req.url);
-    const id = url.pathname.split('/').pop();
+    const id = url.pathname.split("/").pop();
 
     try {
         // Fetch the project by ID
         const project = await Projects.findById(id);
 
         if (!project) {
-            return NextResponse.json({ message: 'Project not found' }, { status: 404 });
+            return NextResponse.json({ message: "Project not found" }, { status: 404 });
         }
 
         return NextResponse.json({ project }, { status: 200 });
     } catch (error) {
-        console.error('Error fetching project:', error);
-        return NextResponse.json({ message: 'Error fetching project' }, { status: 500 });
+        console.error("Error fetching project:", error);
+        return NextResponse.json({ message: "Error fetching project" }, { status: 500 });
     }
 }
 // DELETE: Delete a project by ID
@@ -31,20 +31,20 @@ export async function DELETE(req: Request) {
 
     // Get the project ID from the URL parameters
     const url = new URL(req.url)
-    const id = url.pathname.split('/').pop();
+    const id = url.pathname.split("/").pop();
 
     try {
         // Attempt to delete the project by ID
         const deletedProject = await Projects.findByIdAndDelete(id);
 
         if (!deletedProject) {
-            return NextResponse.json({ message: 'Project not found' }, { status: 404 });
+            return NextResponse.json({ message: "Project not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Project deleted successfully' }, { status: 200 });
+        return NextResponse.json({ message: "Project deleted successfully" }, { status: 200 });
     } catch (error) {
-        console.error('Error deleting project:', error);
-        return NextResponse.json({ message: 'Error deleting project' }, { status: 500 });
+        console.error("Error deleting project:", error);
+        return NextResponse.json({ message: "Error deleting project" }, { status: 500 });
     }
 }
 
@@ -64,13 +64,13 @@ export async function PUT(req: Request) {
         );
 
         if (!updatedProject) {
-            return NextResponse.json({ message: 'Project not found' }, { status: 404 });
+            return NextResponse.json({ message: "Project not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Project updated successfully', project: updatedProject }, { status: 200 });
+        return NextResponse.json({ message: "Project updated successfully", project: updatedProject }, { status: 200 });
     } catch (error) {
         console.error("Error updating project:", error);
-        return NextResponse.json({ message: 'Error updating project' }, { status: 400 });
+        return NextResponse.json({ message: "Error updating project" }, { status: 400 });
     }
 }
 
