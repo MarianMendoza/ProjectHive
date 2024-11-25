@@ -1,13 +1,13 @@
 'use client'
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-
+import PageNotFound from "@/components/PageNotFound";
 export default function Profile() {
   const { data: session } = useSession();
   const [profileImage, setProfileImage] = useState(null);
 
   if (!session) {
-    return <p>You need to be logged in to view this page.</p>;
+    return <PageNotFound/>;
   }
 
   // Handle image upload

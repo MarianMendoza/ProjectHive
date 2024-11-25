@@ -1,7 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-
-
 export interface IUser extends Document {
   _id: string;
   imageUrl: string;
@@ -12,17 +10,25 @@ export interface IUser extends Document {
   password: string;
   role: "Student" | "Lecturer" | "Admin"; // Use a union type for better type safety
   approved: boolean; // Indicates whether the user is approved
+  projectAssignedTo:{
+    asStudent: mongoose.Types.ObjectId[];
+    asSupervisor: mongoose.Types.ObjectId[];
+    asSecondReader: mongoose.Types.ObjectId[];
+  };
 }
 
 const UserSchema: Schema = new Schema({
   imageUrl: {type:String, required: false},
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  course: {type: String, required:false},
+  course: {type:String, required: false},
   description:{type:String, required:false},
   password: { type: String, required: true },
   role: { type: String, enum: ["Student", "Lecturer", "Admin"], default: "Student" },
   approved: { type: Boolean, default: false }, // Default to false for non-admin users
+  projectAssignedTo:{
+    asStudent: [{type: mongoose.Types.ObjectId, ref: "Users"}]
+  }
 });
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);

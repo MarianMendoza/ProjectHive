@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectMongo from '../../../lib/mongodb'; // Adjust the path based on your project structure
 import Projects from '../../models/Projects'; // Adjust the path based on your project structure
-
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 // POST: Create a new project
 export async function POST(req: Request) {
     await connectMongo();
@@ -9,12 +10,27 @@ export async function POST(req: Request) {
     const { title, status, visibility, description, files } = await req.json();
 
     try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user){
+            return NextResponse.json({message: "Unauthorized"}, {status: 401});
+        }
+    
+        const userId = session.user.id;
+        if (!userId){
+            return NextResponse.json({message: "User ID not found in the session"},{status: 400});
+        }
         const newProject = new Projects({
             title,
             status,
             visibility,
             description,
             files,
+            projectAssignedTo: {
+                supervisorId: null,
+                secondReaderId: null,
+                studentsId: [],
+                author: userId,
+            },
             createdAt: new Date(),
             updatedAt: new Date(),
         });
