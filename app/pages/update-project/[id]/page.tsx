@@ -11,7 +11,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
     title: "",
-    status: "Available",
+    status: "",
     visibility: "Private",
     description: "",
     files: "",
@@ -45,14 +45,15 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     fetchProject();
   }, [id]);
 
+  
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+    > 
+  ) => { 
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.name == "status" ? e.target.value === "true": e.target.value,
     });
   };
 
@@ -126,9 +127,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
                 required
               >
-                <option value="Available">Available</option>
-                <option value="Unavailable">Unavailable</option>
-                <option value="Archived">Archived</option>
+                <option value="true">Available</option>
+                <option value="false">Unavailable</option>
               </select>
             </div>
 

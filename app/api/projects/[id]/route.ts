@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import connectMongo from "../../../../lib/mongodb";
-import Projects from "../../../models/Projects";  
+import Projects from "../../../models/Projects";
+
+
 
 // GET: Retrieve a project by ID.
 export async function GET(req: Request) {
@@ -9,7 +11,12 @@ export async function GET(req: Request) {
     const id = url.pathname.split("/").pop();
 
     try {
-        const project = await Projects.findById(id);
+        const project = await Projects.findById(id)
+           
+
+        if (!project) {
+            throw new Error("Project not found");
+        }
 
         if (!project) {
             return NextResponse.json({ message: "Project not found" }, { status: 404 });
@@ -21,6 +28,7 @@ export async function GET(req: Request) {
         return NextResponse.json({ message: "Error fetching project" }, { status: 500 });
     }
 }
+
 
 // DELETE: Delete a project by ID
 export async function DELETE(req: Request) {
@@ -48,7 +56,7 @@ export async function DELETE(req: Request) {
 export async function PUT(req: Request) {
     await connectMongo();
 
-    const  id  = req.url.split("/").pop() as string; // Assuming the ID is part of the URL path, e.g., /api/projects/{id}
+    const id = req.url.split("/").pop() as string; // Assuming the ID is part of the URL path, e.g., /api/projects/{id}
     const { title, status, visibility, description, files } = await req.json();
 
     try {
@@ -69,4 +77,3 @@ export async function PUT(req: Request) {
     }
 }
 
-  

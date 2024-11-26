@@ -1,13 +1,15 @@
+import { User } from "./users";
+
 export interface Project {
     _id: string;  
     title: string;
-    status: 'Available' | 'Unavailable' | 'Archived';
-    visibility: 'Private' | 'Public';
+    status: boolean;
+    visibility: 'Private' | 'Public' | 'Archived';
     projectAssignedTo: {
-      supervisorId: string | null,
-      secondReaderId: string | null,
-      studentsId: string[];
-      authorId: string | null;
+      supervisorId: User ; 
+      secondReaderId: User;
+      studentsId: User[];
+      authorId: User;
     };
     description: string;
     files: string;

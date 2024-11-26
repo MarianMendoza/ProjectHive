@@ -2,12 +2,12 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IProjects extends Document {
   title: string;
-  status: "Available" | "Unavailable" | "Archived";
+  status: boolean;
   visibility: "Private" | "Public";
   projectAssignedTo: {
     supervisorId: mongoose.Types.ObjectId | null;
     secondReaderId: mongoose.Types.ObjectId | null;
-    studentsId: mongoose.Types.ObjectId[];
+    studentsId: mongoose.Types.ObjectId[] | null;
     authorId: mongoose.Types.ObjectId| null;
   };
   description: string;
@@ -20,13 +20,13 @@ export interface IProjects extends Document {
 // Define the schema for the projects
 const ProjectsSchema: Schema = new Schema({
   title: { type: String, required: true },
-  status: { type: String, enum: ["Available", "Unavailable", "Archived"], default: "Available" },
+  status: { type: Boolean, required:true},
   visibility: { type: String, enum: ["Private", "Public"], default: "Private" },
   projectAssignedTo: {
-    supervisorId:{ type: mongoose.Types.ObjectId, ref: "User", default:null},
-    secondReaderId:{ type: mongoose.Types.ObjectId, ref: "User", default:null},
-    studentId:{ type: mongoose.Types.ObjectId, ref: "User", default:[]},
-    authorId: {type:mongoose.Types.ObjectId,ref: "User", default: null},
+    supervisorId:{ type: mongoose.Types.ObjectId, ref: "User" },
+    secondReaderId:{ type: mongoose.Types.ObjectId, ref: "User" },
+    studentsId:[{ type: mongoose.Types.ObjectId, ref: "User"}],
+    authorId: {type:mongoose.Types.ObjectId, ref: "User"},
   }, 
   description: { type: String, required: false },
   files: { type: String, required: false },

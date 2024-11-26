@@ -10,11 +10,7 @@ export interface IUser extends Document {
   password: string;
   role: "Student" | "Lecturer" | "Admin"; // Use a union type for better type safety
   approved: boolean; // Indicates whether the user is approved
-  projectAssignedTo:{
-    asStudent: mongoose.Types.ObjectId[];
-    asSupervisor: mongoose.Types.ObjectId[];
-    asSecondReader: mongoose.Types.ObjectId[];
-  };
+
 }
 
 const UserSchema: Schema = new Schema({
@@ -26,9 +22,6 @@ const UserSchema: Schema = new Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ["Student", "Lecturer", "Admin"], default: "Student" },
   approved: { type: Boolean, default: false }, // Default to false for non-admin users
-  projectAssignedTo:{
-    asStudent: [{type: mongoose.Types.ObjectId, ref: "Users"}]
-  }
 });
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);

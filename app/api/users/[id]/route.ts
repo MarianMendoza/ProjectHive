@@ -9,7 +9,8 @@ export async function GET(req: Request){
     const id = url.pathname.split('/').pop();
 
     try{
-        const user = await User.findById(id);
+        const user = await User.findById(id)
+
         if (!user) {
             return NextResponse.json({message: "User not found"});
         }

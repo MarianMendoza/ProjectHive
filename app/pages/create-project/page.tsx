@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -9,7 +8,7 @@ const CreateProjectPage = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: '',
-    status: 'Available',
+    status: false,
     visibility: 'Private',
     description: '',
     files: '',
@@ -19,7 +18,7 @@ const CreateProjectPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.name == "status" ? e.target.value === "true": e.target.value
     });
   };
 
@@ -73,14 +72,13 @@ const CreateProjectPage = () => {
             <select
               id="status"
               name="status"
-              value={formData.status}
+              value={formData.status.toString()}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="Available">Available</option>
-              <option value="Unavailable">Unavailable</option>
-              <option value="Archived">Archived</option>
+              <option value="true">Available</option>
+              <option value="false">Unavailable</option>
             </select>
           </div>
 

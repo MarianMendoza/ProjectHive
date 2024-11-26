@@ -8,3 +8,4 @@ export interface User {
     role: string;
     approved: boolean;
   }
+  

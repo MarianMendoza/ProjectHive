@@ -9,6 +9,7 @@ const ProjectsPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
+
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
@@ -39,10 +40,20 @@ const ProjectsPage = () => {
       const res = await fetch(`../api/projects/${id}`, { method: "DELETE" });
 
       if (res.ok) {
-        setProjects((prevProjects) =>
-          prevProjects.filter((project) => project._id !== id)
-        );
-        setShowModal(false);
+        setProjects((prevProjects) => {
+          const updatedProjects = prevProjects.filter(
+            (project) => project._id !== id
+          );
+
+          if (updatedProjects.length > 0) {
+            setSelectedProject(updatedProjects[0]);
+          } else {
+            setSelectedProject(null);
+          }
+          setShowModal(false);
+
+          return updatedProjects;
+        });
       } else {
         console.error("Failed to delete project");
       }
@@ -67,7 +78,17 @@ const ProjectsPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex items-center mb-6 space-x-4">
+      <div className="flex items-center mb-6 justify-between space-x-4">
+        {/* Left side: Search Bar */}
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search Projects..."
+          className="w-96 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
+        />
+
+        {/* Right side: Create Project Button */}
         {session && (
           <Link
             href={`/pages/create-project`}
@@ -76,14 +97,6 @@ const ProjectsPage = () => {
             Create New Project
           </Link>
         )}
-
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search Projects..."
-          className="w-96 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
-        />
       </div>
 
       {loading && <p>Loading...</p>}
@@ -96,18 +109,32 @@ const ProjectsPage = () => {
               projects.map((project) => (
                 <div
                   key={project._id}
-                  className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-all duration-200"
+                  className="bg-white p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-all duration-200 flex items-center justify-between"
                   onClick={() => handleCardClick(project)}
                 >
-                  <h2 className="text-xl font-semibold text-lime-600">
-                    {project.title}
-                  </h2>
-                  <p className="text-black">
-                    <strong>Status:</strong> {project.status}
-                  </p>
-                  <p className="text-black">
-                    <strong>Visibility:</strong> {project.visibility}
-                  </p>
+                  <div>
+                    <h2 className="text-xl font-semibold text-lime-600">
+                      {project.title}
+                    </h2>
+
+                    <p className="text-black">
+                      <strong>Supervised By:</strong> {project.projectAssignedTo.supervisorId?.name || "Not Assigned"}
+                    </p>
+                  </div>
+
+                  {/* Badge section */}
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`px-3 py-1 text-sm rounded-full ${
+                        project.status
+                          ? "bg-green-100 text-green-600"
+                          : "bg-yellow-100 text-yellow-600"
+                      }`}
+                    >
+                      {project.status ? "Available" : "Unavailable"}
+                    </span>
+                 
+                  </div>
                 </div>
               ))}
           </div>
@@ -120,37 +147,55 @@ const ProjectsPage = () => {
               <h2 className="text-2xl font-semibold text-lime-600">
                 {selectedProject.title}
               </h2>
-              <p>
-                <strong>Status:</strong> {selectedProject.status}
-              </p>
+              <div className="author mb-5 text-lg">
+                <strong>Author:</strong>{" "}
+                {selectedProject.projectAssignedTo?.authorId?.name ||
+                  "Not assigned"}
+              </div>
+
+              <div className="assignments flex justify-between items-center gap-5">
+                <div className="assignment-item flex flex-col">
+                  <strong>Supervisor:</strong>{" "}
+                  {selectedProject.projectAssignedTo?.supervisorId?.name ||
+                    "Not assigned"}
+                </div>
+                <div className="assignment-item flex flex-col">
+                  <strong>Second Reader:</strong>{" "}
+                  {selectedProject.projectAssignedTo?.secondReaderId?.name ||
+                    "Not assigned"}
+                </div>
+                <div className="assignment-item flex flex-col">
+                  <strong>Students:</strong>{" "}
+                  {selectedProject.projectAssignedTo?.studentsId?.length > 0
+                    ? selectedProject.projectAssignedTo.studentsId
+                        .map((student: any) => student.name)
+                        .join(", ")
+                    : "No students assigned"}
+                </div>
+              </div>
+
               <p>
                 <strong>Visibility:</strong> {selectedProject.visibility}
               </p>
+
+              <p>
+                <strong>Status:</strong>
+                {(() => {
+                  if (selectedProject.status === false) {
+                    return "Unavailable";
+                  } else {
+                    return "Available";
+                  }
+                })()}
+              </p>
+
               <p>
                 <strong>Description:</strong>{" "}
                 {selectedProject.description || "No description"}
               </p>
-              <p>
-                <strong>Author:</strong>{" "}
-                {selectedProject.projectAssignedTo?.authorId || "Not assigned"}
-              </p>
-              <p>
-                <strong>Supervisor:</strong>{" "}
-                {selectedProject.projectAssignedTo?.supervisorId || "Not assigned"}
-              </p>
-              <p>
-                <strong>Second Reader:</strong>{" "}
-                {selectedProject.projectAssignedTo?.secondReaderId ||
-                  "Not assigned"}
-              </p>
-              <p>
-                <strong>Students:</strong>{" "}
-                {selectedProject.projectAssignedTo?.studentsId?.length > 0
-                  ? selectedProject.projectAssignedTo.studentsId.join(", ")
-                  : "No students assigned"}
-              </p>
+
               <div className="mt-6 flex gap-4">
-                {session && (
+                {session && selectedProject.projectAssignedTo.authorId._id === session.user.id && (
                   <>
                     <Link
                       href={`/pages/update-project/${selectedProject._id}`}
@@ -169,7 +214,9 @@ const ProjectsPage = () => {
               </div>
             </>
           ) : (
-            <p className="text-gray-500">Select a project to view more details.</p>
+            <p className="text-gray-500">
+              Select a project to view more details.
+            </p>
           )}
         </div>
       </div>
