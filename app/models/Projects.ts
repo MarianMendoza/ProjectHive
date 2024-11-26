@@ -10,6 +10,7 @@ export interface IProjects extends Document {
     studentsId: mongoose.Types.ObjectId[] | null;
     authorId: mongoose.Types.ObjectId| null;
   };
+  applicants: { studentId: mongoose.Types.ObjectId, applicationStatus: "Pending" | "Assigned" | "Rejected"}[];
   description: string;
   files: string;
   createdAt: Date;
@@ -28,6 +29,12 @@ const ProjectsSchema: Schema = new Schema({
     studentsId:[{ type: mongoose.Types.ObjectId, ref: "User"}],
     authorId: {type:mongoose.Types.ObjectId, ref: "User"},
   }, 
+  applicants: [
+    {
+      studentId: {type: mongoose.Types.ObjectId, ref: "User"},
+      applicationStatus: {type: String, enum: ["Pending", "Assigned","Rejected"], default: "Pending"},
+    }
+  ],
   description: { type: String, required: false },
   files: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },

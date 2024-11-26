@@ -12,8 +12,6 @@ export async function GET(req: Request) {
 
     try {
         const project = await Projects.findById(id)
-           
-
         if (!project) {
             throw new Error("Project not found");
         }

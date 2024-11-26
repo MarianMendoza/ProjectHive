@@ -11,6 +11,10 @@ export interface Project {
       studentsId: User[];
       authorId: User;
     };
+    applicants: {
+      studentId: User;
+      applicationStatus: "Pending" | "Assigned" | "Rejected";
+    }[];
     description: string;
     files: string;
     createdAt: string;  

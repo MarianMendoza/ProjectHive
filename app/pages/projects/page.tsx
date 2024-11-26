@@ -13,6 +13,7 @@ const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [applied, setApplied] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -57,6 +58,28 @@ const ProjectsPage = () => {
       } else {
         console.error("Failed to delete project");
       }
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
+  };
+
+  const handleApply = async (id: string) => {
+    try {
+      const res = await fetch(`../api/projects/apply/${id}`, {
+         method: "POST",
+         headers:  {
+          "Content-Type": "application/json",
+         },
+        body: JSON.stringify({id})
+        });
+
+        const data = await res.json();
+      if (res.ok) {
+        setApplied(true);
+      } else {
+        alert(data.message)
+      }
+   
     } catch (error) {
       console.error("Error deleting project:", error);
     }
@@ -118,7 +141,9 @@ const ProjectsPage = () => {
                     </h2>
 
                     <p className="text-black">
-                      <strong>Supervised By:</strong> {project.projectAssignedTo.supervisorId?.name || "Not Assigned"}
+                      <strong>Supervised By:</strong>{" "}
+                      {project.projectAssignedTo.supervisorId?.name ||
+                        "Not Assigned"}
                     </p>
                   </div>
 
@@ -133,7 +158,6 @@ const ProjectsPage = () => {
                     >
                       {project.status ? "Available" : "Unavailable"}
                     </span>
-                 
                   </div>
                 </div>
               ))}
@@ -174,6 +198,15 @@ const ProjectsPage = () => {
                 </div>
               </div>
 
+              {session?.user.role == "Student" && (
+                <button
+                  onClick={() => handleApply(selectedProject._id)}
+                  className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                >
+                  {applied ? "Applied":"Apply"}
+                </button>
+              )}
+
               <p>
                 <strong>Visibility:</strong> {selectedProject.visibility}
               </p>
@@ -195,22 +228,24 @@ const ProjectsPage = () => {
               </p>
 
               <div className="mt-6 flex gap-4">
-                {session && selectedProject.projectAssignedTo.authorId._id === session.user.id && (
-                  <>
-                    <Link
-                      href={`/pages/update-project/${selectedProject._id}`}
-                      className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                    >
-                      ✏️ Edit
-                    </Link>
-                    <button
-                      onClick={() => confirmDelete(selectedProject._id)}
-                      className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
-                    >
-                      🗑️ Delete
-                    </button>
-                  </>
-                )}
+                {session &&
+                  selectedProject.projectAssignedTo.authorId._id ===
+                    session.user.id && (
+                    <>
+                      <Link
+                        href={`/pages/update-project/${selectedProject._id}`}
+                        className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                      >
+                        ✏️ Edit
+                      </Link>
+                      <button
+                        onClick={() => confirmDelete(selectedProject._id)}
+                        className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </>
+                  )}
               </div>
             </>
           ) : (
