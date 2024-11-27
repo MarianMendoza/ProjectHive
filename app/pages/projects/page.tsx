@@ -12,6 +12,7 @@ const ProjectsPage = () => {
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showModalAssign, setAssignShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [applied, setApplied] = useState(false);
 
@@ -22,7 +23,6 @@ const ProjectsPage = () => {
         if (res.ok) {
           const data = await res.json();
           setProjects(data);
-          setSelectedProject(data[0]); // Always get the first item in the list
         } else {
           console.error("Failed to fetch projects");
         }
@@ -32,9 +32,8 @@ const ProjectsPage = () => {
         setLoading(false);
       }
     };
-
     fetchProjects();
-  }, []);
+  }, [session]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -63,26 +62,25 @@ const ProjectsPage = () => {
     }
   };
 
-  const handleApply = async (id: string) => {
+  const handleUnapply = async (id: string) => {};
+
+  const handleApply = async () => {
     try {
-      // console.log(selectedProject?._id);
-      // console.log(session?.user.id);
       const id = selectedProject?._id;
       const res = await fetch(`../api/projects/${id}`, {
-         method: "POST",
-         headers:  {
+        method: "POST",
+        headers: {
           "Content-Type": "application/json",
-         },
-        body: JSON.stringify({id})
-        });
+        },
+        body: JSON.stringify({ id }),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
       if (res.ok) {
         setApplied(true);
       } else {
-        alert(data.message)
+        alert(data.message);
       }
-   
     } catch (error) {
       console.error("Error applying to project:", error);
     }
@@ -100,6 +98,12 @@ const ProjectsPage = () => {
 
   const handleCardClick = (project: Project) => {
     setSelectedProject(project);
+    if (project && session?.user.id) {
+      const isApplied = project.applicants.some(
+        (applicant) => applicant.studentId.toString() === session.user.id
+      );
+      setApplied(isApplied);
+    }
   };
 
   return (
@@ -192,7 +196,19 @@ const ProjectsPage = () => {
                     "Not assigned"}
                 </div>
                 <div className="assignment-item flex flex-col">
-                  <strong>Students:</strong>{" "}
+                  <div className="flex">
+                    <strong>Students:</strong>{" "}
+                    {(session?.user.role === "Lecturer" &&
+                      session?.user.id === selectedProject.projectAssignedTo.authorId._id) && (
+                      <button
+                        onClick={() => setAssignShowModal(true)}
+                        className="px-3 "
+                      >
+                        ✏️
+                      </button>
+                    )}
+                  </div>
+
                   {selectedProject.projectAssignedTo?.studentsId?.length > 0
                     ? selectedProject.projectAssignedTo.studentsId
                         .map((student: any) => student.name)
@@ -201,14 +217,16 @@ const ProjectsPage = () => {
                 </div>
               </div>
 
-              {session?.user.role == "Student" && (
-                <button
-                  onClick={() => handleApply(selectedProject._id)}
-                  className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                >
-                  {applied ? "Applied":"Apply"}
-                </button>
-              )}
+              {session?.user.role == "Student" &&
+                session?.user.id !==
+                  selectedProject.projectAssignedTo.authorId._id && (
+                  <button
+                    onClick={() => handleApply()}
+                    className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                  >
+                    {applied ? "Applied" : "Apply"}
+                  </button>
+                )}
 
               <p>
                 <strong>Visibility:</strong> {selectedProject.visibility}

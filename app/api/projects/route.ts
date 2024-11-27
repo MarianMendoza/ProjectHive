@@ -17,9 +17,17 @@ export async function POST(req: Request) {
         }
     
         const userId = session.user.id;
-        console.log(userId);
+        const userRole = session.user.role;
+        let supervisorId = null;
+
         if (!userId){
             return NextResponse.json({message: "Username not found in the session"},{status: 400});
+        }
+
+        if(userRole == "Lecturer" ){
+            supervisorId = userId;
+        } else{
+            supervisorId = null;
         }
         const newProject = new Projects({
             title,
@@ -28,7 +36,7 @@ export async function POST(req: Request) {
             description,
             files,
             projectAssignedTo: {
-                supervisorId: null,
+                supervisorId,
                 secondReaderId: null,
                 studentsId: [],
                 authorId: userId,
