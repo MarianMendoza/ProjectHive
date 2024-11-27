@@ -22,7 +22,7 @@ export default function Navbar() {
             </svg>
           </button> */}
           <div className="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border md:flex-row md:space-x-12 rtl:space-x-reverse md:mt-0 md:border-0 ">
+            <div className="font-medium flex flex-col p-4 md:p-0 mt-4 border md:flex-row md:space-x-12 rtl:space-x-reverse md:mt-0 md:border-0 ">
               <Link href = "/pages/home" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Home</Link>
               <Link href = "/pages/projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Projects</Link>
               <Link href = "/pages/past-projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Past Projects</Link>
@@ -43,7 +43,7 @@ export default function Navbar() {
               )
               }
             
-            </ul>
+            </div>
           </div>
         </div>
       </nav>

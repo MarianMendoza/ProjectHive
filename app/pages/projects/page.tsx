@@ -65,7 +65,10 @@ const ProjectsPage = () => {
 
   const handleApply = async (id: string) => {
     try {
-      const res = await fetch(`../api/projects/apply/${id}`, {
+      // console.log(selectedProject?._id);
+      // console.log(session?.user.id);
+      const id = selectedProject?._id;
+      const res = await fetch(`../api/projects/${id}`, {
          method: "POST",
          headers:  {
           "Content-Type": "application/json",
@@ -81,7 +84,7 @@ const ProjectsPage = () => {
       }
    
     } catch (error) {
-      console.error("Error deleting project:", error);
+      console.error("Error applying to project:", error);
     }
   };
 
