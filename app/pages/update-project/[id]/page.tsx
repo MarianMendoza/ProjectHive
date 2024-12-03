@@ -19,6 +19,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     files: "",
   });
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [isGroupProject, setIsGroupProject] = useState<boolean>(false); // Toggle for group/individual project
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -27,7 +28,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         const data = await res.json();
 
         if (res.ok) {
-
           setProject(data.project);
           setFormData({
             title: data.project.title,
@@ -37,12 +37,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             applicants: data.project.applicants || [],
             files: data.project.files || "",
           });
-          if (data.project.applicants) {
-            setSelectedStudents(
-              data.project.applicants.map((applicant: { studentId: string }) => applicant.studentId)
-            );
-          }
-
         } else {
           setError(data.message);
         }
@@ -52,8 +46,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         setLoading(false);
       }
     };
-
-
 
     fetchProject();
   }, [id]);
@@ -71,12 +63,29 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   };
 
   const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedIds = Array.from(e.target.selectedOptions, (option) => option.value);
-    setSelectedStudents(selectedIds);
+    const selectedId = e.target.value;
+
+    if (isGroupProject) {
+      // Add to selected students if in group project mode
+      if (selectedId && !selectedStudents.includes(selectedId)) {
+        setSelectedStudents([...selectedStudents, selectedId]);
+      }
+    } else {
+      // Replace selected students if in individual project mode
+      setSelectedStudents(selectedId ? [selectedId] : []);
+    }
   };
 
   const removeStudent = (studentId: string) => {
-    setSelectedStudents(selectedStudents.filter((id) => id !== studentId));
+    setSelectedStudents(selectedStudents.filter((id) => id !== studentId)); // Remove student by ID
+  };
+
+  const handleGroupToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsGroupProject(e.target.checked);
+    if (!e.target.checked) {
+      // Reset to one student if switching to individual project mode
+      setSelectedStudents(selectedStudents.slice(0, 1));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -164,35 +173,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
             <div>
               <label
-                htmlFor="students"
-                className="block text-lg text-gray-700 mb-2"
-              >
-                Students
-              </label>
-              {/* Dropdown to select students */}
-              <select
-                id="students"
-                name="students"
-                value={selectedStudents}
-                multiple
-                onChange={handleStudentChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-              >
-                 {project?.applicants.map((applicant) => (
-                    <option
-                    key={applicant.studentId._id.toString()}
-                    value = {applicant.studentId._id.toString()}
-                    >
-                  {`${applicant.studentId?.name}`}
-                    </option>
-                  ))} 
-
-              </select>
-               
-            </div>
-
-            <div>
-              <label
                 htmlFor="visibility"
                 className="block text-lg text-gray-700 mb-2"
               >
@@ -211,6 +191,84 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               </select>
             </div>
 
+            <div>
+              <label
+                htmlFor="students"
+                className="block text-lg text-gray-700 mb-2"
+              >
+                Select {isGroupProject ? "Students" : "Student"}
+              </label>
+              <select
+                id="students"
+                name="students"
+                value={isGroupProject ? "" : selectedStudents[0] || ""}
+                onChange={handleStudentChange}
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+              >
+                <option value="">
+                  {isGroupProject ? "Select Students" : "Select a Student"}
+                </option>
+                {project?.applicants.map((applicant) => (
+                  <option
+                    key={applicant.studentId._id.toString()}
+                    value={applicant.studentId._id.toString()}
+                  >
+                    {applicant.studentId?.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-span-1">
+              <label
+                htmlFor="groupProject"
+                className="block text-lg text-gray-700 mb-2"
+              >
+                Group Project
+              </label>
+              <input
+                type="checkbox"
+                id="groupProject"
+                name="groupProject"
+                checked={isGroupProject}
+                onChange={handleGroupToggle}
+                className="w-5 h-5"
+              />
+            </div>
+
+            {isGroupProject && (
+              <div>
+                <label className="block text-lg text-gray-700 mb-2">
+                  Selected Students
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {selectedStudents.map((studentId) => {
+                    const student = project?.applicants.find(
+                      (applicant) =>
+                        applicant.studentId._id.toString() === studentId
+                    );
+                    return student ? (
+                      <div
+                        key={studentId}
+                        className="flex items-center bg-lime-700 px-4 py-2 rounded-full mb-2"
+                      >
+                        <span className="mr-2 text-white">
+                          {student.studentId?.name}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-red-600"
+                          onClick={() => removeStudent(studentId)}
+                        >
+                          ❌
+                        </button>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="col-span-2">
               <label
                 htmlFor="description"
@@ -227,21 +285,35 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 rows={4}
               />
             </div>
+          </div>
 
-            <div className="col-span-2">
+          <div className="col-span-2">
+            <label htmlFor="files" className="block text-lg text-gray-700 mb-2">
+              Upload Files
+            </label>
+            <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
               <label
                 htmlFor="files"
-                className="block text-lg text-gray-700 mb-2"
+                className="cursor-pointer flex flex-col items-center justify-center"
               >
-                Files
+                <div className="flex flex-col items-center mb-2">
+                  
+                  <span role="img" aria-label="file" className="text-2xl">
+                    📁
+                  </span>
+                </div>
+                <span className="text-sm text-gray-500">
+                  Drag & drop files here or{" "}
+                  <span className="text-lime-600 font-semibold">browse</span>
+                </span>
               </label>
               <input
-                type="text"
+                type="file"
                 id="files"
                 name="files"
-                value={formData.files}
+                multiple
                 onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                className="hidden"
               />
             </div>
           </div>

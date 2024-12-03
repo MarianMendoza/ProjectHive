@@ -98,7 +98,6 @@ const ProjectsPage = () => {
 
   const handleCardClick = (project: Project) => {
     setSelectedProject(project);
-    console.log(project.status);
     if (project && session?.user.id) {
       const isApplied = project.applicants.some(
         (applicant) => applicant.studentId.toString() === session.user.id

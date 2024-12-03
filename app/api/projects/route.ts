@@ -82,8 +82,6 @@ export async function GET(req: Request) {
             path: "applicants.studentId",
             select: 'name'
         });
-
-        console.log(projects)
         
 
         return NextResponse.json(projects, { status: 200 });

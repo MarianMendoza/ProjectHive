@@ -40,7 +40,6 @@ const ProjectsSchema: Schema = new Schema({
     {
       studentId: {type: mongoose.Types.ObjectId, ref: "User"},
       applicationStatus: {type: String, enum: ["Pending", "Assigned","Rejected"], default: "Pending"},
-      _id: false
     },
   ],
   description: { type: String, required: false },
