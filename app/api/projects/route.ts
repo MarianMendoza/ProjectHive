@@ -41,7 +41,6 @@ export async function POST(req: Request) {
                 studentsId: [],
                 authorId: userId,
             },
-        
             createdAt: new Date(),
             updatedAt: new Date(),
         });
@@ -78,7 +77,13 @@ export async function GET(req: Request) {
         .populate({
             path: 'projectAssignedTo.authorId',
             select: 'name'
+        })
+        .populate({
+            path: "applicants.studentId",
+            select: 'name'
         });
+
+        console.log(projects)
         
 
         return NextResponse.json(projects, { status: 200 });

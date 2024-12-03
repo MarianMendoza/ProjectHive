@@ -12,7 +12,10 @@ export async function GET(req: Request) {
     const id = url.pathname.split("/").pop();
 
     try {
-        const project = await Projects.findById(id)
+        const project = await Projects.findById(id).populate({
+            path: "applicants.studentId",
+            select: 'name'
+        });
         if (!project) {
             throw new Error("Project not found");
         }
@@ -56,12 +59,12 @@ export async function PUT(req: Request) {
     await connectMongo();
 
     const id = req.url.split("/").pop() as string; // Assuming the ID is part of the URL path, e.g., /api/projects/{id}
-    const { title, status, visibility, description, files } = await req.json();
+    const { title, status, visibility, description, files,projectAssignedTo } = await req.json();
 
     try {
         const updatedProject = await Projects.findByIdAndUpdate(
             id,
-            { title, status, visibility, description, files, updatedAt: new Date() },
+            { title, status, visibility, description, files, projectAssignedTo, updatedAt: new Date() },
             { new: true, runValidators: true }
         );
 

@@ -20,6 +20,10 @@ export interface IProjects extends Document {
   updatedAt: Date;
   expiredAt: Date;
 }
+// When a project does not have a supervisorID, and the author is a student, the student will not be able to "Apply", their id
+// will automatically add to the list of applicants. When the project has been adopted by a lecturer, the invite will immediately assign 
+//the author student as the applicant and the project will not be available to other student. Their others projects will remain unapplicable and the project will remain as an "Orphan".
+//The author student will be able to edit it as normal. However no student will be able to apply to another student project. This will be assumed.
 
 // Define the schema for the projects
 const ProjectsSchema: Schema = new Schema({
@@ -36,8 +40,8 @@ const ProjectsSchema: Schema = new Schema({
     {
       studentId: {type: mongoose.Types.ObjectId, ref: "User"},
       applicationStatus: {type: String, enum: ["Pending", "Assigned","Rejected"], default: "Pending"},
+      _id: false
     },
-    {_id: false}
   ],
   description: { type: String, required: false },
   files: { type: String, required: false },

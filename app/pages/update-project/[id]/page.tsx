@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { IProjects } from "@/app/models/Projects";
 
 const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const router = useRouter();
-  const [project, setProject] = useState<any>(null);
+  const [project, setProject] = useState<IProjects | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
@@ -14,8 +15,10 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     status: "",
     visibility: "Private",
     description: "",
+    applicants: [],
     files: "",
   });
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -24,14 +27,22 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         const data = await res.json();
 
         if (res.ok) {
+
           setProject(data.project);
           setFormData({
             title: data.project.title,
             status: data.project.status,
             visibility: data.project.visibility,
             description: data.project.description || "",
+            applicants: data.project.applicants || [],
             files: data.project.files || "",
           });
+          if (data.project.applicants) {
+            setSelectedStudents(
+              data.project.applicants.map((applicant: { studentId: string }) => applicant.studentId)
+            );
+          }
+
         } else {
           setError(data.message);
         }
@@ -42,23 +53,42 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       }
     };
 
+
+
     fetchProject();
   }, [id]);
 
-  
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    > 
-  ) => { 
+    >
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.name == "status" ? e.target.value === "true": e.target.value,
+      [e.target.name]:
+        e.target.name === "status" ? e.target.value === "true" : e.target.value,
     });
+  };
+
+  const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedIds = Array.from(e.target.selectedOptions, (option) => option.value);
+    setSelectedStudents(selectedIds);
+  };
+
+  const removeStudent = (studentId: string) => {
+    setSelectedStudents(selectedStudents.filter((id) => id !== studentId));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const updatedData = {
+      ...formData,
+      projectAssignedTo: {
+        ...project?.projectAssignedTo,
+        studentsId: selectedStudents,
+      },
+    };
 
     try {
       const response = await fetch(`../../api/projects/${id}`, {
@@ -66,13 +96,13 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updatedData),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        router.push("../projects"); // Redirect to the projects page after successful update
+        router.push("../projects");
       } else {
         setError(data.message);
       }
@@ -86,7 +116,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     return <div className="text-center py-8 text-red-500">{error}</div>;
 
   return (
-    <div className="container mx-auto p-10 flex items-center justify-center ">
+    <div className="container mx-auto p-10 flex items-center justify-center">
       <div className="w-full">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
           Update Project
@@ -130,6 +160,35 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 <option value="true">Available</option>
                 <option value="false">Unavailable</option>
               </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="students"
+                className="block text-lg text-gray-700 mb-2"
+              >
+                Students
+              </label>
+              {/* Dropdown to select students */}
+              <select
+                id="students"
+                name="students"
+                value={selectedStudents}
+                multiple
+                onChange={handleStudentChange}
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+              >
+                 {project?.applicants.map((applicant) => (
+                    <option
+                    key={applicant.studentId._id.toString()}
+                    value = {applicant.studentId._id.toString()}
+                    >
+                  {`${applicant.studentId?.name}`}
+                    </option>
+                  ))} 
+
+              </select>
+               
             </div>
 
             <div>

@@ -98,6 +98,7 @@ const ProjectsPage = () => {
 
   const handleCardClick = (project: Project) => {
     setSelectedProject(project);
+    console.log(project.status);
     if (project && session?.user.id) {
       const isApplied = project.applicants.some(
         (applicant) => applicant.studentId.toString() === session.user.id
@@ -219,10 +220,11 @@ const ProjectsPage = () => {
 
               {session?.user.role == "Student" &&
                 session?.user.id !==
-                  selectedProject.projectAssignedTo.authorId._id && (
+                  selectedProject.projectAssignedTo.authorId._id && selectedProject.status == true&& (
                   <button
                     onClick={() => handleApply()}
                     className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                    disabled={applied}
                   >
                     {applied ? "Applied" : "Apply"}
                   </button>
