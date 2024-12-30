@@ -8,10 +8,9 @@ export default function StudentDashboard() {
   const [assignedProject, setAssignedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [deliverables, setDeliverables] = useState({
-    outlineDocument: "",
-    extendedAbstract: "",
-    finalProjectReport: "",
-    deadline: "",
+    outlineDocument: { file: "", uploadedAt: "", deadline: "" },
+    extendedAbstract: { file: "", uploadedAt: "", deadline: "" },
+    finalProjectReport: { file: "", uploadedAt: "", deadline: "" },
   });
   const [notifications, setNotifications] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,11 +46,11 @@ export default function StudentDashboard() {
 
           if (assignedProject) {
             // Fetch deliverables from database
-            const deliverablesRes = await fetch(`../api/deliverables/${session.user.id}`);
+            const deliverablesRes = await fetch(`../api/deliverables?projectId=${assignedProject._id}`);
             const deliverablesData = await deliverablesRes.json();
 
             if (deliverablesRes.ok) {
-              setDeliverables(deliverablesData);
+              setDeliverables(deliverablesData.deliverables);
             } else {
               console.log("No deliverables found.");
             }
@@ -79,35 +78,23 @@ export default function StudentDashboard() {
     fetchProjects();
   }, [session?.user?.id]);
 
-  const handleCreateProject = async () => {
-    const title = prompt("Enter project title:");
-    const description = prompt("Enter project description:");
+  const handleSaveChanges = async () => {
+    if (!assignedProject) return;
 
-    if (title && description && session?.user?.id) {
-      try {
-        const res = await fetch("../api/projects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title,
-            description,
-            projectAssignedTo: {
-              authorId: session.user.id,
-              studentsId: [session.user.id],
-            },
-            applicants: [],
-          }),
-        });
+    try {
+      const res = await fetch(`../api/deliverables?projectId=${assignedProject._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(deliverables),
+      });
 
-        if (res.ok) {
-          alert("Project created successfully.");
-          window.location.reload();
-        } else {
-          alert("Failed to create project.");
-        }
-      } catch (error) {
-        console.error("Error creating project", error);
+      if (res.ok) {
+        alert("Deliverables updated successfully.");
+      } else {
+        alert("Failed to update deliverables.");
       }
+    } catch (error) {
+      console.error("Error updating deliverables", error);
     }
   };
 
@@ -139,7 +126,13 @@ export default function StudentDashboard() {
                     type="file"
                     className="w-full p-2 border border-gray-300 rounded-md"
                     onChange={(e) =>
-                      setDeliverables({ ...deliverables, outlineDocument: e.target.value })
+                      setDeliverables({
+                        ...deliverables,
+                        outlineDocument: {
+                          ...deliverables.outlineDocument,
+                          file: e.target.value,
+                        },
+                      })
                     }
                   />
                 </div>
@@ -149,7 +142,13 @@ export default function StudentDashboard() {
                     type="file"
                     className="w-full p-2 border border-gray-300 rounded-md"
                     onChange={(e) =>
-                      setDeliverables({ ...deliverables, extendedAbstract: e.target.value })
+                      setDeliverables({
+                        ...deliverables,
+                        extendedAbstract: {
+                          ...deliverables.extendedAbstract,
+                          file: e.target.value,
+                        },
+                      })
                     }
                   />
                 </div>
@@ -159,7 +158,13 @@ export default function StudentDashboard() {
                     type="file"
                     className="w-full p-2 border border-gray-300 rounded-md"
                     onChange={(e) =>
-                      setDeliverables({ ...deliverables, finalProjectReport: e.target.value })
+                      setDeliverables({
+                        ...deliverables,
+                        finalProjectReport: {
+                          ...deliverables.finalProjectReport,
+                          file: e.target.value,
+                        },
+                      })
                     }
                   />
                 </div>
@@ -168,31 +173,21 @@ export default function StudentDashboard() {
                   <input
                     type="date"
                     className="w-full p-2 border border-gray-300 rounded-md"
-                    value={deliverables.deadline}
+                    value={deliverables.outlineDocument.deadline}
                     onChange={(e) =>
-                      setDeliverables({ ...deliverables, deadline: e.target.value })
+                      setDeliverables({
+                        ...deliverables,
+                        outlineDocument: {
+                          ...deliverables.outlineDocument,
+                          deadline: e.target.value,
+                        },
+                      })
                     }
                   />
                 </div>
                 <button
                   className="bg-lime-600 text-white px-6 py-2 rounded-md hover:bg-lime-700"
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(`../api/deliverables/${session?.user?.id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(deliverables),
-                      });
-
-                      if (res.ok) {
-                        alert("Deliverables updated successfully.");
-                      } else {
-                        alert("Failed to update deliverables.");
-                      }
-                    } catch (error) {
-                      console.error("Error updating deliverables", error);
-                    }
-                  }}
+                  onClick={handleSaveChanges}
                 >
                   Save Changes
                 </button>
@@ -201,7 +196,6 @@ export default function StudentDashboard() {
           </div>
         ) : (
           <div>
-
             <h3 className="text-xl font-bold text-gray-800 mb-4">Applied Projects</h3>
             {projects.length > 0 ? (
               <ul className="space-y-4">
