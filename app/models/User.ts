@@ -10,6 +10,7 @@ export interface IUser extends Document {
   password: string;
   role: "Student" | "Lecturer" | "Admin"; // Use a union type for better type safety
   approved: boolean; // Indicates whether the user is approved
+  assigned: boolean;
 
 }
 
@@ -21,6 +22,7 @@ const UserSchema: Schema = new Schema({
   description:{type:String, required:false},
   password: { type: String, required: true },
   role: { type: String, enum: ["Student", "Lecturer", "Admin"], default: "Student" },
+  assigned: {type:Boolean, default: false},
   approved: { type: Boolean, default: false }, // Default to false for non-admin users
 });
 

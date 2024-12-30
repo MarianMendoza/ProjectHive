@@ -2,11 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { User } from "@/types/users";
+import { Project } from "@/types/projects";
+
 import Link from "next/link";
 
 const UsersPage = () => {
   const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
+  const [assignedProject, setAssignedProject] = useState<User[]>([]);
   const [lecturers, setLecturers] = useState<User[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showDeclineModal, setShowDeclineModal] = useState<boolean>(false);
@@ -16,14 +19,30 @@ const UsersPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("../api/users");
-        const data = await response.json();
-        setUsers(data);
+        const usersResponse = await fetch("../api/users");
+        const usersData = await usersResponse.json();
         setLecturers(
-          data.filter(
+          usersData.filter(
             (user: User) => user.role === "Lecturer" && !user.approved
           )
         );
+
+        const projectsResponse = await fetch("../api/projects");
+        const projectsData = await projectsResponse.json();
+
+        const usersWithProjects = usersData.map((user: User) => {
+          // Find the project assigned to the user
+          const assignedProject = projectsData.find((project: Project) =>
+            project.projectAssignedTo.studentsId.some((student: User) => student._id === user._id) 
+          );
+        
+        
+          return {
+            ...user,
+            assignedProject: assignedProject ? assignedProject.title : null,
+          };
+        });
+        setUsers(usersWithProjects);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -124,6 +143,9 @@ const UsersPage = () => {
                 <p className="text-gray-600 text-sm">
                   {user.course || "No Course"}
                 </p>
+                <p className="text-gray-600 text-sm">
+                {user.assignedProject ? `Project: ${user.assignedProject}` : "No Projects Assigned"}
+                </p>  
               </div>
 
               <span
@@ -139,7 +161,7 @@ const UsersPage = () => {
               {session?.user?.role === "Admin" && (
                 <div className="flex space-x-2">
                   {/* Disable delete and edit buttons for the current logged-in user */}
-                  {user._id !== session.user.id &&  (
+                  {user._id !== session.user.id && (
                     <>
                       <Link
                         key={user._id}
@@ -150,13 +172,12 @@ const UsersPage = () => {
                       </Link>
                       {user.role !== "Admin" && (
                         <button
-                        onClick={() => setShowModal(true)}
-                        className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
-                      >
-                        🗑️ Delete
-                      </button>
+                          onClick={() => setShowModal(true)}
+                          className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
+                        >
+                          🗑️ Delete
+                        </button>
                       )}
-                      
                     </>
                   )}
                 </div>
@@ -184,7 +205,9 @@ const UsersPage = () => {
                 >
                   <div className=" flex-col sm:items-center">
                     <h3 className="font-semibold mb-2">{lecturer.name}</h3>
-                    <p className="flex text-gray-500 text-sm">{lecturer.email}</p>
+                    <p className="flex text-gray-500 text-sm">
+                      {lecturer.email}
+                    </p>
                   </div>
                   <div className="space-x-2 mt-2 sm:mt-0">
                     <button

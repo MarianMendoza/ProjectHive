@@ -7,5 +7,8 @@ export interface User {
     description: string;
     role: string;
     approved: boolean;
+    assigned: boolean;
+    assignedProject?: string;
+
   }
   

@@ -100,7 +100,7 @@ const ProjectsPage = () => {
     setSelectedProject(project);
     if (project && session?.user.id) {
       const isApplied = project.applicants.some(
-        (applicant) => applicant.studentId.toString() === session.user.id
+        (applicant) => applicant.studentId === session.user.id
       );
       setApplied(isApplied);
     }

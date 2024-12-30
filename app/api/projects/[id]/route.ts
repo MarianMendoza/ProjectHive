@@ -53,31 +53,68 @@ export async function DELETE(req: Request) {
     }
 }
 
-
-// PUT: Update a project by ID
+//PUT: update project id
 export async function PUT(req: Request) {
     await connectMongo();
 
-    const id = req.url.split("/").pop() as string; // Assuming the ID is part of the URL path, e.g., /api/projects/{id}
-    const { title, status, visibility, description, files,projectAssignedTo } = await req.json();
+    const id = req.url.split("/").pop() as string; 
+    const { title, status, visibility, description, files, projectAssignedTo, applicants } = await req.json();
 
     try {
-        const updatedProject = await Projects.findByIdAndUpdate(
-            id,
-            { title, status, visibility, description, files, projectAssignedTo, updatedAt: new Date() },
-            { new: true, runValidators: true }
-        );
+        const assignedStudentsIds = projectAssignedTo?.studentsId || []; // Ensure it matches `studentsId` field
 
-        if (!updatedProject) {
-            return NextResponse.json({ message: "Project not found" }, { status: 404 });
+        if (assignedStudentsIds.length > 0) {
+            const normalizedAssignedIds = assignedStudentsIds.map((id: string) => new mongoose.Types.ObjectId(id));
+            await Projects.updateMany(
+                { _id: { $ne: id } }, 
+                { $pull: { applicants: { studentId: { $in: normalizedAssignedIds } } } }
+            );
+
+            const updatedApplicants = applicants.map((applicant: any) => {
+                const studentId = applicant.studentId._id || applicant.studentId;
+                if (normalizedAssignedIds.some((assignedId: mongoose.Types.ObjectId) => assignedId.equals(studentId))) {
+                    return { ...applicant, applicationStatus: "Assigned" };
+                }
+                return applicant;
+            });
+
+            const updatedProject = await Projects.findByIdAndUpdate(
+                id,
+                {
+                    title,
+                    status,
+                    visibility,
+                    description,
+                    files,
+                    projectAssignedTo: {
+                        ...projectAssignedTo,
+                        studentsId: normalizedAssignedIds,
+                    },
+                    applicants: updatedApplicants,
+                    updatedAt: new Date(),
+                },
+                { new: true, runValidators: true }
+            );
+
+            if (!updatedProject) {
+                return NextResponse.json({ message: "Project not found" }, { status: 404 });
+            }
+
+            return NextResponse.json(
+                { message: "Project updated successfully", project: updatedProject },
+                { status: 200 }
+            );
+        } else {
+            return NextResponse.json({ message: "No students assigned to the project" }, { status: 400 });
         }
-
-        return NextResponse.json({ message: "Project updated successfully", project: updatedProject }, { status: 200 });
     } catch (error) {
         console.error("Error updating project:", error);
         return NextResponse.json({ message: "Error updating project" }, { status: 400 });
     }
 }
+
+
+
 
 //POST: Add an applicant id into project with the session.user.id
 export async function POST(req: Request) {
@@ -106,6 +143,12 @@ export async function POST(req: Request) {
             (applicant: { studentId: mongoose.Types.ObjectId; applicationStatus: "Pending" | "Assigned" | "Rejected" }) =>
                 applicant.studentId.toString() === session.user.id
         );
+
+        const existingProject = await Projects.findOne({ "projectAssignedTo": session.user.id });
+
+        if (existingProject) {
+            return NextResponse.json({ message: "You are already assigned to another project." }, { status: 400 });
+        }
 
         if (alreadyApplied) {
             return NextResponse.json({ message: "You have already applied for this project." }, { status: 400 });

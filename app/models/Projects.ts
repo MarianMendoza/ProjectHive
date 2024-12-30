@@ -14,6 +14,7 @@ export interface IProjects extends Document {
     studentId: mongoose.Types.ObjectId, 
     applicationStatus: "Pending" | "Assigned" | "Rejected"
   }[];
+  //Queue FIFO, lecturer dashboard
   description: string;
   files: string;
   createdAt: Date;
