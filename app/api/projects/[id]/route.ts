@@ -63,50 +63,42 @@ export async function PUT(req: Request) {
     try {
         const assignedStudentsIds = projectAssignedTo?.studentsId || []; // Ensure it matches `studentsId` field
 
-        if (assignedStudentsIds.length > 0) {
-            const normalizedAssignedIds = assignedStudentsIds.map((id: string) => new mongoose.Types.ObjectId(id));
-            await Projects.updateMany(
-                { _id: { $ne: id } }, 
-                { $pull: { applicants: { studentId: { $in: normalizedAssignedIds } } } }
-            );
+        const normalizedAssignedIds = assignedStudentsIds.map((id: string) => new mongoose.Types.ObjectId(id));
 
-            const updatedApplicants = applicants.map((applicant: any) => {
-                const studentId = applicant.studentId._id || applicant.studentId;
-                if (normalizedAssignedIds.some((assignedId: mongoose.Types.ObjectId) => assignedId.equals(studentId))) {
-                    return { ...applicant, applicationStatus: "Assigned" };
-                }
-                return applicant;
-            });
-
-            const updatedProject = await Projects.findByIdAndUpdate(
-                id,
-                {
-                    title,
-                    status,
-                    visibility,
-                    description,
-                    files,
-                    projectAssignedTo: {
-                        ...projectAssignedTo,
-                        studentsId: normalizedAssignedIds,
-                    },
-                    applicants: updatedApplicants,
-                    updatedAt: new Date(),
-                },
-                { new: true, runValidators: true }
-            );
-
-            if (!updatedProject) {
-                return NextResponse.json({ message: "Project not found" }, { status: 404 });
+        const updatedApplicants = applicants.map((applicant: any) => {
+            const studentId = applicant.studentId._id || applicant.studentId;
+            if (normalizedAssignedIds.some((assignedId: mongoose.Types.ObjectId) => assignedId.equals(studentId))) {
+                return { ...applicant, applicationStatus: "Assigned" };
             }
+            return applicant;
+        });
 
-            return NextResponse.json(
-                { message: "Project updated successfully", project: updatedProject },
-                { status: 200 }
-            );
-        } else {
-            return NextResponse.json({ message: "No students assigned to the project" }, { status: 400 });
+        const updatedProject = await Projects.findByIdAndUpdate(
+            id,
+            {
+                title,
+                status,
+                visibility,
+                description,
+                files,
+                projectAssignedTo: {
+                    ...projectAssignedTo,
+                    studentsId: normalizedAssignedIds,
+                },
+                applicants: updatedApplicants,
+                updatedAt: new Date(),
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedProject) {
+            return NextResponse.json({ message: "Project not found" }, { status: 404 });
         }
+
+        return NextResponse.json(
+            { message: "Project updated successfully", project: updatedProject },
+            { status: 200 }
+        );
     } catch (error) {
         console.error("Error updating project:", error);
         return NextResponse.json({ message: "Error updating project" }, { status: 400 });

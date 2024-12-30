@@ -14,7 +14,6 @@ const ProjectsPage = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showModalAssign, setAssignShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
-  const [applied, setApplied] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -22,7 +21,17 @@ const ProjectsPage = () => {
         const res = await fetch("../api/projects");
         if (res.ok) {
           const data = await res.json();
-          setProjects(data);
+
+          const filteredProjects = data.filter((project: Project)=> {
+            if (project.visibility === "Private"){
+              return project.projectAssignedTo.authorId?._id === session?.user.id;
+            }
+            return true;
+          })
+
+          
+
+          setProjects(filteredProjects);
         } else {
           console.error("Failed to fetch projects");
         }
@@ -62,7 +71,6 @@ const ProjectsPage = () => {
     }
   };
 
-  const handleUnapply = async (id: string) => {};
 
   const handleApply = async () => {
     try {
@@ -77,7 +85,7 @@ const ProjectsPage = () => {
 
       const data = await res.json();
       if (res.ok) {
-        setApplied(true);
+        alert("Applied Successfully");
       } else {
         alert(data.message);
       }
@@ -98,12 +106,6 @@ const ProjectsPage = () => {
 
   const handleCardClick = (project: Project) => {
     setSelectedProject(project);
-    if (project && session?.user.id) {
-      const isApplied = project.applicants.some(
-        (applicant) => applicant.studentId === session.user.id
-      );
-      setApplied(isApplied);
-    }
   };
 
   return (
@@ -219,13 +221,17 @@ const ProjectsPage = () => {
 
               {session?.user.role == "Student" &&
                 session?.user.id !==
-                  selectedProject.projectAssignedTo.authorId._id && selectedProject.status == true&& (
+                  selectedProject.projectAssignedTo.authorId._id && selectedProject.status == true&& selectedProject.visibility !== "Private" && (
                   <button
                     onClick={() => handleApply()}
                     className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                    disabled={applied}
+                    disabled={selectedProject.applicants.some(
+                      (applicant) => applicant.studentId._id  === session.user.id
+                    )}
                   >
-                    {applied ? "Applied" : "Apply"}
+                    {selectedProject.applicants.some(
+                      (applicants) => applicants.studentId._id === session.user.id
+                    )? "Applied": "Apply"}
                   </button>
                 )}
 

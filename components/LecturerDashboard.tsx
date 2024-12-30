@@ -1,16 +1,20 @@
-"use client"
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+"use client";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Project } from "@/types/projects";
 
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
   const [notifications, setNotifications] = useState([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [loadingProjects, setLoadingProjects] = useState(true);
 
   useEffect(() => {
     const fetchApprovalStatus = async () => {
-      if (status === 'authenticated' && session?.user?.id) {
+      if (status === "authenticated" && session?.user?.id) {
         try {
           const response = await fetch(`../../api/users/${session.user.id}`);
           const data = await response.json();
@@ -18,11 +22,11 @@ export default function LecturerDashboard() {
           if (response.ok) {
             setIsApproved(data.user.approved); // Assumes API response has an `approved` field
           } else {
-            console.error('Error fetching approval status:', data.message);
+            console.error("Error fetching approval status:", data.message);
             setIsApproved(false); // Default to false on error
           }
         } catch (error) {
-          console.error('Error fetching approval status:', error);
+          console.error("Error fetching approval status:", error);
           setIsApproved(false); // Default to false on fetch error
         }
       }
@@ -33,7 +37,7 @@ export default function LecturerDashboard() {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      if (status === 'authenticated' && session?.user?.id) {
+      if (status === "authenticated" && session?.user?.id) {
         try {
           const res = await fetch(`/api/notifications/${session.user.id}`);
           const data = await res.json();
@@ -41,10 +45,10 @@ export default function LecturerDashboard() {
           if (res.ok) {
             setNotifications(data.notifications);
           } else {
-            console.error('Error fetching notifications:', data.message);
+            console.error("Error fetching notifications:", data.message);
           }
         } catch (error) {
-          console.error('Error fetching notifications:', error);
+          console.error("Error fetching notifications:", error);
         }
       }
       setLoadingNotifications(false);
@@ -53,25 +57,59 @@ export default function LecturerDashboard() {
     fetchNotifications();
   }, [session, status]);
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (status === "authenticated" && session?.user?.id) {
+        try {
+          const res = await fetch("../api/projects");
+
+          if (res.ok) {
+            const data = await res.json();
+
+            const filteredProjects = data.filter((project: Project) => {
+              if (project.visibility === "Private") {
+                return (
+                  project.projectAssignedTo.authorId?._id === session?.user.id
+                );
+              }
+              return true;
+            });
+
+            setProjects(filteredProjects);
+          } else {
+            console.error("Error fetching projects");
+          }
+        } catch (error) {
+          console.error("Error fetching projects");
+        }
+      }
+      setLoadingProjects(false);
+    };
+
+    fetchProjects();
+  }, [session, status]);
+
   const markAsRead = async (id) => {
     try {
       const res = await fetch(`/api/notifications/${id}/read`, {
-        method: 'PUT',
+        method: "PUT",
       });
 
       if (res.ok) {
-        // setNotifications(notifications.map((notif) => 
-        //   notif._id === id ? { ...notif, read: true } : notif
-        // ));
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            notif._id === id ? { ...notif, read: true } : notif
+          )
+        );
       } else {
-        console.error('Error marking notification as read');
+        console.error("Error marking notification as read");
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error("Error marking notification as read:", error);
     }
   };
 
-  if (status === 'loading') {   
+  if (status === "loading") {
     return (
       <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
         Loading your dashboard...
@@ -79,7 +117,7 @@ export default function LecturerDashboard() {
     );
   }
 
-  if (status === 'unauthenticated') {
+  if (status === "unauthenticated") {
     return (
       <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-red-600">
         You are not logged in. Please sign in to access your dashboard.
@@ -96,40 +134,78 @@ export default function LecturerDashboard() {
   }
 
   return (
-    <div className="mt-10 text-center">
+    <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       {isApproved ? (
         <>
-          <h2 className="text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Welcome, this is your lecturer dashboard.
-          </h2>
+          <div className="col-span-3 flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold leading-9 tracking-tight text-gray-900">
+              Welcome to Your Dashboard
+            </h2>
+            <Link
+              href="/pages/create-project"
+              className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+            >
+              Create New Project
+            </Link>
+          </div>
 
-          <div className="mt-5">
-            <h3 className="text-xl font-bold">Notifications:</h3>
+          <div className="bg-white p-6 rounded-lg shadow-md col-span-2">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Your Projects
+            </h3>
+            {loadingProjects ? (
+              <p>Loading projects...</p>
+            ) : projects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {projects.map((project) => (
+                  <div
+                    key={project._id}
+                    className="bg-gray-50 p-4 rounded-lg shadow hover:shadow-md transition"
+                  >
+                    <h4 className="text-lg font-semibold text-lime-600">
+                      {project.title}
+                    </h4>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No projects found.</p>
+            )}
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-md col-span-1">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Notifications
+            </h3>
             {loadingNotifications ? (
               <p>Loading notifications...</p>
-            ) : (
-              <ul>
-                {notifications.length === 0 ? (
-                  <li>No new notifications</li>
-                ) : (
-                  notifications.map((notification) => (
-                    <li
-                      key={notification._id}
-                      className={notification.read ? 'text-gray-500' : 'font-bold'}
-                    >
-                      {notification.message}
+            ) : notifications.length > 0 ? (
+              <ul className="space-y-3">
+                {notifications.map((notification) => (
+                  <li
+                    key={notification._id}
+                    className={`p-3 rounded-lg shadow-md ${
+                      notification.read
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>{notification.message}</span>
                       {!notification.read && (
                         <button
                           onClick={() => markAsRead(notification._id)}
-                          className="ml-2 text-blue-500"
+                          className="text-blue-500 hover:underline"
                         >
                           Mark as read
                         </button>
                       )}
-                    </li>
-                  ))
-                )}
+                    </div>
+                  </li>
+                ))}
               </ul>
+            ) : (
+              <p>No new notifications</p>
             )}
           </div>
         </>
