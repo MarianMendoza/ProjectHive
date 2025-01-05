@@ -9,10 +9,10 @@ const ProjectsPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("All");
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showModalAssign, setAssignShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,14 +22,33 @@ const ProjectsPage = () => {
         if (res.ok) {
           const data = await res.json();
 
-          const filteredProjects = data.filter((project: Project)=> {
-            if (project.visibility === "Private"){
-              return project.projectAssignedTo.authorId?._id === session?.user.id;
+          const filteredProjects = data.filter((project: Project) => {
+            // Filter based on visibility (Private projects only visible to the author or assigned users)
+            if (project.visibility === "Private") {
+              if (project.projectAssignedTo.authorId?._id !== session?.user.id &&
+                  !project.projectAssignedTo?.studentsId.some(
+                    (student) => student._id === session?.user.id
+                  )
+              ) {
+                return false; // If the project is private, only show if the user is the author or assigned student
+              }
             }
-            return true;
-          })
 
-          
+            // Filter based on search query
+            const matchesSearchQuery =
+              project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (project.projectAssignedTo?.authorId?.name
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase()));
+
+            // Filter based on status
+            const matchesStatusFilter =
+              statusFilter === "All" ||
+              (statusFilter === "Open" && project.status) ||
+              (statusFilter === "Closed" && !project.status);
+
+            return matchesSearchQuery && matchesStatusFilter;
+          });
 
           setProjects(filteredProjects);
         } else {
@@ -42,7 +61,7 @@ const ProjectsPage = () => {
       }
     };
     fetchProjects();
-  }, [session]);
+  }, [session, searchQuery, statusFilter]); // Dependency array to re-run effect on searchQuery or statusFilter change
 
   const handleDelete = async (id: string) => {
     try {
@@ -68,29 +87,6 @@ const ProjectsPage = () => {
       }
     } catch (error) {
       console.error("Error deleting project:", error);
-    }
-  };
-
-
-  const handleApply = async () => {
-    try {
-      const id = selectedProject?._id;
-      const res = await fetch(`../api/projects/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        alert("Applied Successfully");
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      console.error("Error applying to project:", error);
     }
   };
 
@@ -120,15 +116,27 @@ const ProjectsPage = () => {
           className="w-96 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
         />
 
-        {/* Right side: Create Project Button */}
-        {session && (
-          <Link
-            href={`/pages/create-project`}
-            className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+        {/* Right side: Filter and Create Project Button */}
+        <div className="flex space-x-4">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
           >
-            Create New Project
-          </Link>
-        )}
+            <option value="All">All Projects</option>
+            <option value="Open">Open Projects</option>
+            <option value="Closed">Closed Projects</option>
+          </select>
+
+          {session && (
+            <Link
+              href={`/pages/create-project`}
+              className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+            >
+              Create New Project
+            </Link>
+          )}
+        </div>
       </div>
 
       {loading && <p>Loading...</p>}
@@ -165,7 +173,7 @@ const ProjectsPage = () => {
                           : "bg-yellow-100 text-yellow-600"
                       }`}
                     >
-                      {project.status ? "Available" : "Unavailable"}
+                      {project.status ? "Open" : "Closed"}
                     </span>
                   </div>
                 </div>
@@ -221,7 +229,7 @@ const ProjectsPage = () => {
 
               {session?.user.role == "Student" &&
                 session?.user.id !==
-                  selectedProject.projectAssignedTo.authorId._id && selectedProject.status == true&& selectedProject.visibility !== "Private" && (
+                  selectedProject.projectAssignedTo.authorId._id && selectedProject.status == true && selectedProject.visibility !== "Private" && (
                   <button
                     onClick={() => handleApply()}
                     className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
@@ -243,9 +251,9 @@ const ProjectsPage = () => {
                 <strong>Status:</strong>
                 {(() => {
                   if (selectedProject.status === false) {
-                    return "Unavailable";
+                    return "Closed";
                   } else {
-                    return "Available";
+                    return "Open";
                   }
                 })()}
               </p>

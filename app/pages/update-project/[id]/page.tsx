@@ -328,12 +328,12 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               <select
                 id="status"
                 name="status"
-                value={formData.status ? "Open" : "Close"}
+                value={formData.status ? "Open" : "Closed"}
                 onChange={handleChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               >
                 <option value="Open">Open</option>
-                <option value="Close">Close</option>
+                <option value="Close"><Closed></Closed></option>
               </select>
             </div>
           </div>
