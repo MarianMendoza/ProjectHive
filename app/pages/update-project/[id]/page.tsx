@@ -333,7 +333,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               >
                 <option value="Open">Open</option>
-                <option value="Close"><Closed></Closed></option>
+                <option value="Close">Closed</option>
               </select>
             </div>
           </div>
