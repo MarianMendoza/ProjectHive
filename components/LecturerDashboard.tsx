@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Project } from "@/types/projects";
+import NotificationStack from "./NotificationStack";
 
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
@@ -186,6 +187,9 @@ export default function LecturerDashboard() {
 
             {/* Notifications Section (35%) */}
             <div className="w-1/3 bg-white p-6 rounded-lg shadow-md">
+            <NotificationStack userId={session?.user.id||""}>
+              
+            </NotificationStack>
               <h3 className="text-xl font-bold text-gray-800 mb-4">
                 Notifications
               </h3>
