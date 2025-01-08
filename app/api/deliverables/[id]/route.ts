@@ -3,26 +3,28 @@ import connectMongo from "@/lib/mongodb";
 import Deliverables from "@/app/models/Deliverables";
 import mongoose from "mongoose";
 
-export async function GET(req: Request, { params }: { params: { projectId: string } }) {
-    await connectMongo();
+// GET: Retrieve deliverables by project ID.
+export async function GET(req: Request) {
+  await connectMongo();
+  const url = new URL(req.url);
+  const id = url.pathname.split("/").pop();
 
-    const { projectId } = params;
-
-    if (!projectId) {
-        return NextResponse.json({ message: "Project ID is required" }, { status: 400 });
+  try {
+    // Validate the project ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ message: "Invalid Project ID" }, { status: 400 });
     }
 
-    try {
-        // Fetch deliverables based on the projectId
-        const deliverables = await Deliverables.findOne({ projectId: new mongoose.Types.ObjectId(projectId) });
-        
-        if (!deliverables) {
-            return NextResponse.json({ message: "Deliverables not found" }, { status: 404 });
-        }
+    // Fetch deliverables associated with the project
+    const deliverables = await Deliverables.findOne({ projectId: id });
 
-        return NextResponse.json({ deliverables }, { status: 200 });
-    } catch (error) {
-        console.error("Error fetching deliverables:", error);
-        return NextResponse.json({ message: "Error fetching deliverables" }, { status: 500 });
+    if (!deliverables) {
+      return NextResponse.json({ message: "Deliverables not found" }, { status: 404 });
     }
+
+    return NextResponse.json({ deliverables }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching deliverables:", error);
+    return NextResponse.json({ message: "Error fetching deliverables" }, { status: 500 });
+  }
 }
