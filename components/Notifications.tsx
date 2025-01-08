@@ -1,24 +1,22 @@
+// components/Notification.tsx
+"use client"
 import { useEffect, useState } from 'react';
 import io, {Socket} from 'socket.io-client';
 
 let socket: Socket;
 
-interface Notification {
-  message: string;
-}
-
-const Notifications: React.FC = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+const Notification = () => {
+  const [notifications, setNotifications] = useState<string[]>([]);
 
   useEffect(() => {
-    socket = io('http://localhost:3001'); // Connect to the Socket.io server
+    socket = io(); // Connect to the server
 
-    socket.on('notification', (data: Notification) => {
-      setNotifications((prevNotifications) => [...prevNotifications, data]);
+    socket.on('notification', (message) => {
+      setNotifications((prevNotifications) => [...prevNotifications, message]);
     });
 
     return () => {
-      socket.disconnect(); // Clean up the socket connection
+      socket.disconnect();
     };
   }, []);
 
@@ -27,11 +25,11 @@ const Notifications: React.FC = () => {
       <h2>Notifications</h2>
       <ul>
         {notifications.map((notification, index) => (
-          <li key={index}>{notification.message}</li>
+          <li key={index}>{notification}</li>
         ))}
       </ul>
     </div>
   );
 };
 
-export default Notifications;
+export default Notification;

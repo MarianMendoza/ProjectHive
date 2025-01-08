@@ -1,17 +1,13 @@
 /** @type {import('next').NextConfig} */
-import { createServer } from 'http';
-import express from 'express';
-
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      import('./server').then(() => {
-        console.log('Server imported successfully');
-      }).catch(err => {
-        console.error('Failed to import server:', err);
-      });
-    }
-    return config;
+  reactStrictMode:false,
+  async rewrites() {
+    return [
+      {
+        source: '/socket.io/:path*',
+        destination: 'http://localhost:3001/socket.io/:path*', // Replace with your Socket.IO server URL
+      },
+    ];
   },
 };
 
