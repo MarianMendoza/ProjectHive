@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         // Create a JWT token
         const token = jwt.sign({ id: user._id, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
 
-        return NextResponse.json({ token, role: user.role, message: "Login successful!" }, { status: 200 });
+        return NextResponse.json({ token, role: user.role,userId:  user._id, message: "Login successful!" }, { status: 200 });
     } catch (error) {
         console.error("Error occurred during login:", error);
         return NextResponse.json({ message: "An error occurred during login." }, { status: 500 });

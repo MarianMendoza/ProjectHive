@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Project } from "../../../types/projects";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useSocket } from "@/app/provider";
+
 
 const ProjectsPage = () => {
   const { data: session } = useSession();
@@ -14,6 +16,7 @@ const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  // const socket = useSocket();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -99,6 +102,54 @@ const ProjectsPage = () => {
     setShowModal(false);
     setProjectToDelete(null);
   };
+
+  const handleApply = async (id: string) => {
+    try {
+      const res = await fetch(`../api/projects/${id}`, { method: "POST" });
+  
+      if (res.ok) {
+        const updatedProject = await res.json(); // Get the updated project from the response
+        console.log(updatedProject);
+        const userId = session?.user.name
+        const projectId = updatedProject.project._id
+        const supervisorId = updatedProject.projectAssignedTo.project.supervisorId.name
+        // if (socket) {
+        //   socket.emit("sendApplication", { userId, projectId,supervisorId }); // Emit event with userId and projectId
+        // } else {
+        //   console.error("Socket is not initialized");
+        // }
+
+        setProjects((prevProjects) => {
+          const updatedProjects = prevProjects.map((project) =>
+            project._id === id
+              ? {
+                  ...project,
+                  applicants: updatedProject.project.applicants, // Update the applicants list
+                }
+              : project
+          );
+  
+          return updatedProjects;
+        });
+  
+        if (selectedProject && selectedProject._id === id) {
+          setSelectedProject((prev) => ({
+            ...prev!,
+            applicants: updatedProject.project.applicants, // Update the applicants in the selected project
+          }));
+        }
+  
+        // alert("Application successful!");
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || "Failed to apply for the project");
+      }
+    } catch (error) {
+      console.error("Error applying for project:", error);
+      // alert("An error occurred. Please try again.");
+    }
+  };
+  
 
   const handleCardClick = (project: Project) => {
     setSelectedProject(project);
@@ -211,7 +262,7 @@ const ProjectsPage = () => {
                     {(session?.user.role === "Lecturer" &&
                       session?.user.id === selectedProject.projectAssignedTo.authorId._id) && (
                       <button
-                        onClick={() => setAssignShowModal(true)}
+                        // onClick={() => setAssignShowModal(true)}
                         className="px-3 "
                       >
                         ✏️
@@ -231,7 +282,7 @@ const ProjectsPage = () => {
                 session?.user.id !==
                   selectedProject.projectAssignedTo.authorId._id && selectedProject.status == true && selectedProject.visibility !== "Private" && (
                   <button
-                    onClick={() => handleApply()}
+                    onClick={() => handleApply(selectedProject?._id)}
                     className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
                     disabled={selectedProject.applicants.some(
                       (applicant) => applicant.studentId._id  === session.user.id
