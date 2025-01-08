@@ -37,10 +37,10 @@ io.on("connection", (socket) => {
 
     });
 
-    // socket.on("sendApplication", ({userId, projectId, supervisorId}) => {
-    //     console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
+    socket.on("sendApplication", ({userId, projectId, supervisorId}) => {
+        console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
 
-    // })
+    })
 
 
 

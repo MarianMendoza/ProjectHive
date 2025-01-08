@@ -178,15 +178,16 @@ export default function LecturerDashboard() {
                     70% Progress
                   </div>
                 </div>
+                <Link href={`/pages/deliverables/${selectedProject?._id}`}>
                 <button className="bg-lime-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600 mt-4">
                   View Deliverables
                 </button>
+                </Link>
               </div>
             </div>
 
             {/* Notifications Section (35%) */}
             <div className="w-1/3 bg-white p-6 rounded-lg shadow-md">
-            <Notification/>
               <h3 className="text-xl font-bold text-gray-800 mb-4">
                 Notifications
               </h3>

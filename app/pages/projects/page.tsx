@@ -16,7 +16,7 @@ const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
-  // const socket = useSocket();
+  const socket = useSocket();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -112,12 +112,12 @@ const ProjectsPage = () => {
         console.log(updatedProject);
         const userId = session?.user.name
         const projectId = updatedProject.project._id
-        const supervisorId = updatedProject.projectAssignedTo.project.supervisorId.name
-        // if (socket) {
-        //   socket.emit("sendApplication", { userId, projectId,supervisorId }); // Emit event with userId and projectId
-        // } else {
-        //   console.error("Socket is not initialized");
-        // }
+        // const supervisorId = updatedProject.projectAssignedTo.project.supervisorId.name
+        if (socket) {
+          socket.emit("sendApplication", { userId, projectId}); // Emit event with userId and projectId
+        } else {
+          console.error("Socket is not initialized");
+        }
 
         setProjects((prevProjects) => {
           const updatedProjects = prevProjects.map((project) =>
