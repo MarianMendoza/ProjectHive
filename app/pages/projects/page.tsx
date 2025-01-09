@@ -12,7 +12,6 @@ const ProjectsPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
-
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
@@ -110,11 +109,13 @@ const ProjectsPage = () => {
       if (res.ok) {
         const updatedProject = await res.json(); // Get the updated project from the response
         console.log(updatedProject);
-        const userId = session?.user.name
-        const projectId = updatedProject.project._id
+        const userId = session?.user.id
+        const projectId = updatedProject.project.title
+        const supervisorId = updatedProject.project.projectAssignedTo.supervisorId
+        console.log(userId, projectId,supervisorId)
         // const supervisorId = updatedProject.projectAssignedTo.project.supervisorId.name
         if (socket) {
-          socket.emit("sendApplication", { userId, projectId}); // Emit event with userId and projectId
+          socket.emit("sendApplication", { userId, projectId,supervisorId}); // Emit event with userId and projectId
         } else {
           console.error("Socket is not initialized");
         }
@@ -138,15 +139,13 @@ const ProjectsPage = () => {
             applicants: updatedProject.project.applicants, // Update the applicants in the selected project
           }));
         }
-  
-        // alert("Application successful!");
+
       } else {
         const errorData = await res.json();
         alert(errorData.message || "Failed to apply for the project");
       }
     } catch (error) {
       console.error("Error applying for project:", error);
-      // alert("An error occurred. Please try again.");
     }
   };
   

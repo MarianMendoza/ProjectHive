@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+
 
 interface Deliverable {
   file: string;
@@ -17,8 +16,6 @@ interface Deliverables {
 
 const DeliverablesPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
-  const { data: session } = useSession();
-  const router = useRouter();
   const [deliverables, setDeliverables] = useState<Deliverables | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

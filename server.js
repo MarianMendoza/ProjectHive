@@ -26,7 +26,11 @@ const addUser = (userId, socketId) => {
   
   // Function to get a user by userId
   const getUserSocketId = (userId) => {
-    return onlineUsers.get(userId);
+    console.log("Online:Users", onlineUsers)
+    const socketId = onlineUsers.get(userId)
+    console.log("Found SocketId", socketId)
+
+    return socketId;
   };
 
 io.on("connection", (socket) => {
@@ -39,6 +43,16 @@ io.on("connection", (socket) => {
 
     socket.on("sendApplication", ({userId, projectId, supervisorId}) => {
         console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
+        const receiver = getUserSocketId(userId);
+        // console.log(receiver)
+        if(!receiver){
+          console.error(`Socket ID not found for userID: ${userId}`);
+        } else{
+          io.to(receiver).emit("getApplication",{
+            userId,
+            projectId,
+          })
+        }
 
     })
 

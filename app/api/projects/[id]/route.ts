@@ -4,6 +4,7 @@ import Projects from "../../../models/Projects";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
+import Deliverables from "@/app/models/Deliverables";
 
 // GET: Retrieve a project by ID.
 export async function GET(req: Request) {
@@ -14,6 +15,9 @@ export async function GET(req: Request) {
     try {
         const project = await Projects.findById(id).populate({
             path: "applicants.studentId",
+            select: 'name'
+        }).populate({
+            path: 'projectAssignedTo.supervisorId',
             select: 'name'
         });
         if (!project) {
@@ -46,7 +50,16 @@ export async function DELETE(req: Request) {
             return NextResponse.json({ message: "Project not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ message: "Project deleted successfully" }, { status: 200 });
+        const deletedDeliverables = await Deliverables.findOneAndDelete({ projectId: id });
+
+
+        return NextResponse.json(
+            {
+                message: "Project and associated deliverables deleted successfully",
+                deletedDeliverables: deletedDeliverables ? true : false, 
+            },
+            { status: 200 }
+        );
     } catch (error) {
         console.error("Error deleting project:", error);
         return NextResponse.json({ message: "Error deleting project" }, { status: 500 });

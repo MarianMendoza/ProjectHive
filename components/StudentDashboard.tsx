@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Project } from "@/types/projects";
 import { useSession } from "next-auth/react";
+import Notifications from "./Notifications";
 
 export default function StudentDashboard() {
   const { data: session } = useSession();
@@ -55,15 +56,6 @@ export default function StudentDashboard() {
               console.log("No deliverables found.");
             }
 
-            // Fetch notifications
-            const notificationsRes = await fetch(`../api/notifications/${session.user.id}`);
-            const notificationsData = await notificationsRes.json();
-
-            if (notificationsRes.ok) {
-              setNotifications(notificationsData.notifications);
-            } else {
-              console.log("No notifications found.");
-            }
           }
         } else {
           console.error("Failed to fetch projects.");
@@ -221,18 +213,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* Notifications Section */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Notifications</h3>
-        <ul className="list-disc pl-6 text-gray-700">
-          {notifications.length > 0 ? (
-            notifications.map((notification, index) => (
-              <li key={index}>{notification}</li>
-            ))
-          ) : (
-            <p>It's quiet in here...</p>
-          )}
-        </ul>
-      </div>
+      <Notifications></Notifications>
     </div>
   );
 }

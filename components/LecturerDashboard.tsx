@@ -188,6 +188,7 @@ export default function LecturerDashboard() {
 
             {/* Notifications Section (35%) */}
             <div className="w-1/3 bg-white p-6 rounded-lg shadow-md">
+            <Notification></Notification>
               <h3 className="text-xl font-bold text-gray-800 mb-4">
                 Notifications
               </h3>
