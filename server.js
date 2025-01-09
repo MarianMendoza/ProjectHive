@@ -1,4 +1,8 @@
 import { Server } from "socket.io";
+import connectMongo from "./lib/mongodb"; // Adjust the path according to your structure
+import {Notification} from "./app/models/Notification"
+
+await connectMongo();
 
 const io = new Server({ 
     cors:{
@@ -38,13 +42,15 @@ io.on("connection", (socket) => {
 
     socket.on("registerUser", async (userId)  => {
         addUser(userId, socket.id);
-
+       
     });
 
-    socket.on("sendApplication", ({userId, projectId, supervisorId}) => {
+
+
+    socket.on("sendApplication", async ({userId, projectId, supervisorId}) => {
         console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
         const receiver = getUserSocketId(userId);
-        // console.log(receiver)
+
         if(!receiver){
           console.error(`Socket ID not found for userID: ${userId}`);
         } else{

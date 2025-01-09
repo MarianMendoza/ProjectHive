@@ -186,43 +186,7 @@ export default function LecturerDashboard() {
               </div>
             </div>
 
-            {/* Notifications Section (35%) */}
-            <div className="w-1/3 bg-white p-6 rounded-lg shadow-md">
             <Notification></Notification>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">
-                Notifications
-              </h3>
-              {loadingNotifications ? (
-                <p>Loading notifications...</p>
-              ) : notifications.length > 0 ? (
-                <div className="space-y-4">
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification._id}
-                      className={`p-4 rounded-lg shadow-md ${
-                        notification.read
-                          ? "bg-gray-100 text-gray-500"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{notification.message}</span>
-                        {!notification.read && (
-                          <button
-                            onClick={() => markAsRead(notification._id)}
-                            className="text-blue-500 hover:underline"
-                          >
-                            Mark as read
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No new notifications</p>
-              )}
-            </div>
           </div>
 
           {/* Create New Project Button - Positioned to the right of "Your Projects" */}
