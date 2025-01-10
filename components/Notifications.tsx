@@ -8,9 +8,30 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const socket = useSocket();
 
+  // Fetch existing notifications from the API
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch("../api/notifications", { method: "GET" });
+        if (res.ok) {
+          const data: Notification[] = await res.json();
+          console.log(data);
+          setNotifications(data);
+        } else {
+          console.error("Failed to fetch notifications");
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  // Listen for real-time notifications
   useEffect(() => {
     if (socket) {
-      socket.on("getApplication", (data: Notification) => {
+      socket.on("getNotification", (data: Notification) => {
         setNotifications((prev) => [...prev, data]);
       });
     }
@@ -23,6 +44,7 @@ const Notifications = () => {
     };
   }, [socket]);
 
+  // Mark a notification as read
   const markAsRead = async (notificationId: string) => {
     try {
       await fetch("../api/notifications", {
@@ -44,7 +66,7 @@ const Notifications = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-max mt-10">
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto mt-10">
       <h3 className="text-xl font-bold text-gray-800 mb-4">Notifications</h3>
       {notifications.length === 0 ? (
         <p className="text-gray-500">It's quiet in here...</p>
@@ -58,7 +80,7 @@ const Notifications = () => {
                 }`}
               >
                 <p className="text-gray-800 font-medium">
-                  {notification.userId.name} has applied to project: {notification.relatedProjectId?.title}
+                  {notification.userId} has applied to project: {notification.relatedProjectId || "N/A"}
                 </p>
                 {!notification.isRead && (
                   <button

@@ -163,7 +163,7 @@ export default function LecturerDashboard() {
           {/* Notifications and Project Progress Section - Positioned at the top */}
           <div className="flex justify-between mb-6 col-span-3">
             {/* Project Progress Section (65%) */}
-            <div className="w-2/3 mr-10 bg-white p-6 ">
+            <div className="w-2/3 bg-white p-6 ">
               <div className="space-y-4">
                 <p className="text-m">
                   <strong>Project:</strong> {selectedProject?.title}
@@ -185,8 +185,9 @@ export default function LecturerDashboard() {
                 </Link>
               </div>
             </div>
-
-            <Notification></Notification>
+            <div className="w-1/3 max-h-max">
+              <Notification></Notification>
+            </div>
           </div>
 
           {/* Create New Project Button - Positioned to the right of "Your Projects" */}
