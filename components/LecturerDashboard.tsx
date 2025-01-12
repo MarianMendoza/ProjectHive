@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Project } from "@/types/projects";
 import Notification from "./Notifications";
+
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
@@ -67,13 +68,21 @@ export default function LecturerDashboard() {
           if (res.ok) {
             const data = await res.json();
 
+            // Filter the projects to get only those assigned to the lecturer
             const filteredProjects = data.filter((project: Project) => {
               if (project.projectAssignedTo.authorId._id === session.user.id) {
                 return true;
               }
             });
 
-            setProjects(filteredProjects);
+            // Ensure the first project is always the first in the list (sort if necessary)
+            const sortedProjects = filteredProjects.sort(
+              (a: Project, b: Project) => {
+                return a.createdAt > b.createdAt ? 1 : -1; // Adjust sorting criteria as needed
+              }
+            );
+
+            setProjects(sortedProjects);
           } else {
             console.error("Error fetching projects");
           }
@@ -86,7 +95,6 @@ export default function LecturerDashboard() {
 
     fetchProjects();
   }, [session, status]);
-
 
   const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);
@@ -132,7 +140,7 @@ export default function LecturerDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
       <h2 className="text-3xl font-bold leading-9 tracking-tight text-gray-900 col-span-3">
         Welcome to Your Dashboard!
       </h2>
@@ -141,26 +149,58 @@ export default function LecturerDashboard() {
           {/* Notifications and Project Progress Section - Positioned at the top */}
           <div className="flex justify-between mb-6 col-span-3">
             {/* Project Progress Section (65%) */}
-            <div className="w-2/3 bg-white p-6 ">
-              <div className="space-y-4">
-                <p className="text-m">
-                  <strong>Project:</strong> {selectedProject?.title}
-                </p>
-                <div className="w-full bg-gray-200 rounded-full">
-                  <div
-                    className="bg-lime-600 text-xs font-medium text-center text-white p-1 leading-none rounded-l-full"
-                    style={{
-                      width: "70%", // Adjust this based on actual project progress
-                    }}
-                  >
-                    70% Progress
-                  </div>
-                </div>
-                <Link href={`/pages/deliverables/${selectedProject?._id}`}>
-                  <button className="bg-lime-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600 mt-4">
-                    View Deliverables
-                  </button>
+            <div className="w-2/3 bg-white p-6">
+              <div className="col-span-3 flex justify-between items-center ">
+                <h3 className="text-xl font-bold text-gray-800">
+                  Your Projects
+                </h3>
+                <Link
+                  href="/pages/create-project"
+                  className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                >
+                  Create New Project
                 </Link>
+              </div>
+
+              {/* Your Projects Section - Positioned below the progress and notifications */}
+              <div className="bg-white w-auto m-6 rounded-lg col-span-3">
+                {loadingProjects ? (
+                  <p>Loading projects...</p>
+                ) : projects.length > 0 ? (
+                  <div className="space-y-4">
+                    {projects.map((project) => (
+                      <div
+                        key={project._id}
+                        className="p-4 rounded-lg shadow hover:shadow-md transition cursor-pointer"
+                        onClick={() => handleProjectSelect(project)}
+                      >
+                        <div className="flex justify-between">
+                          <h4 className="text-lg font-semibold text-lime-600">
+                            {project.title}
+                          </h4>
+
+                          {/* Edit and Delete buttons next to the title */}
+                          <div className="flex space-x-4">
+                            <Link
+                              href={`/pages/update-project/${project._id}`}
+                              className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                            >
+                              ✏️ Edit
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(project._id)}
+                              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>No projects found.</p>
+                )}
               </div>
             </div>
             <div className="w-1/3 max-h-max">
@@ -168,57 +208,6 @@ export default function LecturerDashboard() {
             </div>
           </div>
 
-          {/* Create New Project Button - Positioned to the right of "Your Projects" */}
-          <div className="col-span-3 flex justify-between items-center ">
-            <h3 className="text-xl font-bold text-gray-800">Your Projects</h3>
-            <Link
-              href="/pages/create-project"
-              className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-            >
-              Create New Project
-            </Link>
-          </div>
-
-          {/* Your Projects Section - Positioned below the progress and notifications */}
-          <div className="bg-white p-6 rounded-lg col-span-3">
-            {loadingProjects ? (
-              <p>Loading projects...</p>
-            ) : projects.length > 0 ? (
-              <div className="space-y-4">
-                {projects.map((project) => (
-                  <div
-                    key={project._id}
-                    className=" p-4 rounded-lg shadow hover:shadow-md transition cursor-pointer"
-                    onClick={() => handleProjectSelect(project)}
-                  >
-                    <div className="flex justify-between">
-                      <h4 className="text-lg font-semibold text-lime-600">
-                        {project.title}
-                      </h4>
-
-                      {/* Edit and Delete buttons next to the title */}
-                      <div className="flex space-x-4">
-                        <Link
-                          href={`/pages/update-project/${project._id}`}
-                          className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                        >
-                          ✏️ Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(project._id)}
-                          className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
-                        >
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p>No projects found.</p>
-            )}
-          </div>
         </>
       ) : (
         <h2 className="text-2xl font-bold leading-9 tracking-tight text-red-600">

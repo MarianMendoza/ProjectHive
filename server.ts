@@ -58,7 +58,7 @@ const startServer = async () => {
     });
 
     // Handle sending notifications
-    socket.on("sendNotification", async ({ userId, receiverId , projectId }) => {
+    socket.on("sendNotification", async ({ userId, receiverId , projectId, type }) => {
       // console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
 
       try {
@@ -68,6 +68,11 @@ const startServer = async () => {
         }
         if (!mongoose.Types.ObjectId.isValid(receiverId) || receiverId.length !== 24) {
           throw new Error(`Invalid supervisorId: ${receiverId}`);
+        }
+
+        if (type === "Application"){
+          //Different types will have different formats? / messages
+          
         }
 
         // Save the notification to the database

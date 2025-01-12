@@ -113,9 +113,10 @@ const ProjectsPage = () => {
         const receiverId = updatedProject.project.projectAssignedTo.supervisorId
         const projectName = updatedProject.project.title
         const projectId = updatedProject.project._id
+        const type = "Application"
 
         if (socket) {
-          socket.emit("sendNotification", { userId, receiverId, projectName, projectId, }); // Emit event with userId and projectId
+          socket.emit("sendNotification", { userId, receiverId, projectId ,type }); // Emit event with userId and projectId
         } else {
           console.error("Socket is not initialized");
         }

@@ -66,7 +66,7 @@ const Notifications = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto mt-10">
+    <div className="bg-white p-4 rounded-lg shadow-md max-w-md mx-auto h-[50vh] overflow-y-auto">
       <h3 className="text-xl font-bold text-gray-800 mb-4">Notifications</h3>
       {notifications.length === 0 ? (
         <p className="text-gray-500">It's quiet in here...</p>
@@ -75,16 +75,16 @@ const Notifications = () => {
           {notifications.map((notification) => (
             <li key={notification._id} className="mb-3">
               <div
-                className={`bg-gray-50 p-4 rounded shadow-sm ${
+                className={`bg-gray-50 p-4 rounded shadow-sm flex justify-between items-center ${
                   notification.isRead ? "opacity-50" : ""
                 }`}
               >
-                <p className="text-gray-800 font-medium">
+                <p className="text-gray-800 font-medium flex-grow">
                   {notification.userId?.name} has applied for your project, {notification.relatedProjectId?.title || "N/A"}
                 </p>
                 {!notification.isRead && (
                   <button
-                    className="mt-2 px-3 py-1 bg-lime-500 text-white rounded text-sm hover:bg-lime-600"
+                    className="ml-4 px-3 py-2 bg-lime-500 text-white rounded text-sm hover:bg-lime-600"
                     onClick={() => markAsRead(notification._id)}
                   >
                     Mark as Read
