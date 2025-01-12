@@ -7,7 +7,9 @@ import Notification from "./Notifications";
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
+  const [notifications, setNotifications] = useState([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -35,6 +37,28 @@ export default function LecturerDashboard() {
   }, [session, status]);
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      if (status === "authenticated" && session?.user?.id) {
+        try {
+          const res = await fetch(`/api/notifications/${session.user.id}`);
+          const data = await res.json();
+
+          if (res.ok) {
+            setNotifications(data.notifications);
+          } else {
+            console.error("Error fetching notifications:", data.message);
+          }
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+        }
+      }
+      setLoadingNotifications(false);
+    };
+
+    fetchNotifications();
+  }, [session, status]);
+
+  useEffect(() => {
     const fetchProjects = async () => {
       if (status === "authenticated" && session?.user?.id) {
         try {
@@ -44,12 +68,9 @@ export default function LecturerDashboard() {
             const data = await res.json();
 
             const filteredProjects = data.filter((project: Project) => {
-              if (project.visibility === "Private") {
-                return (
-                  project.projectAssignedTo.authorId?._id === session?.user.id
-                );
+              if (project.projectAssignedTo.authorId._id === session.user.id) {
+                return true;
               }
-              return true;
             });
 
             setProjects(filteredProjects);
@@ -66,25 +87,6 @@ export default function LecturerDashboard() {
     fetchProjects();
   }, [session, status]);
 
-  const markAsRead = async (id) => {
-    try {
-      const res = await fetch(`/api/notifications/${id}/read`, {
-        method: "PUT",
-      });
-
-      if (res.ok) {
-        setNotifications((prev) =>
-          prev.map((notif) =>
-            notif._id === id ? { ...notif, read: true } : notif
-          )
-        );
-      } else {
-        console.error("Error marking notification as read");
-      }
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
-  };
 
   const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);
@@ -155,9 +157,9 @@ export default function LecturerDashboard() {
                   </div>
                 </div>
                 <Link href={`/pages/deliverables/${selectedProject?._id}`}>
-                <button className="bg-lime-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600 mt-4">
-                  View Deliverables
-                </button>
+                  <button className="bg-lime-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600 mt-4">
+                    View Deliverables
+                  </button>
                 </Link>
               </div>
             </div>
@@ -196,19 +198,18 @@ export default function LecturerDashboard() {
 
                       {/* Edit and Delete buttons next to the title */}
                       <div className="flex space-x-4">
-                      <Link
-                        href={`/pages/update-project/${project._id}`}
-                        className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                      >
-                        ✏️ Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(project._id)}
-                        className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
-                      >
-                        🗑️ Delete
-                      </button>
-                      
+                        <Link
+                          href={`/pages/update-project/${project._id}`}
+                          className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                        >
+                          ✏️ Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(project._id)}
+                          className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+                        >
+                          🗑️ Delete
+                        </button>
                       </div>
                     </div>
                   </div>

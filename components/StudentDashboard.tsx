@@ -13,7 +13,6 @@ export default function StudentDashboard() {
     extendedAbstract: { file: "", uploadedAt: "", deadline: "" },
     finalProjectReport: { file: "", uploadedAt: "", deadline: "" },
   });
-  const [notifications, setNotifications] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -213,7 +212,9 @@ export default function StudentDashboard() {
       </div>
 
       {/* Notifications Section */}
+      <div className="container mx-auto">
       <Notifications></Notifications>
+      </div>
     </div>
   );
 }
