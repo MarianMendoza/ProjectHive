@@ -80,11 +80,11 @@ const Notifications = () => {
                 }`}
               >
                 <p className="text-gray-800 font-medium">
-                  {notification.userId} has applied to project: {notification.relatedProjectId || "N/A"}
+                  {notification.userId?.name} has applied for your project, {notification.relatedProjectId?.title || "N/A"}
                 </p>
                 {!notification.isRead && (
                   <button
-                    className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                    className="mt-2 px-3 py-1 bg-lime-500 text-white rounded text-sm hover:bg-lime-600"
                     onClick={() => markAsRead(notification._id)}
                   >
                     Mark as Read

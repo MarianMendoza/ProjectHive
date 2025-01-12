@@ -2,7 +2,6 @@
 import type { Metadata } from "next";
 import { Libre_Baskerville } from "next/font/google"
 import './globals.css'
-import { SessionProvider } from "next-auth/react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Provider } from "./provider";

@@ -58,41 +58,36 @@ const startServer = async () => {
     });
 
     // Handle sending notifications
-    socket.on("sendNotification", async ({ userId, projectId,projectname, supervisorId }) => {
-      console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
+    socket.on("sendNotification", async ({ userId, receiverId , projectId }) => {
+      // console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
 
       try {
 
         if (!mongoose.Types.ObjectId.isValid(projectId) || projectId.length !== 24) {
           throw new Error(`Invalid projectId: ${projectId}`);
         }
-        if (!mongoose.Types.ObjectId.isValid(supervisorId) || supervisorId.length !== 24) {
-          throw new Error(`Invalid supervisorId: ${supervisorId}`);
+        if (!mongoose.Types.ObjectId.isValid(receiverId) || receiverId.length !== 24) {
+          throw new Error(`Invalid supervisorId: ${receiverId}`);
         }
-
-
-
 
         // Save the notification to the database
         const notification = new Notification({
-          userId: supervisorId,
-          message: `${userId} has applied for the project ${projectId}.`,
+          userId: userId,
+          receiverId: receiverId,
           type: "Application",
           relatedProjectId: projectId,
         });
+
 
         await notification.save();
         console.log("Notification saved to the database:", notification);
 
         // Emit the notification to the supervisor if they are online
-        const receiver = getUserSocketId(supervisorId);
+        const receiver = getUserSocketId(receiverId);
         if (!receiver) {
-          console.error(`Socket ID not found for supervisorID: ${supervisorId}`);
+          console.error(`Socket ID not found for receiverId: ${receiverId}`);
         } else {
           io.to(receiver).emit("getNotification", {
-            userId,
-            projectId,
-            projectname,
             notification,
           });
         }

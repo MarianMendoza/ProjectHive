@@ -110,13 +110,12 @@ const ProjectsPage = () => {
         const updatedProject = await res.json(); // Get the updated project from the response
         console.log(updatedProject);
         const userId = session?.user.id
+        const receiverId = updatedProject.project.projectAssignedTo.supervisorId
         const projectName = updatedProject.project.title
         const projectId = updatedProject.project._id
-        const supervisorId = updatedProject.project.projectAssignedTo.supervisorId
-        // console.log(userId, projectId,supervisorId)
-        // const supervisorId = updatedProject.projectAssignedTo.project.supervisorId.name
+
         if (socket) {
-          socket.emit("sendNotification", { userId,projectName, projectId,supervisorId}); // Emit event with userId and projectId
+          socket.emit("sendNotification", { userId, receiverId, projectName, projectId, }); // Emit event with userId and projectId
         } else {
           console.error("Socket is not initialized");
         }

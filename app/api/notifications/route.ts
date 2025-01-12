@@ -14,9 +14,20 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const receiverId = session.user.id;
 
-    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 }); // Sort by newest first
+    const notifications = await Notification.find({ receiverId }).sort({ createdAt: -1 }).populate({
+      path: "userId",
+      select: "name"
+    })
+    .populate({
+      path: "relatedProjectId",
+      select: "title"
+    }) 
+    .populate({
+      path: "receiverId",
+      select: "name"
+    }); // Sort by newest first
 
     return NextResponse.json(notifications, { status: 200 });
   } catch (error) {

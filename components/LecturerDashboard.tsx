@@ -7,9 +7,7 @@ import Notification from "./Notifications";
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
-  const [notifications, setNotifications] = useState([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -34,28 +32,6 @@ export default function LecturerDashboard() {
     };
 
     fetchApprovalStatus();
-  }, [session, status]);
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      if (status === "authenticated" && session?.user?.id) {
-        try {
-          const res = await fetch(`/api/notifications/${session.user.id}`);
-          const data = await res.json();
-
-          if (res.ok) {
-            setNotifications(data.notifications);
-          } else {
-            console.error("Error fetching notifications:", data.message);
-          }
-        } catch (error) {
-          console.error("Error fetching notifications:", error);
-        }
-      }
-      setLoadingNotifications(false);
-    };
-
-    fetchNotifications();
   }, [session, status]);
 
   useEffect(() => {
