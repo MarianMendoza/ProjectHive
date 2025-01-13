@@ -79,6 +79,7 @@ const startServer = async () => {
         const notification = new Notification({
           userId: userId,
           receiverId: receiverId,
+          message:"User applied to project",
           type: "Application",
           relatedProjectId: projectId,
         });
