@@ -15,7 +15,7 @@ const Notifications = () => {
         const res = await fetch("../api/notifications", { method: "GET" });
         if (res.ok) {
           const data: Notification[] = await res.json();
-          console.log(data);
+          // console.log(data);
           setNotifications(data);
         } else {
           console.error("Failed to fetch notifications");
@@ -39,7 +39,7 @@ const Notifications = () => {
     // Cleanup to avoid duplicate listeners
     return () => {
       if (socket) {
-        socket.off("getApplication");
+        socket.off("getNotification");
       }
     };
   }, [socket]);
@@ -80,7 +80,8 @@ const Notifications = () => {
                 }`}
               >
                 <p className="text-gray-800 font-medium flex-grow">
-                  {notification.userId?.name} has applied for your project, {notification.relatedProjectId?.title || "N/A"}
+                  {/* {notification.userId?.name} has applied for your project, {notification.relatedProjectId?.title || "N/A"} */}
+                  {notification.message}
                 </p>
                 {!notification.isRead && (
                   <button

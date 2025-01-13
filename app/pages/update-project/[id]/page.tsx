@@ -3,28 +3,30 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { IProjects } from "@/app/models/Projects";
-import { useSession } from "next-auth/react"; // Import useSession
+import { useSession } from "next-auth/react"; 
+import { useSocket } from "@/app/provider";
 
 const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const router = useRouter();
-  const { data: session } = useSession(); // Get session data
+  const { data: session } = useSession(); 
   const [project, setProject] = useState<IProjects | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
     title: "",
-    status: "", // Default to false (Unavailable)
+    status: false, 
     visibility: "Private",
     description: "",
     applicants: [],
     files: "",
   });
-  const [selectedStudents, setSelectedStudents] = useState<string[]>([]); // Pre-filled with assigned students if any
-  const [isGroupProject, setIsGroupProject] = useState<boolean>(false); // Toggle for group/individual project
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
-  const [modalMessage, setModalMessage] = useState(""); // Modal message content
-  const [confirmAction, setConfirmAction] = useState<() => void>(() => {}); // Confirmation action callback
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]); 
+  const [isGroupProject, setIsGroupProject] = useState<boolean>(false); 
+  const [showModal, setShowModal] = useState(false); 
+  const [modalMessage, setModalMessage] = useState(""); 
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {}); 
+  const socket = useSocket();
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -36,18 +38,16 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           setProject(data.project);
           setFormData({
             title: data.project.title,
-            status: data.project.status, // Boolean from the project
+            status: data.project.status, 
             visibility: data.project.visibility,
             description: data.project.description || "",
             applicants: data.project.applicants || [],
-            files: data.project.files || ""
+            files: data.project.files || "",
           });
 
-          // Pre-fill selected students based on projectAssignedTo
-          const assignedStudent =
-            data.project.projectAssignedTo?.studentsId || [];
+          const assignedStudent = data.project.projectAssignedTo?.studentsId || [];
           setSelectedStudents(assignedStudent);
-          setIsGroupProject(assignedStudent.length > 1); // Detect if it's a group project
+          setIsGroupProject(assignedStudent.length > 1); 
         } else {
           setError(data.message);
         }
@@ -62,14 +62,12 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   }, [id]);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
   ) => {
     if (e.target.name === "status") {
       setFormData({
         ...formData,
-        status: e.target.value === "Open" ? true : false, // Set to true if "Available", false if "Unavailable"
+        status: e.target.value === "Open", 
       });
     } else {
       setFormData({
@@ -81,9 +79,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
   const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
-
     if (isGroupProject) {
-      // Add to selected students if in group project mode
       if (selectedId && !selectedStudents.includes(selectedId)) {
         setSelectedStudents([...selectedStudents, selectedId]);
       }
@@ -92,34 +88,24 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
-
   const removeStudent = (studentId: string) => {
-    setSelectedStudents(selectedStudents.filter((id) => id !== studentId)); // Remove student by ID
+    setSelectedStudents(selectedStudents.filter((id) => id !== studentId));
   };
 
   const handleGroupToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsGroupProject(e.target.checked);
     if (!e.target.checked) {
-      setSelectedStudents(selectedStudents.slice(0, 1)); // Keep only one student if group project is not selected
+      setSelectedStudents(selectedStudents.slice(0, 1));
     }
   };
 
-  const updateProjectWithStudents = async () => {
-    const updateApplicants = project?.applicants.map((applicant) => {
-      const studentId = applicant.studentId._id || applicant.studentId;
-      if (selectedStudents.includes(applicant.studentId.toString())) {
-        return { ...applicant, applicationStatus: "Assigned" };
-      }
-      return applicant;
-    });
-
+  const updateProjectWithNotifications = async () => {
     const updatedData = {
       ...formData,
       projectAssignedTo: {
         ...project?.projectAssignedTo,
-        studentsId: selectedStudents
+        studentsId: selectedStudents,
       },
-      applicants: updateApplicants,
     };
 
     try {
@@ -135,11 +121,38 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
       if (res.ok) {
         router.push("../projects");
+
         const userId = session?.user.id;
-        const receiverId = updatedProject.project.projectAssignedTo.studentsId;
+        const assignedReceivers = selectedStudents;
         const projectId = updatedProject.project._id;
-        console.log(userId, receiverId, projectId)
-        console.log("UpdateProject", updatedProject)
+        const typeAssigned = "Update"; 
+        const typeClosed = "Closed"; 
+
+        if (socket) {
+          if (assignedReceivers.length > 0) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId: assignedReceivers,
+              projectId,
+              type: typeAssigned,
+            });
+          }
+
+          if (!formData.status) {
+            const applicantReceivers = updatedProject.project.applicants.map(
+              (applicant: { studentId: string }) => applicant.studentId
+            );
+            console.log(applicantReceivers);
+            socket.emit("sendNotification", {
+              userId,
+              receiversId: applicantReceivers,
+              projectId,
+              type: typeClosed,
+            });
+          }
+        } else {
+          console.error("Socket is not initialized");
+        }
       } else {
         setError(updatedProject.message);
       }
@@ -150,11 +163,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    setShowModal(true); // Show confirmation modal before submitting
+    setShowModal(true);
     setModalMessage(
       "Are you sure you want to update this project? Please check the status before proceeding."
     );
-    setConfirmAction(() => () => updateProjectWithStudents()); // Default confirm action to update with students
+    setConfirmAction(() => () => updateProjectWithNotifications());
   };
 
   const handleModalClose = () => {
@@ -163,15 +176,12 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
   const handleModalConfirm = () => {
     setShowModal(false);
-    
-    confirmAction(); // Execute the confirmed action (project update)
+    confirmAction();
   };
 
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error)
     return <div className="text-center py-8 text-red-500">{error}</div>;
-
-  const isEditable = session?.user.id === project?.projectAssignedTo.supervisorId.toString(); // Check if session user is the supervisor
 
   return (
     <div className="container mx-auto p-10 flex items-center justify-center">
@@ -264,7 +274,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                   "No Second Reader Assigned"
                 }
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-                disabled // Disable the input field to make it read-only
+                disabled 
               />
             </div>
 
@@ -339,7 +349,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               >
                 <option value="Open">Open</option>
-                <option value="Close">Closed</option>
+                <option value="Closed">Closed</option>
               </select>
             </div>
           </div>
@@ -413,7 +423,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         </form>
       </div>
 
-      {/* Confirmation Modal */}
       {showModal && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-8 rounded-lg max-w-sm w-full">

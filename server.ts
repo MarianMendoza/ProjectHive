@@ -2,6 +2,8 @@ import { Server } from "socket.io";
 import connectMongo from "./lib/mongodb"; // Ensure this path is correct
 import Notification from "./app/models/Notification"; // Ensure this path is correct
 import dotenv from "dotenv";
+import User from "./app/models/User";
+import Projects from "./app/models/Projects";
 import mongoose from "mongoose";
 
 // Load environment variables
@@ -63,22 +65,49 @@ const startServer = async () => {
       try {
         if (!Array.isArray(receiversId)) {
           throw new Error(`Invalid receiversId: Expected an array got ${typeof receiversId}`);
+          console.log(receiversId)
         }
 
         if (!mongoose.Types.ObjectId.isValid(projectId) || projectId.length !== 24) {
           throw new Error(`Invalid projectId: ${projectId}`);
         }
 
-        if (type === "Application") {
-          //Different types will have different formats? / messages
+        // console.log(receiversId);
+        console.log(userId.name);
 
+        const user = await User.findById(userId, 'name');
+        if (!user) {
+          throw new Error(`User not found for userId: ${userId}`);
         }
+    
+        // Fetch the project data
+        const project = await Projects.findById(projectId, 'title');
+        if (!project) {
+          throw new Error(`Project not found for projectId: ${projectId}`);
+        }
+
+        console.log(projectId.title)
+
+
+        let message = "";
+
+        switch(type){
+          case "Application":
+            message = `${userId.name} applied to your project ${projectId.title}`
+            break
+          case "Update":
+            message = `You have been assigned to ${projectId.title}`
+            break
+          case "Closed":
+            message = `The project ${projectId.title} is now closed.`
+        }
+
         // Save the notification to the database
         const notification = new Notification({
           userId: userId,
           receiversId: receiversId,
-          message: "User applied to project",
-          type: "Application",
+          message: message,
+          type: type,
           relatedProjectId: projectId,
         });
 
@@ -88,13 +117,9 @@ const startServer = async () => {
 
 
         for (const receiverId of receiversId) {
-          console.log("In loop:" , receiverId);
           if (!mongoose.Types.ObjectId.isValid(receiverId) || receiverId.length !== 24) {
             throw new Error(`Invalid receiverId: ${receiverId}`);
-
           }
-          console.log("Outside loop", receiverId);
-
           const receiverSocketId = getUserSocketId(receiverId);
           if (!receiverSocketId) {
             console.error(`Socket ID not found for receiverId: ${receiverId}`);

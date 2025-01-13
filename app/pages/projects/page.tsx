@@ -4,7 +4,6 @@ import { Project } from "../../../types/projects";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
-import UpdateProjectPage from "../update-project/[id]/page";
 
 
 const ProjectsPage = () => {

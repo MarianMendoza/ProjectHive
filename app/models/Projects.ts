@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+
 export interface IProjects extends Document {
   title: string;
   status: boolean;
@@ -12,7 +13,6 @@ export interface IProjects extends Document {
   };
   applicants: { 
     studentId: mongoose.Types.ObjectId, 
-    applicationStatus: "Pending" | "Assigned" | "Rejected"
   }[];
   //Queue FIFO, lecturer dashboard
   description: string;
@@ -40,7 +40,6 @@ const ProjectsSchema: Schema = new Schema({
   applicants: [
     {
       studentId: {type: mongoose.Types.ObjectId, ref: "User"},
-      applicationStatus: {type: String, enum: ["Pending", "Assigned","Rejected"], default: "Pending"},
     },
   ],
   description: { type: String, required: false },

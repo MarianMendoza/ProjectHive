@@ -13,7 +13,6 @@ export interface Project {
     };
     applicants: {
       studentId: User;
-      applicationStatus: "Pending" | "Assigned" | "Rejected";
     }[];
     description: string;
     files: string;
