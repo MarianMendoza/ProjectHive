@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 
     const receiverId = session.user.id;
 
-    const notifications = await Notification.find({ receiverId }).sort({ createdAt: -1 }).populate({
+    const notifications = await Notification.find({receiversId: {$in: [receiverId]}}).sort({ createdAt: -1 }).populate({
       path: "userId",
       select: "name"
     })

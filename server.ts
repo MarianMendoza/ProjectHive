@@ -58,51 +58,57 @@ const startServer = async () => {
     });
 
     // Handle sending notifications
-    socket.on("sendNotification", async ({ userId, receiverId , projectId, type }) => {
+    socket.on("sendNotification", async ({ userId, receiversId, projectId, type }) => {
       // console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
-
       try {
+        if (!Array.isArray(receiversId)) {
+          throw new Error(`Invalid receiversId: Expected an array got ${typeof receiversId}`);
+        }
 
         if (!mongoose.Types.ObjectId.isValid(projectId) || projectId.length !== 24) {
           throw new Error(`Invalid projectId: ${projectId}`);
         }
-        if (!mongoose.Types.ObjectId.isValid(receiverId) || receiverId.length !== 24) {
-          throw new Error(`Invalid supervisorId: ${receiverId}`);
-        }
 
-        if (type === "Application"){
+        if (type === "Application") {
           //Different types will have different formats? / messages
-          
-        }
 
+        }
         // Save the notification to the database
         const notification = new Notification({
           userId: userId,
-          receiverId: receiverId,
-          message:"User applied to project",
+          receiversId: receiversId,
+          message: "User applied to project",
           type: "Application",
           relatedProjectId: projectId,
         });
 
 
         await notification.save();
-        console.log("Notification saved to the database:", notification);
+        console.log(receiversId);
 
-        // Emit the notification to the supervisor if they are online
-        const receiver = getUserSocketId(receiverId);
-        if (!receiver) {
-          console.error(`Socket ID not found for receiverId: ${receiverId}`);
-        } else {
-          io.to(receiver).emit("getNotification", {
-            notification,
-          });
+
+        for (const receiverId of receiversId) {
+          console.log("In loop:" , receiverId);
+          if (!mongoose.Types.ObjectId.isValid(receiverId) || receiverId.length !== 24) {
+            throw new Error(`Invalid receiverId: ${receiverId}`);
+
+          }
+          console.log("Outside loop", receiverId);
+
+          const receiverSocketId = getUserSocketId(receiverId);
+          if (!receiverSocketId) {
+            console.error(`Socket ID not found for receiverId: ${receiverId}`);
+          } else {
+            io.to(receiverSocketId).emit("getNotification", {
+              notification,
+            });
+          }
         }
       } catch (error) {
         console.error("Error saving notification to the database:", error);
       }
     });
 
-    // Handle disconnection
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
       removeUser(socket.id);
@@ -112,6 +118,7 @@ const startServer = async () => {
   // Start the server
   io.listen(5000);
 };
+
 
 // Start the server
 startServer().catch((error) => {

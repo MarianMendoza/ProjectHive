@@ -123,7 +123,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     };
 
     try {
-      const response = await fetch(`../../api/projects/${id}`, {
+      const res = await fetch(`../../api/projects/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -131,12 +131,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         body: JSON.stringify(updatedData),
       });
 
-      const data = await response.json();
+      const updatedProject = await res.json();
 
-      if (response.ok) {
+      if (res.ok) {
         router.push("../projects");
+        const userId = session?.user.id;
+        const receiverId = updatedProject.project.projectAssignedTo.studentsId;
+        const projectId = updatedProject.project._id;
+        console.log(userId, receiverId, projectId)
+        console.log("UpdateProject", updatedProject)
       } else {
-        setError(data.message);
+        setError(updatedProject.message);
       }
     } catch (err) {
       setError("Error updating project");
@@ -158,6 +163,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
   const handleModalConfirm = () => {
     setShowModal(false);
+    
     confirmAction(); // Execute the confirmed action (project update)
   };
 
