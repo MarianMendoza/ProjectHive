@@ -108,7 +108,7 @@ const ProjectsPage = () => {
   
       if (res.ok) {
         const updatedProject = await res.json(); // Get the updated project from the response
-        const userId = session?.user.id
+        const userId = session?.user.id;
         const receiversId = [updatedProject.project.projectAssignedTo.supervisorId];
         const projectId = updatedProject.project._id
         const type = "Application"

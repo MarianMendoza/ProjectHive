@@ -99,7 +99,7 @@ export default function StudentDashboard() {
         </h2>
 
         {assignedProject ? (
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="bg-white p-6 rounded-lg">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Assigned Project</h3>
             <p className="text-lg text-lime-600 font-semibold mb-2">
               {assignedProject.title}

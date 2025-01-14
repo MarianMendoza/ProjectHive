@@ -15,7 +15,6 @@ const Notifications = () => {
         const res = await fetch("../api/notifications", { method: "GET" });
         if (res.ok) {
           const data: Notification[] = await res.json();
-          // console.log(data);
           setNotifications(data);
         } else {
           console.error("Failed to fetch notifications");
@@ -43,6 +42,32 @@ const Notifications = () => {
       }
     };
   }, [socket]);
+  const acceptInvitation = async (relatedProjectId : string) => {
+    alert("You have sent and accepted");
+
+
+  }
+
+  const declineInvitation = async (relatedProject: Object) => {
+    // console.log(relatedProject);
+    alert("You have sent a decline");
+
+    //dont make this an array 
+    const userId = relatedProject.receiversId.toString();
+    const receiversId = [relatedProject.userId._id];
+    const projectId = relatedProject.relatedProjectId._id;
+    const type = "InvitationDecline";
+
+    // console.log(userId, receiversId, projectId , type);
+    if (socket) {
+      socket.emit("sendNotification",{ userId, receiversId, projectId ,type });
+    } else{
+      console.error("Socket is not initialized");
+    }
+
+    markAsRead(relatedProject._id);
+
+  }
 
   // Mark a notification as read
   const markAsRead = async (notificationId: string) => {
@@ -57,7 +82,9 @@ const Notifications = () => {
 
       setNotifications((prev) =>
         prev.map((notification) =>
-          notification._id === notificationId ? { ...notification, isRead: true } : notification
+          notification._id === notificationId
+            ? { ...notification, isRead: true }
+            : notification
         )
       );
     } catch (error) {
@@ -66,31 +93,48 @@ const Notifications = () => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md max-w-md mx-auto h-[50vh] overflow-y-auto">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto h-[50vh] overflow-y-auto">
       <h3 className="text-xl font-bold text-gray-800 mb-4">Notifications</h3>
       {notifications.length === 0 ? (
         <p className="text-gray-500">It's quiet in here...</p>
       ) : (
-        <ul className="text-gray-700">
+        <ul className="space-y-4">
           {notifications.map((notification) => (
-            <li key={notification._id} className="mb-3">
+            <li key={notification._id}>
               <div
-                className={`bg-gray-50 p-4 rounded shadow-sm flex justify-between items-center ${
+                className={`bg-gray-50 p-5 rounded-lg shadow-sm flex flex-col items-start ${
                   notification.isRead ? "opacity-50" : ""
-                }`}
+                } transition-opacity duration-300`}
               >
-                <p className="text-gray-800 font-medium flex-grow">
-                  {/* {notification.userId?.name} has applied for your project, {notification.relatedProjectId?.title || "N/A"} */}
-                  {notification.message}
-                </p>
-                {!notification.isRead && (
-                  <button
-                    className="ml-4 px-3 py-2 bg-lime-500 text-white rounded text-sm hover:bg-lime-600"
-                    onClick={() => markAsRead(notification._id)}
-                  >
-                    Mark as Read
-                  </button>
-                )}
+                <p className="text-gray-800 font-medium mb-4">{notification.message}</p>
+
+                <div className="flex flex-col space-y-2 w-full">
+                  {!notification.isRead && (
+                    <button
+                      className="px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                      onClick={() => markAsRead(notification._id)}
+                    >
+                      Mark as Read
+                    </button>
+                  )}
+
+                  {notification.type === "Invitation" && !notification.isRead && (
+                    <div className="flex space-x-2 w-full">
+                      <button
+                        className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                        onClick={() => acceptInvitation(notification.relatedProjectId?._id)}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
+                        onClick={() => declineInvitation(notification)}
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </li>
           ))}

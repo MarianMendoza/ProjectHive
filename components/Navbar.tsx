@@ -26,9 +26,10 @@ export default function Navbar() {
               <Link href = "/" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Home</Link>
               <Link href = "/pages/projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Projects</Link>
               <Link href = "/pages/past-projects" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" aria-current="page">Past Projects</Link>
+              <Link href="/pages/users" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" > Users</Link>
+
               {session ?(
                 <>
-                  <Link href="/pages/users" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600" > Users</Link>
                   <Link href="/pages/dashboard" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600">Dashboard</Link>
                   <Link href="/pages/profile" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600">Profile</Link>
                   <button onClick={() => signOut({ callbackUrl:"/"})} className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Logout</button>

@@ -65,7 +65,7 @@ const startServer = async () => {
       try {
         if (!Array.isArray(receiversId)) {
           throw new Error(`Invalid receiversId: Expected an array got ${typeof receiversId}`);
-          console.log(receiversId)
+          // console.log(receiversId)
         }
 
         if (!mongoose.Types.ObjectId.isValid(projectId) || projectId.length !== 24) {
@@ -93,13 +93,17 @@ const startServer = async () => {
 
         switch(type){
           case "Application":
-            message = `${userId.name} applied to your project ${projectId.title}`
+            message = `${userId.name} applied to your project ${projectId.title}`;
             break
           case "Update":
-            message = `You have been assigned to ${projectId.title}`
+            message = `You have been assigned to ${projectId.title}`;
             break
           case "Closed":
-            message = `The project ${projectId.title} is now closed.`
+            message = `The project ${projectId.title} is now closed.`;
+          case "Invitation":
+            message = `You have been invited to become a second-reader for ${projectId.title}`;
+          case "InvitationDecline":
+            message = `${userId.name} has declined your invite to become second-reader for ${projectId.title}`
         }
 
         // Save the notification to the database
