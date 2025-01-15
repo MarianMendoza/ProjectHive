@@ -23,7 +23,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     files: "",
   });
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-  const [secondReader, setSecondReader] = useState<string[]>([]);
+  const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>([]);
   const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
   const [isGroupProject, setIsGroupProject] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -32,32 +32,43 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const socket = useSocket();
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`../../api/projects/${id}`);
-        const data = await res.json();
+        const projectRes = await fetch(`../../api/projects/${id}`);
+        const projectData = await projectRes.json();
 
-        if (res.ok) {
-          setProject(data.project);
+        const lecturersRes = await fetch("../../api/users");
+        const lecturersData = await lecturersRes.json();
+
+        if (projectRes.ok) {
+          setProject(projectData.project);
           setFormData({
-            title: data.project.title,
-            status: data.project.status,
-            visibility: data.project.visibility,
-            description: data.project.description || "",
-            applicants: data.project.applicants || [],
-            files: data.project.files || "",
+            title: projectData.project.title,
+            status: projectData.project.status,
+            visibility: projectData.project.visibility,
+            description: projectData.project.description || "",
+            applicants: projectData.project.applicants || [],
+            files: projectData.project.files || "",
           });
 
-          const assignedStudent = data.project.projectAssignedTo?.studentsId || [];
-          setSelectedStudents(assignedStudent);
-          const assignedSecondReader = data.project.projectAssignedTo?.secondReaderId;
-          console.log(assignedSecondReader);
-          setSecondReader(assignedSecondReader);
+          const filteredLecturers = lecturersData.filter(
+            (user: User) => user.role === "Lecturer" && user._id !== session?.user.id
+          );
+          setLecturers(filteredLecturers);
+  
 
+          const assignedStudent = projectData.project.projectAssignedTo?.studentsId || [];
+          setSelectedStudents(assignedStudent);
+          
+          const assignedSecondReader = projectData.project.projectAssignedTo?.secondReaderId._id;
+          const matchedLecturer = filteredLecturers.find(
+            (lecturer: User) => lecturer._id === assignedSecondReader
+          );
+          setSelectedSecondReader(matchedLecturer?._id || null); // Set to null if no match
 
           setIsGroupProject(assignedStudent.length > 1);
         } else {
-          setError(data.message);
+          setError("Failed to fetch project or lecturers");
         }
       } catch (err) {
         setError("Error fetching project");
@@ -67,27 +78,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     };
 
 
-    const fetchLecturers = async () => {
-      try {
-        const res = await fetch("../../api/users");
-        const data = await res.json();
-      
-        setLecturers(data.filter(
-          (user: User) => user.role === "Lecturer" && user._id !== session?.user.id
-        ));
-        if (res.ok) {
-          
-        } else {
-          console.error("Failed to fetch lecturers");
-        }
-      } catch (err) {
-        console.error("Error fetching lecturers", err);
-      }
-    };
-
-    fetchLecturers();
-    fetchProject();
-
+   
+    fetchData();
   }, [id]);
 
   const handleChange = (
@@ -110,7 +102,12 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
   const handleSecondReaderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
-    setSecondReader(selectedId);
+    console.log("selected Id", selectedId);
+    if (selectedId === "") {
+      setSelectedSecondReader(null);
+    } else {
+      setSelectedSecondReader(selectedId);
+    }
   };
 
   const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -304,7 +301,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               <select
                 id="secondReader"
                 name="secondReader"
-                value={secondReader || ""}
+                value={selectedSecondReader || ""}
                 onChange={handleSecondReaderChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               >
