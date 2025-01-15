@@ -68,11 +68,11 @@ export default function LecturerDashboard() {
           if (res.ok) {
             const data = await res.json();
 
-            // Filter the projects to get only those assigned to the lecturer
-            const filteredProjects = data.filter((project: Project) => {
-              if (project.projectAssignedTo.authorId._id === session.user.id) {
-                return true;
-              }
+              // Filter the projects to get only those assigned to the lecturer
+              const filteredProjects = data.filter((project: Project) => {
+                if (project.projectAssignedTo.authorId._id === session.user.id) {
+                  return true;
+                }
             });
 
             // Ensure the first project is always the first in the list (sort if necessary)

@@ -100,10 +100,16 @@ const startServer = async () => {
             break
           case "Closed":
             message = `The project ${projectId.title} is now closed.`;
+            break
           case "Invitation":
             message = `You have been invited to become a second-reader for ${projectId.title}`;
+            break
           case "InvitationDecline":
-            message = `${userId.name} has declined your invite to become second-reader for ${projectId.title}`
+            message = `${userId.name} has declined your invite to become second-reader for ${projectId.title}`;
+            break
+          case "InvitationAccept":
+            message = `${userId.name} has accepted your invite and is now a second-reader for ${projectId.title}`;
+            break
         }
 
         // Save the notification to the database

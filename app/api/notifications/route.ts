@@ -25,6 +25,10 @@ export async function GET(req: Request) {
       select: "title"
     }) 
     .populate({
+      path: "relatedProjectId",
+      select: "projectAssignedTo"
+    }) 
+    .populate({
       path: "receiverId",
       select: "name"
     }); // Sort by newest first

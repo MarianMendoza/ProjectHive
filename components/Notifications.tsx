@@ -3,6 +3,7 @@
 import { useSocket } from "@/app/provider";
 import { useEffect, useState } from "react";
 import { Notification } from "@/types/notification"; // Adjust the path based on your project structure
+import {IProjects} from "@/app/models/Projects";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -42,17 +43,57 @@ const Notifications = () => {
       }
     };
   }, [socket]);
-  const acceptInvitation = async (relatedProjectId : string) => {
-    alert("You have sent and accepted");
+
+  const acceptInvitation = async (relatedProject: Object) => {
+
+    const userId = relatedProject.receiversId.toString();
+    const receiversId = [relatedProject.userId._id];
+    const projectId = relatedProject.relatedProjectId._id;
+    const type = "InvitationAccept";
+ 
+    const updatedSecondReaderId = {
+      projectAssignedTo: {
+        ...relatedProject.relatedProjectId.projectAssignedTo,
+        secondReaderId: userId.toString(),
+      }
+    };
+    console.log("Second Reader", relatedProject.relatedProjectId.projectAssignedTo.secondReaderId)
+     
+    try {
+      const res = await fetch(`../../api/projects/${projectId}`,{
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedSecondReaderId),
+      });
+
+      const data = await res.json();
 
 
-  }
+      if (res.ok){
+        console.log("Project updated successfully!:", data);
+
+         if (socket) {
+          socket.emit("sendNotification", { userId, receiversId, projectId, type });
+        } else {
+          console.error("Socket is not initialized");
+        }
+        markAsRead(relatedProject._id);
+        alert("You have been set up as a second-read and accepted invite");
+      } else{
+        console.error("Failed to update project:", data);
+      }
+    } catch (error) {
+      console.error("Error accepting invitations:", error);  
+    }
+  };
 
   const declineInvitation = async (relatedProject: Object) => {
     // console.log(relatedProject);
     alert("You have sent a decline");
 
-    //dont make this an array 
+    //dont make this an array
     const userId = relatedProject.receiversId.toString();
     const receiversId = [relatedProject.userId._id];
     const projectId = relatedProject.relatedProjectId._id;
@@ -60,14 +101,13 @@ const Notifications = () => {
 
     // console.log(userId, receiversId, projectId , type);
     if (socket) {
-      socket.emit("sendNotification",{ userId, receiversId, projectId ,type });
-    } else{
+      socket.emit("sendNotification", { userId, receiversId, projectId, type });
+    } else {
       console.error("Socket is not initialized");
     }
 
     markAsRead(relatedProject._id);
-
-  }
+  };
 
   // Mark a notification as read
   const markAsRead = async (notificationId: string) => {
@@ -106,7 +146,9 @@ const Notifications = () => {
                   notification.isRead ? "opacity-50" : ""
                 } transition-opacity duration-300`}
               >
-                <p className="text-gray-800 font-medium mb-4">{notification.message}</p>
+                <p className="text-gray-800 font-medium mb-4">
+                  {notification.message}
+                </p>
 
                 <div className="flex flex-col space-y-2 w-full">
                   {!notification.isRead && (
@@ -118,22 +160,23 @@ const Notifications = () => {
                     </button>
                   )}
 
-                  {notification.type === "Invitation" && !notification.isRead && (
-                    <div className="flex space-x-2 w-full">
-                      <button
-                        className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
-                        onClick={() => acceptInvitation(notification.relatedProjectId?._id)}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
-                        onClick={() => declineInvitation(notification)}
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  )}
+                  {notification.type === "Invitation" &&
+                    !notification.isRead && (
+                      <div className="flex space-x-2 w-full">
+                        <button
+                          className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                          onClick={() => acceptInvitation(notification)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
+                          onClick={() => declineInvitation(notification)}
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
                 </div>
               </div>
             </li>

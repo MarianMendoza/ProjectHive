@@ -15,10 +15,13 @@ export async function GET(req: Request) {
     try {
         const project = await Projects.findById(id).populate({
             path: "applicants.studentId",
-            select: 'name'
+            select: "name"
         }).populate({
-            path: 'projectAssignedTo.supervisorId',
-            select: 'name'
+            path: "projectAssignedTo.supervisorId",
+            select: "name"
+        }).populate({
+            path: "projectAssignedTo.secondReaderId",
+            select: "name"
         });
         if (!project) {
             throw new Error("Project not found");
@@ -56,7 +59,7 @@ export async function DELETE(req: Request) {
         return NextResponse.json(
             {
                 message: "Project and associated deliverables deleted successfully",
-                deletedDeliverables: deletedDeliverables ? true : false, 
+                deletedDeliverables: deletedDeliverables ? true : false,
             },
             { status: 200 }
         );
@@ -70,37 +73,53 @@ export async function DELETE(req: Request) {
 export async function PUT(req: Request) {
     await connectMongo();
 
-    const id = req.url.split("/").pop() as string; 
+    const id = req.url.split("/").pop() as string; // Extract project ID from the URL
     const { title, status, visibility, description, files, projectAssignedTo, applicants } = await req.json();
 
     try {
-        const assignedStudentsIds = projectAssignedTo?.studentsId || []; // Ensure it matches `studentsId` field
-
+        // Ensure the studentsId is normalized correctly
+        const assignedStudentsIds = projectAssignedTo?.studentsId || [];
         const normalizedAssignedIds = assignedStudentsIds.map((id: string) => new mongoose.Types.ObjectId(id));
 
-        const updatedApplicants = applicants.map((applicant: any) => {
-            const studentId = applicant.studentId._id || applicant.studentId;
-            if (normalizedAssignedIds.some((assignedId: mongoose.Types.ObjectId) => assignedId.equals(studentId))) {
-                return { ...applicant, applicationStatus: "Assigned" };
-            }
-            return applicant;
-        });
+        // Prepare the data to be updated
+        const updatedProjectData: any = {
+            title,
+            status,
+            visibility,
+            description,
+            files,
+            updatedAt: new Date(),
+        };
 
+        // If a secondReaderId is provided, update it
+        if (projectAssignedTo?.secondReaderId) {
+            updatedProjectData.projectAssignedTo = {
+                ...projectAssignedTo,
+                secondReaderId: new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId), // Ensure ObjectId for secondReaderId
+                studentsId: normalizedAssignedIds,
+            };
+        } else {
+            // If secondReaderId is not provided, only update studentsId
+            updatedProjectData.projectAssignedTo = {
+                ...projectAssignedTo,
+                studentsId: normalizedAssignedIds,
+            };
+        }
+
+        // If applicants are provided, update them accordingly
+        if (applicants && applicants.length > 0) {
+            const updatedApplicants = applicants.map((applicant: any) => {
+                const studentId = applicant.studentId._id || applicant.studentId;
+                // Add any logic to update applicant status if needed
+                return applicant;
+            });
+            updatedProjectData.applicants = updatedApplicants;
+        }
+
+        // Perform the update on the project in the database
         const updatedProject = await Projects.findByIdAndUpdate(
             id,
-            {
-                title,
-                status,
-                visibility,
-                description,
-                files,
-                projectAssignedTo: {
-                    ...projectAssignedTo,
-                    studentsId: normalizedAssignedIds,
-                },
-                applicants: updatedApplicants,
-                updatedAt: new Date(),
-            },
+            updatedProjectData,
             { new: true, runValidators: true }
         );
 
@@ -117,9 +136,6 @@ export async function PUT(req: Request) {
         return NextResponse.json({ message: "Error updating project" }, { status: 400 });
     }
 }
-
-
-
 
 //POST: Add an applicant id into project with the session.user.id
 export async function POST(req: Request) {

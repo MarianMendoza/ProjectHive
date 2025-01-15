@@ -153,7 +153,7 @@ const UsersPage = () => {
                     onClick={() => handleInviteClick(user)}
                     className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
                   >
-                    📨 Invite
+                    Invite
                   </button>
                 )}
 
