@@ -3,29 +3,32 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { IProjects } from "@/app/models/Projects";
-import { useSession } from "next-auth/react"; 
+import { useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
+import { User } from "@/types/users";
 
 const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const router = useRouter();
-  const { data: session } = useSession(); 
+  const { data: session } = useSession();
   const [project, setProject] = useState<IProjects | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
     title: "",
-    status: false, 
+    status: false,
     visibility: "Private",
     description: "",
     applicants: [],
     files: "",
   });
-  const [selectedStudents, setSelectedStudents] = useState<string[]>([]); 
-  const [isGroupProject, setIsGroupProject] = useState<boolean>(false); 
-  const [showModal, setShowModal] = useState(false); 
-  const [modalMessage, setModalMessage] = useState(""); 
-  const [confirmAction, setConfirmAction] = useState<() => void>(() => {}); 
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [secondReader, setSecondReader] = useState<string[]>([]);
+  const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
+  const [isGroupProject, setIsGroupProject] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const socket = useSocket();
 
   useEffect(() => {
@@ -38,7 +41,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           setProject(data.project);
           setFormData({
             title: data.project.title,
-            status: data.project.status, 
+            status: data.project.status,
             visibility: data.project.visibility,
             description: data.project.description || "",
             applicants: data.project.applicants || [],
@@ -47,7 +50,12 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
           const assignedStudent = data.project.projectAssignedTo?.studentsId || [];
           setSelectedStudents(assignedStudent);
-          setIsGroupProject(assignedStudent.length > 1); 
+          const assignedSecondReader = data.project.projectAssignedTo?.secondReaderId;
+          console.log(assignedSecondReader);
+          setSecondReader(assignedSecondReader);
+
+
+          setIsGroupProject(assignedStudent.length > 1);
         } else {
           setError(data.message);
         }
@@ -58,16 +66,39 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       }
     };
 
+
+    const fetchLecturers = async () => {
+      try {
+        const res = await fetch("../../api/users");
+        const data = await res.json();
+      
+        setLecturers(data.filter(
+          (user: User) => user.role === "Lecturer" && user._id !== session?.user.id
+        ));
+        if (res.ok) {
+          
+        } else {
+          console.error("Failed to fetch lecturers");
+        }
+      } catch (err) {
+        console.error("Error fetching lecturers", err);
+      }
+    };
+
+    fetchLecturers();
     fetchProject();
+
   }, [id]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
+    >
   ) => {
     if (e.target.name === "status") {
       setFormData({
         ...formData,
-        status: e.target.value === "Open", 
+        status: e.target.value === "Open",
       });
     } else {
       setFormData({
@@ -75,6 +106,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         [e.target.name]: e.target.value,
       });
     }
+  };
+
+  const handleSecondReaderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = e.target.value;
+    setSecondReader(selectedId);
   };
 
   const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -125,8 +161,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         const userId = session?.user.id;
         const assignedReceivers = selectedStudents;
         const projectId = updatedProject.project._id;
-        const typeAssigned = "Update"; 
-        const typeClosed = "Closed"; 
+        const typeAssigned = "Update";
+        const typeClosed = "Closed";
 
         if (socket) {
           if (assignedReceivers.length > 0) {
@@ -265,17 +301,20 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               >
                 Second Reader
               </label>
-              <input
-                type="text"
+              <select
                 id="secondReader"
                 name="secondReader"
-                value={
-                  project?.projectAssignedTo.secondReaderId?.name ||
-                  "No Second Reader Assigned"
-                }
+                value={secondReader || ""}
+                onChange={handleSecondReaderChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-                disabled 
-              />
+              >
+                <option value="">Select a Second Reader</option>
+                {lecturers.map((lecturer) => (
+                  <option key={lecturer._id} value={lecturer._id}>
+                    {lecturer.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {isGroupProject && (
@@ -368,11 +407,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               onChange={handleChange}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               rows={4}
-              maxLength={1000}    
+              maxLength={1000}
             />
             <div className="text-right text-sm text-gray-500 mt-2">
-            {formData.description.length}/1000 characters  
-            </div>  
+              {formData.description.length}/1000 characters
+            </div>
           </div>
 
           <div className="col-span-2">
