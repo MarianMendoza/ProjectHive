@@ -10,9 +10,14 @@ export default function LecturerDashboard() {
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
   const [notifications, setNotifications] = useState([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [secondReaderProjects, setSecondReaderProjects] = useState<Project[]>(
+    []
+  );
   const [loadingNotifications, setLoadingNotifications] = useState(true);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchApprovalStatus = async () => {
@@ -68,11 +73,19 @@ export default function LecturerDashboard() {
           if (res.ok) {
             const data = await res.json();
 
-              // Filter the projects to get only those assigned to the lecturer
-              const filteredProjects = data.filter((project: Project) => {
-                if (project.projectAssignedTo.authorId._id === session.user.id) {
-                  return true;
-                }
+            // Filter the projects to get only those assigned to the lecturer
+            const filteredProjects = data.filter((project: Project) => {
+              if (project.projectAssignedTo.authorId._id === session.user.id) {
+                return true;
+              }
+
+              // const readerProjects = data.filter(
+              //   (project: Project) =>
+              //     project.projectAssignedTo.secondReaderId._id ===
+              //     session.user.id
+              // );
+
+              // setSecondReaderProjects(readerProjects);
             });
 
             // Ensure the first project is always the first in the list (sort if necessary)
@@ -96,8 +109,18 @@ export default function LecturerDashboard() {
     fetchProjects();
   }, [session, status]);
 
+  const closeModal = () => {
+    setShowModal(false);
+    setProjectToDelete(null);
+  };
+
   const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);
+  };
+
+  const confirmDelete = (id: string) => {
+    setProjectToDelete(id);
+    setShowModal(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -188,7 +211,7 @@ export default function LecturerDashboard() {
                               ✏️ Edit
                             </Link>
                             <button
-                              onClick={() => handleDelete(project._id)}
+                              onClick={() => confirmDelete(project._id)}
                               className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
                             >
                               🗑️ Delete
@@ -202,17 +225,70 @@ export default function LecturerDashboard() {
                   <p>No projects found.</p>
                 )}
               </div>
+
+              {/* <div>
+                <h3 className="text-xl font-bold text-gray-800">
+                  Projects You Are a Second Reader For
+                </h3>
+                {loadingProjects ? (
+                  <p>Loading projects...</p>
+                ) : secondReaderProjects.length > 0 ? (
+                  secondReaderProjects.map((project) => (
+                    <div
+                      key={project._id}
+                      className="p-4 shadow rounded-lg mb-4"
+                    >
+                      <h4 className="text-lg font-semibold">{project.title}</h4>
+                      <p className="text-gray-600">
+                        Assigned by: {project.projectAssignedTo.authorId.name}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p>
+                    You are not assigned as a second reader for any projects.
+                  </p>
+                )}
+              </div> */}
             </div>
             <div className="w-1/3 max-h-max">
               <Notification></Notification>
             </div>
           </div>
-
         </>
       ) : (
         <h2 className="text-2xl font-bold leading-9 tracking-tight text-red-600">
           Waiting for admin approval. Please check back later.
         </h2>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+            <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
+              Confirm Deletion
+            </h2>
+            <p className="text-center text-gray-700 mb-6">
+              Are you sure you want to delete this project?
+            </p>
+            <div className="flex justify-between">
+              <button
+                onClick={closeModal}
+                className="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition duration-200 ease-in-out"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (projectToDelete) handleDelete(projectToDelete);
+                }}
+                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

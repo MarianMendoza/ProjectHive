@@ -91,15 +91,16 @@ export async function PUT(req: Request) {
             updatedAt: new Date(),
         };
 
-        // If a secondReaderId is provided, update it
-        if (projectAssignedTo?.secondReaderId) {
+
+        if (projectAssignedTo.secondReaderId !== undefined){
             updatedProjectData.projectAssignedTo = {
                 ...projectAssignedTo,
-                secondReaderId: new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId), // Ensure ObjectId for secondReaderId
+                secondReaderId: mongoose.Types.ObjectId.isValid(projectAssignedTo.secondReaderId)
+                ? new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId) :
+                null,
                 studentsId: normalizedAssignedIds,
             };
-        } else {
-            // If secondReaderId is not provided, only update studentsId
+        } else{
             updatedProjectData.projectAssignedTo = {
                 ...projectAssignedTo,
                 studentsId: normalizedAssignedIds,

@@ -23,11 +23,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     files: "",
   });
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-  const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>([]);
+  const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>(
+    []
+  );
   const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
+  const [invitedLecturers, setInvitedLecturers] = useState<string[]>([]); // Track invited lecturers
+  const [invitedLecturer, setInvitedLecturer] = useState<User | null>(null);
+
   const [isGroupProject, setIsGroupProject] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const socket = useSocket();
 
@@ -36,6 +42,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       try {
         const projectRes = await fetch(`../../api/projects/${id}`);
         const projectData = await projectRes.json();
+        console.log(projectRes.json);
 
         const lecturersRes = await fetch("../../api/users");
         const lecturersData = await lecturersRes.json();
@@ -52,15 +59,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           });
 
           const filteredLecturers = lecturersData.filter(
-            (user: User) => user.role === "Lecturer" && user._id !== session?.user.id
+            (user: User) =>
+              user.role === "Lecturer" && user._id !== session?.user.id
           );
           setLecturers(filteredLecturers);
-  
 
-          const assignedStudent = projectData.project.projectAssignedTo?.studentsId || [];
+          const assignedStudent =
+            projectData.project.projectAssignedTo?.studentsId || [];
           setSelectedStudents(assignedStudent);
-          
-          const assignedSecondReader = projectData.project.projectAssignedTo?.secondReaderId._id;
+
+          const assignedSecondReader =
+            projectData.project.projectAssignedTo?.secondReaderId._id;
           const matchedLecturer = filteredLecturers.find(
             (lecturer: User) => lecturer._id === assignedSecondReader
           );
@@ -71,14 +80,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           setError("Failed to fetch project or lecturers");
         }
       } catch (err) {
-        setError("Error fetching project");
+        // setError("Error fetching project");
       } finally {
         setLoading(false);
       }
     };
-
-
-   
     fetchData();
   }, [id]);
 
@@ -100,14 +106,88 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  const handleSecondReaderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSecondReaderChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const selectedId = e.target.value;
-    console.log("selected Id", selectedId);
-    if (selectedId === "") {
-      setSelectedSecondReader(null);
+
+    const receiverId = project?.projectAssignedTo.secondReaderId?._id;
+
+    if (selectedId === "invite") {
+      setShowInviteModal(true);
+      return;
     } else {
       setSelectedSecondReader(selectedId);
+      const updatedData = {
+        ...formData,
+        projectAssignedTo: {
+          ...project?.projectAssignedTo,
+          secondReaderId: selectedId === "unassign" ? null : selectedId,
+          studentsId: selectedStudents,
+        },
+      };
+
+      try {
+        const userId = session?.user.id;
+        const receiversId = [receiverId];
+        const projectId = project?._id;
+        const type = "UnassignSecondReader";
+
+        if (receiverId == null) {
+          alert("You have no one to unassign.");
+        } else {
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,  
+              projectId,
+              type,
+            });
+          } else {
+            console.error("Socket is not initialized");
+          }
+        }
+
+        alert("You have unassigned the second-reader.");
+
+        const res = await fetch(`../../api/projects/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        });
+
+        const updatedProject = await res.json();
+
+        if (res.ok) {
+          console.log("Project updated successfully", updatedProject);
+        } else {
+          console.error("Failed to update project");
+        }
+      } catch (err) {
+        console.error("Error updating second reader!");
+      }
     }
+  };
+
+  const handleInviteClick = async (lecturer: User) => {
+    setInvitedLecturers((prev) => [...prev, lecturer._id]); // Add lecturer to invited list
+    setInvitedLecturer(lecturer);
+
+    const userId = session?.user.id;
+    const receiversId = [lecturer._id];
+    const projectId = project?._id;
+    const type = "Invitation";
+
+    // console.log("User ID", userId, "ReceiversId", receiversId, "ProjectId", projectId, "type", type);
+    if (socket) {
+      socket.emit("sendNotification", { userId, receiversId, projectId, type });
+    } else {
+      console.error("Socket is not initialized");
+    }
+
+    alert("You have sent an invite.");
   };
 
   const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -305,14 +385,59 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 onChange={handleSecondReaderChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               >
-                <option value="">Select a Second Reader</option>
-                {lecturers.map((lecturer) => (
-                  <option key={lecturer._id} value={lecturer._id}>
-                    {lecturer.name}
-                  </option>
-                ))}
+                <option value="invite">Invite...</option>
+                <option value={selectedSecondReader}>
+                  Assigned:{" "}
+                  {lecturers.find(
+                    (lecturers) => lecturers._id === selectedSecondReader
+                  )?.name || "No one has been assigned"}
+                </option>
+                {selectedSecondReader && (
+                  <option value="unassign">Unassign...</option>
+                )}
               </select>
             </div>
+
+            {showInviteModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                  <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
+                    Invite a Lecturer
+                  </h2>
+                  <div className="space-y-4">
+                    {lecturers.map((lecturer) => (
+                      <div
+                        key={lecturer._id}
+                        className="flex justify-between items-center bg-gray-100 p-4 rounded-lg"
+                      >
+                        <span>{lecturer.name}</span>
+                        <button
+                          onClick={() => handleInviteClick(lecturer)}
+                          className={`px-4 py-2 rounded-lg ${
+                            invitedLecturers.includes(lecturer._id)
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-lime-500 text-white hover:bg-lime-600"
+                          }`}
+                          disabled={invitedLecturers.includes(lecturer._id)}
+                        >
+                          {invitedLecturers.includes(lecturer._id)
+                            ? "Invited"
+                            : "Invite"}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end mt-4">
+                    <button
+                      onClick={() => setShowInviteModal(false)}
+                      className="bg-gray-300 text-black px-4 py-2 rounded-lg"
+                    >
+                      Go Back
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {isGroupProject && (
               <div>
