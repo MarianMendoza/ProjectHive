@@ -5,8 +5,6 @@ import { User } from "@/types/users";
 import { Project } from "@/types/projects";
 import { useSocket } from "@/app/provider";
 
-
-
 const UsersPage = () => {
   const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
@@ -63,22 +61,47 @@ const UsersPage = () => {
 
   const handleInviteSubmit = async () => {
     // console.log("Selected Project;" + selectedProject);
-    const userId = session?.user.id;
-    const receiversId = [selectedLecturer?._id];
-    const projectId = selectedProject;
-    const type = "Invitation";
 
-    // console.log("User ID", userId, "ReceiversId", receiversId, "ProjectId", projectId, "type", type);
-    if (socket) {
-      socket.emit("sendNotification", {userId, receiversId,projectId,type});
-    } else{
-      console.error("Socket is not initialized");
+    if (session?.user.role === "Lecturer") {
+      const userId = session?.user.id;
+      const receiversId = [selectedLecturer?._id];
+      const projectId = selectedProject;
+      const type = "Invitation";
+
+      // console.log("User ID", userId, "ReceiversId", receiversId, "ProjectId", projectId, "type", type);
+      if (socket) {
+        socket.emit("sendNotification", {
+          userId,
+          receiversId,
+          projectId,
+          type,
+        });
+      } else {
+        console.error("Socket is not initialized");
+      }
+    } else {
+
+      const userId = session?.user.id;
+      const receiversId = [selectedLecturer?._id];
+      const projectId = selectedProject;
+      const type = "InvitationSupervisor";
+
+      if (socket) {
+        socket.emit("sendNotification", {
+          userId,
+          receiversId,
+          projectId,
+          type,
+        });
+      } else {
+        console.error("Socket is not initialized");
+      }
+
+
     }
-    
 
     setShowInviteModal(false);
     alert("You have sent an invite.");
-    
   };
 
   const filteredUsers = users.filter((user) => {
@@ -148,14 +171,16 @@ const UsersPage = () => {
               </div>
 
               <div className="flex space-x-2">
-                {user.role === "Lecturer" && session !== null && session?.user.id !== user._id && (
-                  <button
-                    onClick={() => handleInviteClick(user)}
-                    className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
-                  >
-                    Invite
-                  </button>
-                )}
+                {user.role === "Lecturer" &&
+                  session !== null &&
+                  session?.user.id !== user._id && (
+                    <button
+                      onClick={() => handleInviteClick(user)}
+                      className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
+                    >
+                      Invite
+                    </button>
+                  )}
 
                 <span
                   className={`px-3 py-2 m-2 text-sm rounded-full ${
@@ -197,7 +222,7 @@ const UsersPage = () => {
                     (project: Project) =>
                       project.projectAssignedTo.authorId._id ===
                       session?.user?.id
-                  ) 
+                  )
                   .map((project) => (
                     <option key={project._id} value={project._id}>
                       {project.title}

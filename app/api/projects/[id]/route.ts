@@ -100,7 +100,17 @@ export async function PUT(req: Request) {
                 null,
                 studentsId: normalizedAssignedIds,
             };
-        } else{
+        }
+        if (projectAssignedTo.supervisorId !== undefined){
+            updatedProjectData.projectAssignedTo = {
+                ...projectAssignedTo,
+                supervisorId: mongoose.Types.ObjectId.isValid(projectAssignedTo.supervisorId)
+                ? new mongoose.Types.ObjectId(projectAssignedTo.supervisorId) :
+                null,
+                studentsId: normalizedAssignedIds,
+            };
+        }
+        else{
             updatedProjectData.projectAssignedTo = {
                 ...projectAssignedTo,
                 studentsId: normalizedAssignedIds,

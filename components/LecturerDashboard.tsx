@@ -75,7 +75,7 @@ export default function LecturerDashboard() {
 
             // Filter the projects to get only those assigned to the lecturer
             const filteredProjects = data.filter((project: Project) => {
-              if (project.projectAssignedTo.authorId._id === session.user.id) {
+              if (project.projectAssignedTo.supervisorId._id === session.user.id) {
                 return true;
               }
 

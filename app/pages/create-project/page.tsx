@@ -41,7 +41,7 @@ const CreateProjectPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        router.push("/pages/projects"); // Redirect to the projects page after successful creation
+        router.push("/pages/projects");
       } else {
         setError(data.message);
       }

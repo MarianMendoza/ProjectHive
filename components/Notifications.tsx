@@ -45,19 +45,34 @@ const Notifications = () => {
   }, [socket]);
 
   const acceptInvitation = async (relatedProject: Object) => {
+ 
+    let type;
+    let user;
 
+    
     const userId = relatedProject.receiversId.toString();
     const receiversId = [relatedProject.userId._id];
     const projectId = relatedProject.relatedProjectId._id;
-    const type = "InvitationAccept";
- 
-    const updatedSecondReaderId = {
-      projectAssignedTo: {
-        ...relatedProject.relatedProjectId.projectAssignedTo,
-        secondReaderId: userId.toString(),
-      }
-    };
-    console.log("Second Reader", relatedProject.relatedProjectId.projectAssignedTo.secondReaderId)
+
+    if (relatedProject.type == "Invitation"){
+      type = "Invitation";
+      user = {
+        projectAssignedTo: {
+          ...relatedProject.relatedProjectId.projectAssignedTo,
+          secondReaderId: userId.toString(),
+        }
+      };
+    } else {
+      type = "InvitationSupervisorAccept";
+      user = {
+        projectAssignedTo: {
+          ...relatedProject.relatedProjectId.projectAssignedTo,
+          supervisorId: userId.toString(),
+        }
+      };
+    }
+    console.log(user);
+
      
     try {
       const res = await fetch(`../../api/projects/${projectId}`,{
@@ -65,7 +80,7 @@ const Notifications = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedSecondReaderId),
+        body: JSON.stringify(user),
       });
 
       const data = await res.json();
@@ -80,7 +95,6 @@ const Notifications = () => {
           console.error("Socket is not initialized");
         }
         markAsRead(relatedProject._id);
-        alert("You have been set up as a second-read and accepted invite");
       } else{
         console.error("Failed to update project:", data);
       }
@@ -92,12 +106,18 @@ const Notifications = () => {
   const declineInvitation = async (relatedProject: Object) => {
     // console.log(relatedProject);
     alert("You have sent a decline");
+    let type;
+
+    if (relatedProject.type === "InvitationDecline"){
+      type = "InvitationDecline";
+    } else {
+      type = "InvitationSupervisorDecline"
+    };
 
     //dont make this an array
     const userId = relatedProject.receiversId.toString();
     const receiversId = [relatedProject.userId._id];
     const projectId = relatedProject.relatedProjectId._id;
-    const type = "InvitationDecline";
 
     // console.log(userId, receiversId, projectId , type);
     if (socket) {
@@ -161,6 +181,23 @@ const Notifications = () => {
                   )}
 
                   {notification.type === "Invitation" &&
+                    !notification.isRead && (
+                      <div className="flex space-x-2 w-full">
+                        <button
+                          className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                          onClick={() => acceptInvitation(notification)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
+                          onClick={() => declineInvitation(notification)}
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
+                    {notification.type === "InvitationSupervisor" &&
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button

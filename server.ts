@@ -113,6 +113,15 @@ const startServer = async () => {
           case "UnassignSecondReader":
             message = `You have been unassigned as Second-Reader from ${projectId.title}`;
             break
+          case "InvitationSupervisor":
+            message = `You have been invited to supervise ${projectId.title} by ${userId.name}`
+            break
+          case "InvitationSupervisorAccept":
+            message = `${userId.name} has accepted to supervise ${projectId.title}.`
+            break
+          case "InvitationSupervisorDecline":
+            message = `Your invite to ${userId.name} has been declined for ${projectId.title}.`
+            break
         }
 
         // Save the notification to the database
