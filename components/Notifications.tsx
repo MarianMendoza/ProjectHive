@@ -116,7 +116,7 @@ const Notifications = () => {
   };
 
   const declineInvitation = async (relatedProject: Object) => {
-    // console.log(relatedProject);
+    console.log(relatedProject);
     alert("You have sent a decline");
     let type;
 
@@ -124,6 +124,8 @@ const Notifications = () => {
       type = "InvitationDecline";
     } if(relatedProject.type ==="Application"){
       type = "ApplicationDecline";
+
+      // relatedProject.
     }
      else {
       type = "InvitationSupervisorDecline"

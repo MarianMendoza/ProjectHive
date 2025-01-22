@@ -108,6 +108,7 @@ const ProjectsPage = () => {
   
       if (res.ok) {
         const updatedProject = await res.json(); // Get the updated project from the response
+        console.log(updatedProject);
         const userId = session?.user.id;
         const receiversId = [updatedProject.project.projectAssignedTo.supervisorId];
         const projectId = updatedProject.project._id
@@ -283,11 +284,11 @@ const ProjectsPage = () => {
                     onClick={() => handleApply(selectedProject?._id)}
                     className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
                     disabled={selectedProject.applicants.some(
-                      (applicant) => applicant.studentId._id  === session.user.id
+                      (applicant) => applicant.studentId?._id  === session.user.id
                     )}
                   >
                     {selectedProject.applicants.some(
-                      (applicants) => applicants.studentId._id === session.user.id
+                      (applicants) => applicants?.studentId?._id === session.user.id
                     )? "Applied": "Apply"}
                   </button>
                 )}

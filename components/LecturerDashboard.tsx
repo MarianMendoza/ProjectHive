@@ -46,7 +46,7 @@ export default function LecturerDashboard() {
     const fetchNotifications = async () => {
       if (status === "authenticated" && session?.user?.id) {
         try {
-          const res = await fetch(`/api/notifications/${session.user.id}`);
+          const res = await fetch(`../api/notifications/${session.user.id}`);
           const data = await res.json();
 
           if (res.ok) {
@@ -75,7 +75,7 @@ export default function LecturerDashboard() {
 
             // Filter the projects to get only those assigned to the lecturer
             const filteredProjects = data.filter((project: Project) => {
-              if (project.projectAssignedTo.supervisorId._id === session.user.id) {
+              if (project.projectAssignedTo.supervisorId?._id === session.user.id) {
                 return true;
               }
 

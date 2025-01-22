@@ -18,7 +18,7 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      if (!session?.user?.id) {
+      if (!session?.user.id) {
         console.log("Session user ID is not available.");
         setLoading(false);
         return;
@@ -28,11 +28,10 @@ export default function StudentDashboard() {
         const res = await fetch("../api/projects");
         if (res.ok) {
           const data = await res.json();
-
           const appliedProjects = data.filter((project: Project) =>
             project.applicants.some(
               (applicant) =>
-                applicant.studentId._id.toString() === session.user.id
+                applicant.studentId?._id.toString() === session.user.id
             )
           );
 
@@ -40,11 +39,11 @@ export default function StudentDashboard() {
 
           const assignedProject = appliedProjects.find((project: Project) =>
             project.projectAssignedTo.studentsId.some(
-              (student) => student._id === session.user.id
+              (student) => student?._id === session.user.id
             )
           );
 
-          setAssignedProject(assignedProject || null);
+          setAssignedProject(assignedProject);
 
           if (assignedProject) {
             // Fetch deliverables from database
