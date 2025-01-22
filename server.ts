@@ -95,8 +95,14 @@ const startServer = async () => {
           case "Application":
             message = `${userId.name} applied to your project ${projectId.title}`;
             break
+          case "ApplicationAccept":
+            message = `You you have been assigned to ${projectId.title}.` 
+          break
+          case "ApplicationDecline":
+            message =  `You have not been successful in your application for ${projectId.title}.`
+          break
           case "Update":
-            message = `You have been assigned to ${projectId.title}`;
+            message = `You have been assigned to ${projectId.title}.`;
             break
           case "Closed":
             message = `The project ${projectId.title} is now closed.`;

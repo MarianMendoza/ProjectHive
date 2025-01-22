@@ -55,14 +55,26 @@ const Notifications = () => {
     const projectId = relatedProject.relatedProjectId._id;
 
     if (relatedProject.type == "Invitation"){
-      type = "Invitation";
+      type = "InvitationAccept";
       user = {
         projectAssignedTo: {
           ...relatedProject.relatedProjectId.projectAssignedTo,
           secondReaderId: userId.toString(),
         }
       };
-    } else {
+    }
+    // Need to check this in model.
+    if (relatedProject.type == "Application"){
+      type = "ApplicationAccept"
+      user = {
+        projectAssignedTo: {
+          ...relatedProject.relatedProjectId.projectAssignedTo,
+          studentId: [userId],
+        }
+      }
+
+    }
+    else {
       type = "InvitationSupervisorAccept";
       user = {
         projectAssignedTo: {
@@ -108,9 +120,12 @@ const Notifications = () => {
     alert("You have sent a decline");
     let type;
 
-    if (relatedProject.type === "InvitationDecline"){
+    if (relatedProject.type === "Invitation"){
       type = "InvitationDecline";
-    } else {
+    } if(relatedProject.type ==="Application"){
+      type = "ApplicationDecline";
+    }
+     else {
       type = "InvitationSupervisorDecline"
     };
 
@@ -198,6 +213,23 @@ const Notifications = () => {
                       </div>
                     )}
                     {notification.type === "InvitationSupervisor" &&
+                    !notification.isRead && (
+                      <div className="flex space-x-2 w-full">
+                        <button
+                          className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                          onClick={() => acceptInvitation(notification)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
+                          onClick={() => declineInvitation(notification)}
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
+                     {notification.type === "Application" &&
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button

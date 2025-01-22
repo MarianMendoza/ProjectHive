@@ -238,7 +238,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         const userId = session?.user.id;
         const assignedReceivers = selectedStudents;
         const projectId = updatedProject.project._id;
-        const typeAssigned = "Update";
+        const typeAssigned = "ApplicationAccept";
         const typeClosed = "Closed";
 
         if (socket) {
