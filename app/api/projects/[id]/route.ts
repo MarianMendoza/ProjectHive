@@ -91,39 +91,55 @@ export async function PUT(req: Request) {
             updatedAt: new Date(),
         };
 
+        // Need to handle what happens if something
+        if (projectAssignedTo) {
+            updatedProjectData.projectAssignedTo = { 
+                ...projectAssignedTo, 
+                studentsId: normalizedAssignedIds 
+            };
+        
+            // Update studentId only if a new value is provided
+            if (projectAssignedTo.studentId == undefined) {
+                updatedProjectData.projectAssignedTo.studentId = 
+                    mongoose.Types.ObjectId.isValid(projectAssignedTo.studentId) 
+                        ? new mongoose.Types.ObjectId(projectAssignedTo.studentId) 
+                        : null;
+            }
+        
+            // Update supervisorId only if a new value is provided
+            if (projectAssignedTo.supervisorId == undefined) {
+                updatedProjectData.projectAssignedTo.supervisorId = 
+                    mongoose.Types.ObjectId.isValid(projectAssignedTo.supervisorId) 
+                        ? new mongoose.Types.ObjectId(projectAssignedTo.supervisorId) 
+                        : null;
+            }
+        
+            // Update secondReaderId only if a new value is provided
+            if (projectAssignedTo.secondReaderId == undefined) {
+                updatedProjectData.projectAssignedTo.secondReaderId = 
+                    mongoose.Types.ObjectId.isValid(projectAssignedTo.secondReaderId) 
+                        ? new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId) 
+                        : null;
 
-        if (projectAssignedTo.secondReaderId !== undefined){
-            updatedProjectData.projectAssignedTo = {
-                ...projectAssignedTo,
-                secondReaderId: mongoose.Types.ObjectId.isValid(projectAssignedTo.secondReaderId)
-                ? new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId) :
-                null,
-                studentsId: normalizedAssignedIds,
-            };
-        }
-        if (projectAssignedTo.supervisorId !== undefined){
-            updatedProjectData.projectAssignedTo = {
-                ...projectAssignedTo,
-                supervisorId: mongoose.Types.ObjectId.isValid(projectAssignedTo.supervisorId)
-                ? new mongoose.Types.ObjectId(projectAssignedTo.supervisorId) :
-                null,
-                studentsId: normalizedAssignedIds,
-            };
-        }
-        else{
+                console.log("test");
+            }
+        } else {
             updatedProjectData.projectAssignedTo = {
                 ...projectAssignedTo,
                 studentsId: normalizedAssignedIds,
             };
         }
+        
+
 
         // If applicants are provided, update them accordingly
         if (applicants && applicants.length > 0) {
             const updatedApplicants = applicants.map((applicant: any) => {
-                const studentId = applicant.studentId._id || applicant.studentId;
-                // Add any logic to update applicant status if needed
-                return applicant;
-            });
+                if (!applicant.studentId) {
+                    return null
+                }
+                return { ...applicant, studentId: applicant.studentId._id || applicant.studentId };
+            }).filter(Boolean);
             updatedProjectData.applicants = updatedApplicants;
         }
 
@@ -152,7 +168,8 @@ export async function PUT(req: Request) {
 export async function POST(req: Request) {
     await connectMongo();
     const url = new URL(req.url);
-    const id = url.pathname.split("/").pop();
+    const id = url.pathname.split("/").pop() as string;
+    console.log(id)
 
     const session = await getServerSession(authOptions);
 
@@ -172,8 +189,8 @@ export async function POST(req: Request) {
         }
 
         const alreadyApplied = project.applicants.some(
-            (applicant: { studentId: mongoose.Types.ObjectId; applicationStatus: "Pending" | "Assigned" | "Rejected" }) =>
-                applicant.studentId.toString() === session.user.id
+            (applicant: { studentId: mongoose.Types.ObjectId | null; applicationStatus: "Pending" | "Assigned" | "Rejected" }) =>
+                applicant.studentId?.id.toString() === session.user.id
         );
 
         const existingProject = await Projects.findOne({ "projectAssignedTo": session.user.id });

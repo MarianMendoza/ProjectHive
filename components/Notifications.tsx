@@ -49,41 +49,47 @@ const Notifications = () => {
     let type;
     let user;
 
-    
-    const userId = relatedProject.receiversId.toString();
-    const receiversId = [relatedProject.userId._id];
-    const projectId = relatedProject.relatedProjectId._id;
 
-    if (relatedProject.type == "Invitation"){
-      type = "InvitationAccept";
+
+    const userId = relatedProject.receiversId.toString();
+    const receiversId = [relatedProject.userId?._id];
+    const projectId = relatedProject.relatedProjectId?._id;
+
+    console.log(relatedProject.relatedProjectId?._id)
+    console.log(projectId)
+
+    if (relatedProject.type == "InvitationSecondReader"){
+      type = "AcceptSecondReader";
       user = {
         projectAssignedTo: {
           ...relatedProject.relatedProjectId.projectAssignedTo,
           secondReaderId: userId.toString(),
+          
         }
       };
     }
     // Need to check this in model.
-    if (relatedProject.type == "Application"){
-      type = "ApplicationAccept"
+
+
+    if (relatedProject.type == "ApplicationStudent"){
+      type = "StudentAccept"
       user = {
         projectAssignedTo: {
           ...relatedProject.relatedProjectId.projectAssignedTo,
-          studentId: [userId],
+          studentsId: [receiversId.toString()],
         }
       }
-
     }
-    else {
-      type = "InvitationSupervisorAccept";
+
+    if (relatedProject.type == "InvitationSupervisor"){
+      type = "SupervisorAccept";
       user = {
         projectAssignedTo: {
           ...relatedProject.relatedProjectId.projectAssignedTo,
           supervisorId: userId.toString(),
         }
-      };
+      }
     }
-    console.log(user);
 
      
     try {
@@ -106,7 +112,7 @@ const Notifications = () => {
         } else {
           console.error("Socket is not initialized");
         }
-        markAsRead(relatedProject._id);
+        markAsRead(relatedProject?._id);
       } else{
         console.error("Failed to update project:", data);
       }
@@ -120,16 +126,16 @@ const Notifications = () => {
     alert("You have sent a decline");
     let type;
 
-    if (relatedProject.type === "Invitation"){
-      type = "InvitationDecline";
-    } if(relatedProject.type ==="Application"){
-      type = "ApplicationDecline";
-
-      // relatedProject.
+    if (relatedProject.type === "InvitationSecondReader"){
+      type = "SecondReaderDecline";
+    } 
+    if(relatedProject.type ==="ApplicationStudent"){
+      type = "StudentDecline";
     }
-     else {
-      type = "InvitationSupervisorDecline"
-    };
+    if(relatedProject.type ==="InvitationSupervisor"){
+      type = "SupervisorDecline";
+    }
+    
 
     //dont make this an array
     const userId = relatedProject.receiversId.toString();
@@ -197,7 +203,7 @@ const Notifications = () => {
                     </button>
                   )}
 
-                  {notification.type === "Invitation" &&
+                  {notification.type === "InvitationSecondReader" &&
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
@@ -231,7 +237,7 @@ const Notifications = () => {
                         </button>
                       </div>
                     )}
-                     {notification.type === "Application" &&
+                     {notification.type === "ApplicationStudent" &&
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button

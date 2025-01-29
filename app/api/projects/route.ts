@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import mongoose from 'mongoose';
 import Projects from "../../models/Projects"
 import Deliverables from '@/app/models/Deliverables';
+
 // POST: Create a new project
 export async function POST(req: Request) {
     await connectMongo();
@@ -32,9 +33,7 @@ export async function POST(req: Request) {
         if (userRole == "Student"){
             studentId = userId;
         } 
-        else{
-            supervisorId = null;
-        }
+        
         const newProject = new Projects({
             title,
             status,

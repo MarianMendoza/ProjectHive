@@ -4,7 +4,7 @@ import { Project } from "../../../types/projects";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
-
+import { User } from "@/types/users";
 
 const ProjectsPage = () => {
   const { data: session } = useSession();
@@ -14,6 +14,8 @@ const ProjectsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [appliedStudents, setAppliedStudents] = useState<{ [projectId: string]: string[] }>({});
+  
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const socket = useSocket();
 
@@ -27,10 +29,11 @@ const ProjectsPage = () => {
           const filteredProjects = data.filter((project: Project) => {
             // Filter based on visibility (Private projects only visible to the author or assigned users)
             if (project.visibility === "Private") {
-              if (project.projectAssignedTo.authorId?._id !== session?.user.id &&
-                  !project.projectAssignedTo?.studentsId.some(
-                    (student) => student._id === session?.user.id
-                  )
+              if (
+                project.projectAssignedTo.authorId?._id !== session?.user.id &&
+                !project.projectAssignedTo?.studentsId.some(
+                  (student) => student._id === session?.user.id
+                )
               ) {
                 return false; // If the project is private, only show if the user is the author or assigned student
               }
@@ -39,9 +42,9 @@ const ProjectsPage = () => {
             // Filter based on search query
             const matchesSearchQuery =
               project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (project.projectAssignedTo?.authorId?.name
+              project.projectAssignedTo?.authorId?.name
                 .toLowerCase()
-                .includes(searchQuery.toLowerCase()));
+                .includes(searchQuery.toLowerCase());
 
             // Filter based on status
             const matchesStatusFilter =
@@ -102,24 +105,44 @@ const ProjectsPage = () => {
     setProjectToDelete(null);
   };
 
-  const handleApply = async (id: string) => {
+  const handleApply = async (id: String) => {
+    setAppliedStudents((prev) => {
+      const updated = { ...prev };
+      if (updated[selectedProject?._id]) {
+        // If the project already has applicants, add the student to the list
+        updated[selectedProject?._id].push(session?.user.id);
+      } else {
+        // Otherwise, create a new entry for the project with the studentId
+        updated[selectedProject?._id] = [session?.user.id];
+      }
+      return updated;
+    });
+
     try {
       const res = await fetch(`../api/projects/${id}`, { method: "POST" });
-  
+      console.log(session?.user.id);
+      console.log(id);
+
       if (res.ok) {
         const updatedProject = await res.json(); // Get the updated project from the response
         console.log(updatedProject);
         const userId = session?.user.id;
-        const receiversId = [updatedProject.project.projectAssignedTo.supervisorId];
-        const projectId = updatedProject.project._id
-        const type = "Application"
+        const receiversId = [
+          updatedProject.project.projectAssignedTo.supervisorId,
+        ];
+        const projectId = updatedProject.project._id;
+        const type = "ApplicationStudent";
 
         if (socket) {
-          socket.emit("sendNotification", { userId, receiversId, projectId ,type }); // Emit event with userId and projectId
+          socket.emit("sendNotification", {
+            userId,
+            receiversId,
+            projectId,
+            type,
+          }); // Emit event with userId and projectId
         } else {
           console.error("Socket is not initialized");
         }
-
         setProjects((prevProjects) => {
           const updatedProjects = prevProjects.map((project) =>
             project._id === id
@@ -129,17 +152,16 @@ const ProjectsPage = () => {
                 }
               : project
           );
-  
+
           return updatedProjects;
         });
-  
+
         if (selectedProject && selectedProject._id === id) {
           setSelectedProject((prev) => ({
             ...prev!,
             applicants: updatedProject.project.applicants, // Update the applicants in the selected project
           }));
         }
-
       } else {
         const errorData = await res.json();
         alert(errorData.message || "Failed to apply for the project");
@@ -148,7 +170,6 @@ const ProjectsPage = () => {
       console.error("Error applying for project:", error);
     }
   };
-  
 
   const handleCardClick = (project: Project) => {
     setSelectedProject(project);
@@ -258,15 +279,16 @@ const ProjectsPage = () => {
                 <div className="assignment-item flex flex-col">
                   <div className="flex">
                     <strong>Students:</strong>{" "}
-                    {(session?.user.role === "Lecturer" &&
-                      session?.user.id === selectedProject.projectAssignedTo.authorId._id) && (
-                      <button
-                        // onClick={() => setAssignShowModal(true)}
-                        className="px-3 "
-                      >
-                        ✏️
-                      </button>
-                    )}
+                    {session?.user.role === "Lecturer" &&
+                      session?.user.id ===
+                        selectedProject.projectAssignedTo.authorId._id && (
+                        <button
+                          // onClick={() => setAssignShowModal(true)}
+                          className="px-3 "
+                        >
+                          ✏️
+                        </button>
+                      )}
                   </div>
 
                   {selectedProject.projectAssignedTo?.studentsId?.length > 0
@@ -279,17 +301,27 @@ const ProjectsPage = () => {
 
               {session?.user.role == "Student" &&
                 session?.user.id !==
-                  selectedProject.projectAssignedTo.authorId._id && selectedProject.status == true && selectedProject.visibility !== "Private" && (
+                  selectedProject.projectAssignedTo.authorId._id &&
+                selectedProject.status == true &&
+                selectedProject.visibility !== "Private" && (
                   <button
                     onClick={() => handleApply(selectedProject?._id)}
-                    className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                    className={`px-4 py-2 rounded-lg ${
+                      selectedProject.applicants.some(
+                        (applicant) => applicant.studentId?._id  === session.user.id
+                      ) || appliedStudents[selectedProject._id]?.includes(session.user.id)
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-lime-600 text-white hover:bg-lime-700"
+                    }`}
                     disabled={selectedProject.applicants.some(
                       (applicant) => applicant.studentId?._id  === session.user.id
-                    )}
+                    ) ||appliedStudents[selectedProject._id]?.includes(session.user.id) } // Check if the user ID is in that array
                   >
-                    {selectedProject.applicants.some(
-                      (applicants) => applicants?.studentId?._id === session.user.id
-                    )? "Applied": "Apply"}
+                    { selectedProject.applicants.some(
+                        (applicant) => applicant.studentId?._id  === session.user.id
+                      ) || appliedStudents[selectedProject._id]?.includes(session.user.id)
+                      ? "Applied"
+                      : "Apply"}
                   </button>
                 )}
 

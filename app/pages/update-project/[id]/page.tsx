@@ -26,6 +26,9 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>(
     []
   );
+  const [unassignedSecondReader, setUnassignedSecondReader] = useState<string | null>(null);
+
+
   const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
   const [invitedLecturers, setInvitedLecturers] = useState<string[]>([]); // Track invited lecturers
   const [invitedLecturer, setInvitedLecturer] = useState<User | null>(null);
@@ -67,7 +70,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           const assignedStudent =
             projectData.project.projectAssignedTo?.studentsId || [];
           setSelectedStudents(assignedStudent);
-
           const assignedSecondReader =
             projectData.project.projectAssignedTo?.secondReaderId._id;
           const matchedLecturer = filteredLecturers.find(
@@ -110,65 +112,23 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const selectedId = e.target.value;
+    console.log(selectedId);
 
     const receiverId = project?.projectAssignedTo.secondReaderId?._id;
 
     if (selectedId === "invite") {
       setShowInviteModal(true);
       return;
+    } 
+    if (selectedId === "") {
+      setUnassignedSecondReader(project?.projectAssignedTo?.secondReaderId || null);
     } else {
-      setSelectedSecondReader(selectedId);
-      const updatedData = {
-        ...formData,
-        projectAssignedTo: {
-          ...project?.projectAssignedTo,
-          secondReaderId: selectedId === "unassign" ? null : selectedId,
-          studentsId: selectedStudents,
-        },
-      };
-
-      try {
-        const userId = session?.user.id;
-        const receiversId = [receiverId];
-        const projectId = project?._id;
-        const type = "UnassignSecondReader";
-
-        if (receiverId == null) {
-          alert("You have no one to unassign.");
-        } else {
-          if (socket) {
-            socket.emit("sendNotification", {
-              userId,
-              receiversId,  
-              projectId,
-              type,
-            });
-          } else {
-            console.error("Socket is not initialized");
-          }
-        }
-
-        alert("You have unassigned the second-reader.");
-
-        const res = await fetch(`../../api/projects/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedData),
-        });
-
-        const updatedProject = await res.json();
-
-        if (res.ok) {
-          console.log("Project updated successfully", updatedProject);
-        } else {
-          console.error("Failed to update project");
-        }
-      } catch (err) {
-        console.error("Error updating second reader!");
-      }
+      setUnassignedSecondReader(null);
     }
+  
+    setSelectedSecondReader(selectedId);
+    
+
   };
 
   const handleInviteClick = async (lecturer: User) => {
@@ -178,7 +138,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     const userId = session?.user.id;
     const receiversId = [lecturer._id];
     const projectId = project?._id;
-    const type = "Invitation";
+    const type = "InvitationSecondReader";
 
     // console.log("User ID", userId, "ReceiversId", receiversId, "ProjectId", projectId, "type", type);
     if (socket) {
@@ -218,6 +178,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       projectAssignedTo: {
         ...project?.projectAssignedTo,
         studentsId: selectedStudents,
+        supervisorId: project?.projectAssignedTo?.supervisorId || null, 
+        secondReaderId: project?.projectAssignedTo?.secondReaderId || null,
       },
     };
 
@@ -238,17 +200,26 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         const userId = session?.user.id;
         const assignedReceivers = selectedStudents;
         const projectId = updatedProject.project._id;
-        const typeAssigned = "ApplicationAccept";
-        const typeClosed = "Closed";
 
         if (socket) {
-          if (assignedReceivers.length > 0) {
+          if (assignedReceivers.length > 0 && formData.status) {
             socket.emit("sendNotification", {
               userId,
               receiversId: assignedReceivers,
               projectId,
-              type: typeAssigned,
+              type: "StudentAccept",
             });
+          }
+
+
+          if (unassignedSecondReader) {
+            socket.emit("sendNotification", {
+              userId: session?.user.id,
+              receiversId: [unassignedSecondReader],
+              projectId: project?._id,
+              type: "UnassignSecondReader",
+            });
+            alert("You have unassigned the second reader.");
           }
 
           if (!formData.status) {
@@ -260,7 +231,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               userId,
               receiversId: applicantReceivers,
               projectId,
-              type: typeClosed,
+              type: "Closed",
             });
           }
         } else {
@@ -362,8 +333,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 </option>
                 {project?.applicants.map((applicant) => (
                   <option
-                    key={applicant.studentId._id}
-                    value={applicant.studentId._id}
+                    value={applicant.studentId?._id}
                   >
                     {applicant.studentId?.name}
                   </option>
@@ -393,7 +363,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                   )?.name || "No one has been assigned"}
                 </option>
                 {selectedSecondReader && (
-                  <option value="unassign">Unassign...</option>
+                  <option value={""}>Unassign...</option>
                 )}
               </select>
             </div>

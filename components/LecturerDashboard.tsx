@@ -8,12 +8,8 @@ import Notification from "./Notifications";
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
-  const [notifications, setNotifications] = useState([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [secondReaderProjects, setSecondReaderProjects] = useState<Project[]>(
-    []
-  );
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [secondReaderProjects, setSecondReaderProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -23,11 +19,11 @@ export default function LecturerDashboard() {
     const fetchApprovalStatus = async () => {
       if (status === "authenticated" && session?.user?.id) {
         try {
-          const response = await fetch(`../../api/users/${session.user.id}`);
+          const response = await fetch(`/api/users/${session.user.id}`);
           const data = await response.json();
 
           if (response.ok) {
-            setIsApproved(data.user.approved); // Assumes API response has an `approved` field
+            setIsApproved(data.user.approved); // Assumes API response has an approved field
           } else {
             console.error("Error fetching approval status:", data.message);
             setIsApproved(false); // Default to false on error
@@ -43,56 +39,22 @@ export default function LecturerDashboard() {
   }, [session, status]);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      if (status === "authenticated" && session?.user?.id) {
-        try {
-          const res = await fetch(`../api/notifications/${session.user.id}`);
-          const data = await res.json();
-
-          if (res.ok) {
-            setNotifications(data.notifications);
-          } else {
-            console.error("Error fetching notifications:", data.message);
-          }
-        } catch (error) {
-          console.error("Error fetching notifications:", error);
-        }
-      }
-      setLoadingNotifications(false);
-    };
-
-    fetchNotifications();
-  }, [session, status]);
-
-  useEffect(() => {
     const fetchProjects = async () => {
-      if (status === "authenticated" && session?.user?.id) {
+      if (status === "authenticated" && session?.user.id) {
         try {
-          const res = await fetch("../api/projects");
+          const res = await fetch("/api/projects");
 
           if (res.ok) {
             const data = await res.json();
 
             // Filter the projects to get only those assigned to the lecturer
             const filteredProjects = data.filter((project: Project) => {
-              if (project.projectAssignedTo.supervisorId?._id === session.user.id) {
-                return true;
-              }
-
-              // const readerProjects = data.filter(
-              //   (project: Project) =>
-              //     project.projectAssignedTo.secondReaderId._id ===
-              //     session.user.id
-              // );
-
-              // setSecondReaderProjects(readerProjects);
+              return project.projectAssignedTo.supervisorId?._id.toString() === session.user.id;
             });
 
-            // Ensure the first project is always the first in the list (sort if necessary)
+            // Sort projects by creation date
             const sortedProjects = filteredProjects.sort(
-              (a: Project, b: Project) => {
-                return a.createdAt > b.createdAt ? 1 : -1; // Adjust sorting criteria as needed
-              }
+              (a: Project, b: Project) => (a.createdAt > b.createdAt ? 1 : -1)
             );
 
             setProjects(sortedProjects);
@@ -106,7 +68,31 @@ export default function LecturerDashboard() {
       setLoadingProjects(false);
     };
 
+    const fetchSecondReaderProjects = async () => {
+      if (status === "authenticated" && session?.user.id) {
+        try {
+          const res = await fetch("/api/projects");
+
+          if (res.ok) {
+            const data = await res.json();
+
+            // Filter the projects where the user is assigned as a second reader
+            const secondReaderFiltered = data.filter((project: Project) => {
+              return project.projectAssignedTo.secondReaderId?._id.toString() === session.user.id;
+            });
+
+            setSecondReaderProjects(secondReaderFiltered);
+          } else {
+            console.error("Error fetching second reader projects");
+          }
+        } catch (error) {
+          console.error("Error fetching second reader projects");
+        }
+      }
+    };
+
     fetchProjects();
+    fetchSecondReaderProjects();
   }, [session, status]);
 
   const closeModal = () => {
@@ -125,7 +111,7 @@ export default function LecturerDashboard() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`../api/projects/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
 
       if (res.ok) {
         setProjects((prevProjects) => {
@@ -185,7 +171,7 @@ export default function LecturerDashboard() {
                 </Link>
               </div>
 
-              {/* Your Projects Section - Positioned below the progress and notifications */}
+              {/* Your Projects Section */}
               <div className="bg-white w-auto m-6 rounded-lg col-span-3">
                 {loadingProjects ? (
                   <p>Loading projects...</p>
@@ -225,35 +211,36 @@ export default function LecturerDashboard() {
                   <p>No projects found.</p>
                 )}
               </div>
-
-              {/* <div>
-                <h3 className="text-xl font-bold text-gray-800">
-                  Projects You Are a Second Reader For
-                </h3>
-                {loadingProjects ? (
-                  <p>Loading projects...</p>
-                ) : secondReaderProjects.length > 0 ? (
-                  secondReaderProjects.map((project) => (
-                    <div
-                      key={project._id}
-                      className="p-4 shadow rounded-lg mb-4"
-                    >
-                      <h4 className="text-lg font-semibold">{project.title}</h4>
-                      <p className="text-gray-600">
-                        Assigned by: {project.projectAssignedTo.authorId.name}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p>
-                    You are not assigned as a second reader for any projects.
-                  </p>
-                )}
-              </div> */}
             </div>
+
+            {/* Notifications Section */}
             <div className="w-1/3 max-h-max">
               <Notification></Notification>
             </div>
+          </div>
+
+          {/* Second Reader Projects Section */}
+          <div className="w-full bg-white p-6 mt-6 rounded-lg">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Projects You Are a Second Reader For
+            </h3>
+            {loadingProjects ? (
+              <p>Loading second reader projects...</p>
+            ) : secondReaderProjects.length > 0 ? (
+              secondReaderProjects.map((project) => (
+                <div
+                  key={project._id}
+                  className="p-4 shadow rounded-lg mb-4"
+                >
+                  <h4 className="text-lg font-semibold">{project.title}</h4>
+                  <p className="text-gray-600">
+                    Assigned by: {project.projectAssignedTo.authorId.name}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p>You are not assigned as a second reader for any projects.</p>
+            )}
           </div>
         </>
       ) : (

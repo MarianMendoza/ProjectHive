@@ -22,11 +22,7 @@ export async function GET(req: Request) {
     })
     .populate({
       path: "relatedProjectId",
-      select: "title"
-    }) 
-    .populate({
-      path: "relatedProjectId",
-      select: "projectAssignedTo"
+      select: "title projectAssignedTo"
     }) 
     .populate({
       path: "receiverId",

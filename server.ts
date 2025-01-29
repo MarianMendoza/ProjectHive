@@ -75,6 +75,8 @@ const startServer = async () => {
         // console.log(receiversId);
         console.log(userId.name);
 
+      
+
         const user = await User.findById(userId, 'name');
         if (!user) {
           throw new Error(`User not found for userId: ${userId}`);
@@ -86,51 +88,47 @@ const startServer = async () => {
           throw new Error(`Project not found for projectId: ${projectId}`);
         }
 
-        console.log(projectId.title)
-
-
         let message = "";
 
+        // Save the notification to the database
+     
+
         switch(type){
-          case "Application":
-            message = `${userId.name} applied to your project ${projectId.title}`;
+          case "ApplicationStudent":
+            message = `${user.name} applied to your project ${project.title}`;
             break
-          case "ApplicationAccept":
-            message = `You you have been assigned to ${projectId.title}.` 
+          case "StudentAccept":
+            message = `You you have been assigned to ${project.title}.` 
           break
-          case "ApplicationDecline":
-            message =  `You have not been successful in your application for ${projectId.title}.`
+          case "StudentDecline":
+            message =  `You have not been successful in your application for ${project.title}.`
           break
-          case "Update":
-            message = `You have been assigned to ${projectId.title}.`;
-            break
           case "Closed":
-            message = `The project ${projectId.title} is now closed.`;
+            message = `The project ${project.title} is now closed.`;
             break
-          case "Invitation":
-            message = `You have been invited to become a second-reader for ${projectId.title}`;
+          case "InvitationSecondReader":
+            message = `You have been invited to become a second-reader for ${project.title}`;
             break
-          case "InvitationDecline":
-            message = `${userId.name} has declined your invite to become second-reader for ${projectId.title}`;
+          case "DeclineSecondReader":
+            message = `${user.name} has declined your invite to become second-reader for ${project.title}`;
             break
-          case "InvitationAccept":
-            message = `${userId.name} has accepted your invite and is now a second-reader for ${projectId.title}`;
+          case "AcceptSecondReader":
+            message = `${user.name} has accepted your invite and is now a second-reader for ${project.title}`;
             break
           case "UnassignSecondReader":
-            message = `You have been unassigned as Second-Reader from ${projectId.title}`;
+            message = `You have been unassigned as Second-Reader from ${project.title}`;
             break
           case "InvitationSupervisor":
-            message = `You have been invited to supervise ${projectId.title} by ${userId.name}`
+            message = `You have been invited to supervise ${project.title} by ${user.name}`
             break
-          case "InvitationSupervisorAccept":
-            message = `${userId.name} has accepted to supervise ${projectId.title}.`
+          case "SupervisorAccept":
+            message = `${user.name} has accepted to supervise ${project.title}.`
             break
-          case "InvitationSupervisorDecline":
-            message = `Your invite to ${userId.name} has been declined for ${projectId.title}.`
+          case "SupervisorDecline":
+            message = `Your invite to ${user.name} has been declined for ${project.title}.`
             break
         }
 
-        // Save the notification to the database
         const notification = new Notification({
           userId: userId,
           receiversId: receiversId,
@@ -138,6 +136,8 @@ const startServer = async () => {
           type: type,
           relatedProjectId: projectId,
         });
+
+
 
 
         await notification.save();

@@ -66,7 +66,9 @@ const UsersPage = () => {
       const userId = session?.user.id;
       const receiversId = [selectedLecturer?._id];
       const projectId = selectedProject;
-      const type = "Invitation";
+      const type = "InvitationSecondReader";
+
+      console.log(projectId)
 
       // console.log("User ID", userId, "ReceiversId", receiversId, "ProjectId", projectId, "type", type);
       if (socket) {
