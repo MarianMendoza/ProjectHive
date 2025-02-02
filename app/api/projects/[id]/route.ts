@@ -121,7 +121,6 @@ export async function PUT(req: Request) {
                         ? new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId) 
                         : null;
 
-                console.log("test");
             }
         } else {
             updatedProjectData.projectAssignedTo = {

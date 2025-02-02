@@ -14,8 +14,13 @@ const ProjectsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [appliedStudents, setAppliedStudents] = useState<{ [projectId: string]: string[] }>({});
-  
+  const [showMessageModal, setShowMessageModal] = useState<boolean>(false);
+  const [message, setMessage] = useState("");
+
+  const [appliedStudents, setAppliedStudents] = useState<{
+    [projectId: string]: string[];
+  }>({});
+
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const socket = useSocket();
 
@@ -106,6 +111,13 @@ const ProjectsPage = () => {
   };
 
   const handleApply = async (id: String) => {
+    setShowMessageModal(true);
+  };
+
+  const handleModalSubmit = async (id:String) => {
+
+    setShowMessageModal(false);
+
     setAppliedStudents((prev) => {
       const updated = { ...prev };
       if (updated[selectedProject?._id]) {
@@ -120,26 +132,30 @@ const ProjectsPage = () => {
 
     try {
       const res = await fetch(`../api/projects/${id}`, { method: "POST" });
-      console.log(session?.user.id);
-      console.log(id);
+      // console.log(session?.user.id);
+      // console.log(id);
 
       if (res.ok) {
         const updatedProject = await res.json(); // Get the updated project from the response
-        console.log(updatedProject);
+        // console.log(updatedProject);
         const userId = session?.user.id;
         const receiversId = [
           updatedProject.project.projectAssignedTo.supervisorId,
         ];
         const projectId = updatedProject.project._id;
         const type = "ApplicationStudent";
+        const messageUser = message;
 
         if (socket) {
           socket.emit("sendNotification", {
             userId,
             receiversId,
             projectId,
+            messageUser,
             type,
           }); // Emit event with userId and projectId
+
+          console.log(messageUser);
         } else {
           console.error("Socket is not initialized");
         }
@@ -308,18 +324,32 @@ const ProjectsPage = () => {
                     onClick={() => handleApply(selectedProject?._id)}
                     className={`px-4 py-2 rounded-lg ${
                       selectedProject.applicants.some(
-                        (applicant) => applicant.studentId?._id  === session.user.id
-                      ) || appliedStudents[selectedProject._id]?.includes(session.user.id)
+                        (applicant) =>
+                          applicant.studentId?._id === session.user.id
+                      ) ||
+                      appliedStudents[selectedProject._id]?.includes(
+                        session.user.id
+                      )
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-lime-600 text-white hover:bg-lime-700"
                     }`}
-                    disabled={selectedProject.applicants.some(
-                      (applicant) => applicant.studentId?._id  === session.user.id
-                    ) ||appliedStudents[selectedProject._id]?.includes(session.user.id) } // Check if the user ID is in that array
+                    disabled={
+                      selectedProject.applicants.some(
+                        (applicant) =>
+                          applicant.studentId?._id === session.user.id
+                      ) ||
+                      appliedStudents[selectedProject._id]?.includes(
+                        session.user.id
+                      )
+                    } // Check if the user ID is in that array
                   >
-                    { selectedProject.applicants.some(
-                        (applicant) => applicant.studentId?._id  === session.user.id
-                      ) || appliedStudents[selectedProject._id]?.includes(session.user.id)
+                    {selectedProject.applicants.some(
+                      (applicant) =>
+                        applicant.studentId?._id === session.user.id
+                    ) ||
+                    appliedStudents[selectedProject._id]?.includes(
+                      session.user.id
+                    )
                       ? "Applied"
                       : "Apply"}
                   </button>
@@ -397,6 +427,34 @@ const ProjectsPage = () => {
                 className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
               >
                 Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showMessageModal && (
+        <div className="modal fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="modal-content bg-white p-6 rounded-lg w-96 max-w-full">
+            <h2 className="text-xl font-bold">Send a message:</h2>
+            <textarea
+              className="w-full h-32 p-2 border border-gray-300 rounded-md"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Enter your message"
+            />
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                className="bg-lime-500 text-white px-4 py-2 rounded-md"
+                onClick={() => handleModalSubmit(selectedProject?._id)}
+              >
+                Submit
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+                onClick={() => setShowMessageModal(false)}
+              >
+                Cancel
               </button>
             </div>
           </div>

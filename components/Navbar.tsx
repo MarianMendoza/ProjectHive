@@ -32,6 +32,7 @@ export default function Navbar() {
                 <>
                   <Link href="/pages/dashboard" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600">Dashboard</Link>
                   <Link href="/pages/profile" className="block py-2 px-3 text-black md:p-0 hover:text-lime-600">Profile</Link>
+
                   <button onClick={() => signOut({ callbackUrl:"/"})} className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600">Logout</button>
 
                 </>

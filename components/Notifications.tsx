@@ -193,6 +193,10 @@ const Notifications = () => {
                   {notification.message}
                 </p>
 
+                <p className="text-gray-800 font-medium mb-4">
+                  {notification.messageUser}
+                </p>
+
                 <div className="flex flex-col space-y-2 w-full">
                   {!notification.isRead && (
                     <button

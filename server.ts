@@ -60,7 +60,7 @@ const startServer = async () => {
     });
 
     // Handle sending notifications
-    socket.on("sendNotification", async ({ userId, receiversId, projectId, type }) => {
+    socket.on("sendNotification", async ({ userId, receiversId, projectId,messageUser, type }) => {
       // console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
       try {
         if (!Array.isArray(receiversId)) {
@@ -91,8 +91,6 @@ const startServer = async () => {
         let message = "";
 
         // Save the notification to the database
-     
-
         switch(type){
           case "ApplicationStudent":
             message = `${user.name} applied to your project ${project.title}`;
@@ -133,12 +131,10 @@ const startServer = async () => {
           userId: userId,
           receiversId: receiversId,
           message: message,
+          messageUser: messageUser,
           type: type,
           relatedProjectId: projectId,
         });
-
-
-
 
         await notification.save();
         console.log(receiversId);
