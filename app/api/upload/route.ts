@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 import { connectMongo } from "@/lib/mongodb"; // Adjust the import path to your DB connection
 import User from "@/app/models/User";
 
-// Disable Next.js's built-in body parser so formidable can handle the file upload.
+// Disable Next.js's built-in body parser so that formidable can handle the file upload.
 export const config = {
   api: {
     bodyParser: false,
@@ -17,23 +17,17 @@ export const config = {
 
 export async function POST(request: Request) {
   try {
-    // 1. Convert the Web Request to a Node.js stream:
     const buf = await request.arrayBuffer();
     const buffer = Buffer.from(buf);
-    // Create a Readable stream from the buffer.
     const stream = Readable.from(buffer);
-    // Convert the Headers object to a plain object.
     const headers = Object.fromEntries(request.headers.entries());
-    // Create a fake "req" that includes the headers.
     const fakeReq = Object.assign(stream, { headers });
 
-    // 2. Wrap formidable's parsing in a promise.
     const { fields, files } = await new Promise<{
       fields: formidable.Fields;
       files: formidable.Files;
     }>((resolve, reject) => {
       const form = formidable({
-        // Define the upload directory and keep file extensions.
         uploadDir: path.join(process.cwd(), "public", "uploads"),
         keepExtensions: true,
       });
@@ -54,17 +48,32 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get the file path and create a URL for accessing the file.
-    const filePath = file.filepath;
-    const fileUrl = `/uploads/${path.basename(filePath)}`;
+    let destinationFolder: string;
+    if (file.mimetype && file.mimetype.startsWith("image/")) {
+      destinationFolder = path.join(process.cwd(), "public", "uploads", "profileImages");
+    } else {
+      destinationFolder = path.join(process.cwd(), "public", "uploads", "documents");
+    }
+
+    await fs.promises.mkdir(destinationFolder, { recursive: true });
+
+    const newFilePath = path.join(destinationFolder, path.basename(file.filepath));
+    await fs.promises.rename(file.filepath, newFilePath);
+
+    let fileUrl: string;
+    if (file.mimetype && file.mimetype.startsWith("image/")) {
+      fileUrl = `/uploads/profileImages/${path.basename(newFilePath)}`;
+    } else {
+      fileUrl = `/uploads/documents/${path.basename(newFilePath)}`;
+    }
+
     const userId = fields.userId as string;
 
-    // 4. Connect to MongoDB and update the user's profile picture URL.
     await connectMongo();
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { pfpurl: fileUrl },
+      { pfpurl: fileUrl }, // Update according to your schema and requirements
       { new: true, runValidators: true }
     );
 
@@ -75,7 +84,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. Return a successful response.
     return NextResponse.json({ pfpUrl: fileUrl });
   } catch (error) {
     console.error("Upload error:", error);
