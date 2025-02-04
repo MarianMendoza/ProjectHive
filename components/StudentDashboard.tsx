@@ -25,7 +25,7 @@ export default function StudentDashboard() {
       }
 
       try {
-        const res = await fetch("../api/projects");
+        const res = await fetch("/api/projects");
         if (res.ok) {
           const data = await res.json();
           const appliedProjects = data.filter((project: Project) =>
@@ -76,7 +76,7 @@ export default function StudentDashboard() {
 
     try {
       const res = await fetch(
-        `../api/deliverables?projectId=${assignedProject._id}`,
+        `/api/deliverables?projectId=${assignedProject._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -99,9 +99,7 @@ export default function StudentDashboard() {
   return (
     <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-          Welcome to Your Dashboard
-        </h2>
+
 
           {assignedProject ? (
             <div className="bg-white p-6 rounded-lg">
@@ -174,25 +172,7 @@ export default function StudentDashboard() {
                       }
                     />
                   </div>
-                  <div>
-                    <label className="block text-gray-700 font-semibold">
-                      Deadline:
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      value={deliverables.outlineDocument.deadline}
-                      onChange={(e) =>
-                        setDeliverables({
-                          ...deliverables,
-                          outlineDocument: {
-                            ...deliverables.outlineDocument,
-                            deadline: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
+                  
                   <button
                     className="bg-lime-600 text-white px-6 py-2 rounded-md hover:bg-lime-700"
                     onClick={handleSaveChanges}

@@ -23,7 +23,7 @@ const DeliverablesPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchDeliverables = async () => {
       try {
-        const res = await fetch(`../api/deliverables/${id}`);
+        const res = await fetch(`/api/deliverables/${id}`);
         const data = await res.json();
 
         if (res.ok) {
@@ -62,7 +62,7 @@ const DeliverablesPage = ({ params }: { params: { id: string } }) => {
 
   const handleSaveChanges = async () => {
     try {
-      const res = await fetch(`../api/deliverables/${id}`, {
+      const res = await fetch(`/api/deliverables/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(deliverables),

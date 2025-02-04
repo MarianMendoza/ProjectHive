@@ -81,17 +81,7 @@ export default function Profile() {
             alt="Profile"
             className="w-full h-full object-cover rounded-full shadow-md "
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 rounded-full">
-            {/* Upload Icon (SVG) */}
-            <svg
-              className="w-10 h-10 text-white opacity-0 group-hover:opacity-100 transition duration-300"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M4 13a1 1 0 011-1h3V5a1 1 0 112 0v7h3a1 1 0 110 2H5a1 1 0 01-1-1z" />
-              <path d="M3 17a2 2 0 002 2h10a2 2 0 002-2v-1H3v1z" />
-            </svg>
-          </div>
+          
           <input
             type="file"
             accept="image/*"

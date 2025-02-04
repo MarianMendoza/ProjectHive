@@ -1,14 +1,11 @@
-// app/api/upload/route.ts
-
 import formidable from "formidable";
 import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 import { NextResponse } from "next/server";
-import { connectMongo } from "@/lib/mongodb"; // Adjust the import path to your DB connection
+import { connectMongo } from "@/lib/mongodb";
 import User from "@/app/models/User";
 
-// Disable Next.js's built-in body parser so that formidable can handle the file upload.
 export const config = {
   api: {
     bodyParser: false,
