@@ -70,7 +70,6 @@ const UsersPage = () => {
 
       console.log(projectId)
 
-      // console.log("User ID", userId, "ReceiversId", receiversId, "ProjectId", projectId, "type", type);
       if (socket) {
         socket.emit("sendNotification", {
           userId,
@@ -145,9 +144,9 @@ const UsersPage = () => {
               key={user._id}
               className="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0"
             >
-              {user.imageUrl ? (
+              {user.pfpurl ? (
                 <img
-                  src={user.imageUrl}
+                  src={user.pfpurl}
                   alt={user.name}
                   className="w-16 h-16 rounded-full object-cover"
                 />
