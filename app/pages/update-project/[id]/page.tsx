@@ -43,11 +43,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const projectRes = await fetch(`../../api/projects/${id}`);
+        const projectRes = await fetch(`/api/projects/${id}`);
         const projectData = await projectRes.json();
         console.log(projectRes.json);
 
-        const lecturersRes = await fetch("../../api/users");
+        const lecturersRes = await fetch("/api/users");
         const lecturersData = await lecturersRes.json();
 
         if (projectRes.ok) {
@@ -184,7 +184,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     };
 
     try {
-      const res = await fetch(`../../api/projects/${id}`, {
+      const res = await fetch(`/api/projects/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

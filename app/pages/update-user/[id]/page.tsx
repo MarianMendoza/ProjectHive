@@ -25,7 +25,7 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`../../api/users/${id}`);
+        const res = await fetch(`/api/users/${id}`);
         if (!res.ok) throw new Error("Failed to fetch user data");
         const data = await res.json();
 
@@ -77,7 +77,7 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
     }
 
     try {
-      const res = await fetch(`../../api/users/${id}`, {
+      const res = await fetch(`/api/users/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

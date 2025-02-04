@@ -20,7 +20,7 @@ const UsersPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const usersResponse = await fetch("../api/users");
+        const usersResponse = await fetch("/api/users");
         const usersData = await usersResponse.json();
         setLecturers(
           usersData.filter(
@@ -28,7 +28,7 @@ const UsersPage = () => {
           )
         );
 
-        const projectsResponse = await fetch("../api/projects");
+        const projectsResponse = await fetch("/api/projects");
         const projectsData = await projectsResponse.json();
         setProjects(projectsData);
 

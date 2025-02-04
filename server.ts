@@ -6,6 +6,10 @@ import User from "./app/models/User";
 import Projects from "./app/models/Projects";
 import mongoose from "mongoose";
 
+
+
+
+
 // Load environment variables
 dotenv.config();
 console.log(process.env.MONGODB_URI); // Debug log

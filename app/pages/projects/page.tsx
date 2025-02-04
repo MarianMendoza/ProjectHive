@@ -27,7 +27,7 @@ const ProjectsPage = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("../api/projects");
+        const res = await fetch("/api/projects");
         if (res.ok) {
           const data = await res.json();
 
@@ -75,7 +75,7 @@ const ProjectsPage = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`../api/projects/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
 
       if (res.ok) {
         setProjects((prevProjects) => {
@@ -131,7 +131,7 @@ const ProjectsPage = () => {
     });
 
     try {
-      const res = await fetch(`../api/projects/${id}`, { method: "POST" });
+      const res = await fetch(`/api/projects/${id}`, { method: "POST" });
       // console.log(session?.user.id);
       // console.log(id);
 
@@ -153,9 +153,8 @@ const ProjectsPage = () => {
             projectId,
             messageUser,
             type,
-          }); // Emit event with userId and projectId
+          });
 
-          console.log(messageUser);
         } else {
           console.error("Socket is not initialized");
         }
@@ -433,33 +432,33 @@ const ProjectsPage = () => {
         </div>
       )}
 
-      {showMessageModal && (
-        <div className="modal fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-          <div className="modal-content bg-white p-6 rounded-lg w-96 max-w-full">
-            <h2 className="text-xl font-bold">Send a message:</h2>
-            <textarea
-              className="w-full h-32 p-2 border border-gray-300 rounded-md"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Enter your message"
-            />
-            <div className="mt-4 flex justify-end space-x-2">
-              <button
-                className="bg-lime-500 text-white px-4 py-2 rounded-md"
-                onClick={() => handleModalSubmit(selectedProject?._id)}
-              >
-                Submit
-              </button>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-                onClick={() => setShowMessageModal(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+{showMessageModal && (
+  <div className="modal fixed w-full inset-0 flex justify-center items-center bg-black bg-opacity-50 ">
+    <div className="modal-content bg-white p-8 rounded-2xl w-96 max-w-full shadow-lg">
+      <h2 className="text-1xl font-semibold text-gray-800 mb-4">Send a message to {selectedProject?.projectAssignedTo.supervisorId.name}:</h2>
+      <textarea
+        className="w-full h-36 p-4 border border-gray-300 rounded-md text-md focus:outline-none focus:ring-2 focus:ring-lime-500 resize-none"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Enter your message"
+      />
+      <div className="mt-6 flex justify-end space-x-4">
+        <button
+          className="bg-lime-600 text-white px-6 py-3 rounded-md font-medium focus:bg-lime-500"
+          onClick={() => handleModalSubmit(selectedProject?._id)}
+        >
+          Submit
+        </button>
+        <button
+          className="bg-red-600 text-white px-6 py-3 rounded-md font-medium  focus:bg-red-500"
+          onClick={() => setShowMessageModal(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

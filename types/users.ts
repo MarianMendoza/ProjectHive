@@ -9,6 +9,7 @@ export interface User {
     approved: boolean;
     assigned: boolean;
     assignedProject?: string;
+    pfpurl: string;
 
   }
   
