@@ -369,12 +369,7 @@ const ProjectsPage = () => {
                 })()}
               </p>
 
-              <p>
-                <strong>Description:</strong>{" "}
-                {selectedProject.description || "No description"}
-              </p>
-
-              <div className="mt-6 flex gap-4">
+              <div className="flex gap-4 mr-0 mt-3 mb-3">
                 {session &&
                   selectedProject.projectAssignedTo.authorId._id ===
                     session.user.id && (
@@ -394,6 +389,13 @@ const ProjectsPage = () => {
                     </>
                   )}
               </div>
+
+              <p>
+                <strong>Description:</strong>{" "}
+                {selectedProject.description || "No description"}
+              </p>
+
+              
             </>
           ) : (
             <p className="text-gray-500">

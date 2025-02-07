@@ -9,16 +9,11 @@ export default function StudentDashboard() {
   const { data: session } = useSession();
   const [assignedProject, setAssignedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [deliverables, setDeliverables] = useState({
-    outlineDocument: { file: "", uploadedAt: "", deadline: "" },
-    extendedAbstract: { file: "", uploadedAt: "", deadline: "" },
-    finalProjectReport: { file: "", uploadedAt: "", deadline: "" },
-  });
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchProjects = async () => {
-      if (!session?.user.id) {
+      if (!session?.user?.id) {
         console.log("Session user ID is not available.");
         setLoading(false);
         return;
@@ -30,34 +25,19 @@ export default function StudentDashboard() {
           const data = await res.json();
           const appliedProjects = data.filter((project: Project) =>
             project.applicants.some(
-              (applicant) =>
-                applicant.studentId?._id.toString() === session.user.id
+              (applicant) => applicant.studentId?._id === session.user.id
             )
           );
 
           setProjects(appliedProjects);
 
-          const assignedProject = appliedProjects.find((project: Project) =>
+          const assigned = appliedProjects.find((project: Project) =>
             project.projectAssignedTo.studentsId.some(
               (student) => student?._id === session.user.id
             )
           );
 
-          setAssignedProject(assignedProject);
-
-          if (assignedProject) {
-            // Fetch deliverables from database
-            const deliverablesRes = await fetch(
-              `../api/deliverables?projectId=${assignedProject._id}`
-            );
-            const deliverablesData = await deliverablesRes.json();
-
-            if (deliverablesRes.ok) {
-              setDeliverables(deliverablesData.deliverables);
-            } else {
-              console.log("No deliverables found.");
-            }
-          }
+          setAssignedProject(assigned);
         } else {
           console.error("Failed to fetch projects.");
         }
@@ -71,126 +51,97 @@ export default function StudentDashboard() {
     fetchProjects();
   }, [session?.user?.id]);
 
-  const handleSaveChanges = async () => {
-    if (!assignedProject) return;
-
-    try {
-      const res = await fetch(
-        `/api/deliverables?projectId=${assignedProject._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(deliverables),
-        }
-      );
-
-      if (res.ok) {
-        alert("Deliverables updated successfully.");
-      } else {
-        alert("Failed to update deliverables.");
-      }
-    } catch (error) {
-      console.error("Error updating deliverables", error);
-    }
-  };
-
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2">
+    <>
+      <div className="mb-6">
+        <img
+          src={"/iStock-1357672566.jpg"}
+          alt="Student Dashboard Banner"
+          className="w-screen h-64 object-cover rounded-b-lg "
+        />
 
-
+      </div>
+      <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
           {assignedProject ? (
-            <div className="bg-white p-6 rounded-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">
+            <div className="bg-white">
+              <h3 className="text-xl font-bold text-gray-800 mb-6">
                 Assigned Project
               </h3>
-              <p className="text-lg text-lime-600 font-semibold mb-2">
+              <p className="text-lg text-lime-600 font-semibold mb-4">
                 {assignedProject.title}
               </p>
-              <p className="text-sm text-gray-600">
-                {assignedProject.description || "No description available."}
-              </p>
+
+              {/* Supervisor, Second Reader, and Students in One Row */}
+              <div className="flex flex-wrap gap-6 mb-6">
+                <div className="flex-1">
+                  <p className="text-md font-semibold text-gray-800">
+                    Supervisor:
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {assignedProject.projectAssignedTo.supervisorId?.name || (
+                      <span>Not Assigned</span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-md font-semibold text-gray-800">
+                    Second Reader:
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {assignedProject.projectAssignedTo.secondReaderId?.name || (
+                      <span>Not Assigned</span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-md font-semibold text-gray-800">
+                    Students:
+                  </p>
+                  <ul className="list-disc list-inside text-sm text-gray-600">
+                    {assignedProject.projectAssignedTo.studentsId.length > 0 ? (
+                      assignedProject.projectAssignedTo.studentsId.map(
+                        (student) => <li key={student._id}>{student.name}</li>
+                      )
+                    ) : (
+                      <p>No Students Assigned</p>
+                    )}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Project Description */}
+              <div className="mb-6">
+                <p className="text-md font-semibold text-gray-800">
+                  Description:
+                </p>
+                <p className="text-sm text-gray-600">
+                  {assignedProject.description || "No description available."}
+                </p>
+              </div>
 
               <div className="mt-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">
-                  Deliverables
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-gray-700 font-semibold">
-                      Outline Document:
-                    </label>
-                    <input
-                      type="file"
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      onChange={(e) =>
-                        setDeliverables({
-                          ...deliverables,
-                          outlineDocument: {
-                            ...deliverables.outlineDocument,
-                            file: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-700 font-semibold">
-                      Extended Abstract:
-                    </label>
-                    <input
-                      type="file"
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      onChange={(e) =>
-                        setDeliverables({
-                          ...deliverables,
-                          extendedAbstract: {
-                            ...deliverables.extendedAbstract,
-                            file: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-700 font-semibold">
-                      Final Project Report:
-                    </label>
-                    <input
-                      type="file"
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      onChange={(e) =>
-                        setDeliverables({
-                          ...deliverables,
-                          finalProjectReport: {
-                            ...deliverables.finalProjectReport,
-                            file: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                  
-                  <button
-                    className="bg-lime-600 text-white px-6 py-2 rounded-md hover:bg-lime-700"
-                    onClick={handleSaveChanges}
-                  >
-                    Save Changes
-                  </button>
-                </div>
+                <Link
+                  href={`/pages/deliverables?projectId=${assignedProject._id}`}
+                  className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200"
+                >
+                  Manage Deliverables
+                </Link>
               </div>
             </div>
           ) : (
             <div>
-              <div className="flex justify-between">
-                <h3 className="text-xl space-y-10 font-bold text-gray-800 mb-4">
+              <div className="flex justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-800">
                   Applied Projects
                 </h3>
                 <Link
                   href="/pages/create-project"
-                  className="bg-lime-600  text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                  className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200"
                 >
                   Create New Project
                 </Link>
@@ -201,7 +152,7 @@ export default function StudentDashboard() {
                   {projects.map((project) => (
                     <li
                       key={project._id}
-                      className="bg-white p-4 rounded-lg my-4 shadow-md hover:shadow-lg transition-all"
+                      className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-200"
                     >
                       <h4 className="text-lg font-semibold text-lime-600">
                         {project.title}
@@ -218,10 +169,12 @@ export default function StudentDashboard() {
             </div>
           )}
         </div>
+
         {/* Notifications Section */}
-        <div className="container mx-auto my-10">
-          <Notifications></Notifications>
+        <div className="md:col-span-1">
+          <Notifications />
         </div>
       </div>
+    </>
   );
 }

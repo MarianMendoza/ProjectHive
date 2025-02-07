@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Number, Schema } from 'mongoose';
 
 
 export interface IDeliverables extends Document{
@@ -7,16 +7,21 @@ export interface IDeliverables extends Document{
         file: string | null;
         uploadedAt: Date | null;
         deadline: Date | null;
+        grade: number | null;
     };
     extendedAbstract:{
         file: string | null;
         uploadedAt: Date | null;
         deadline: Date | null;
+        grade: number | null;
+
     };
     finalReport:{
         file: string | null;
         uploadedAt: Date | null;
         deadline: Date | null;
+        grade: number | null;
+
     };
 
     createdAt: Date;
@@ -29,16 +34,21 @@ const DeliverablesSchema: Schema = new Schema({
         file: {type: String, default: null},
         uploadedAt: {type: Date, default: null},
         deadline:{type:Date, default: null},
+        grade: {type:Number, default: null},
     },
     extendedAbstract:{
         file: {type: String, default: null},
         uploadedAt: {type: Date, default: null},
         deadline:{type:Date, default: null},
+        grade: {type:Number, default: null},
+
     },    
     finalReport:{
         file: {type: String, default: null},
         uploadedAt: {type: Date, default: null},
         deadline:{type:Date, default: null},
+        grade: {type:Number, default: null},
+
     },
     createdAt: { type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
