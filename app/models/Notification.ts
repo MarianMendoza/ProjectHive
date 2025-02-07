@@ -8,7 +8,7 @@ export interface INotification extends Document {
   type: "ApplicationStudent" | "StudentAccept" |"StudentDecline"|"Closed" | "InvitationSecondReader" | "DeclineSecondReader" |"AcceptSecondReader" | "UnassignSecondReader" | "InvitationSupervisor"| "SupervisorDecline" | "SupervisorAccept" ; // Type of notification
   relatedProjectId: mongoose.Types.ObjectId ; // Optional: Associated project ID
   isRead: boolean; // Whether the notification has been read
-  createdAt: Date; // When the notification was created
+  timestamp: Date; // When the notification was created
 }
 
 const NotificationSchema: Schema = new Schema({
@@ -19,7 +19,7 @@ const NotificationSchema: Schema = new Schema({
   type: { type: String, enum: ["ApplicationStudent", "StudentAccept","StudentDecline","Closed", "InvitationSecondReader", "DeclineSecondReader","AcceptSecondReader", "UnassignSecondReader", "InvitationSupervisor", "SupervisorDecline", "SupervisorAccept"] }, // Type of notification
   relatedProjectId: { type: mongoose.Types.ObjectId, ref: "Projects", default: null }, // Optional reference to a project
   isRead: { type: Boolean, default: false }, // Default to unread
-  createdAt: { type: Date, default: Date.now }, // Auto-set creation date
+  timestamp: { type: Date, default: Date.now }, // Auto-set creation date
 });
 
 const Notification = mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema);

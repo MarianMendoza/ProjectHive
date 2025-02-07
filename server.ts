@@ -64,7 +64,7 @@ const startServer = async () => {
     });
 
     // Handle sending notifications
-    socket.on("sendNotification", async ({ userId, receiversId, projectId,messageUser, type }) => {
+    socket.on("sendNotification", async ({ userId, receiversId, projectId, messageUser, type }) => {
       // console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
       try {
         if (!Array.isArray(receiversId)) {
@@ -79,55 +79,61 @@ const startServer = async () => {
         // console.log(receiversId);
         console.log(userId.name);
 
-      
+
 
         const user = await User.findById(userId, 'name');
         if (!user) {
           throw new Error(`User not found for userId: ${userId}`);
         }
-    
+
         // Fetch the project data
         const project = await Projects.findById(projectId, 'title');
         if (!project) {
           throw new Error(`Project not found for projectId: ${projectId}`);
         }
 
+        const now = new Date();
+        const date = now.toLocaleDateString(); 
+        const time = now.toLocaleTimeString(); 
+        const timestamp = `${date} ${time}`;
+
+
         let message = "";
 
         // Save the notification to the database
-        switch(type){
+        switch (type) {
           case "ApplicationStudent":
-            message = `${user.name} applied to your project ${project.title}`;
+            message = `${timestamp} \n ${user.name} applied to your project ${project.title}`;
             break
           case "StudentAccept":
-            message = `You you have been assigned to ${project.title}.` 
-          break
+            message = `${timestamp} \n You have been assigned to ${project.title}.`
+            break
           case "StudentDecline":
-            message =  `You have not been successful in your application for ${project.title}.`
-          break
+            message = `${timestamp} \n You have not been successful in your application for ${project.title}.`
+            break
           case "Closed":
-            message = `The project ${project.title} is now closed.`;
+            message = `${timestamp} \n The project ${project.title} is now closed.`;
             break
           case "InvitationSecondReader":
-            message = `You have been invited to become a second-reader for ${project.title}`;
+            message = `${timestamp} \n You have been invited to become a second-reader for ${project.title}`;
             break
           case "DeclineSecondReader":
-            message = `${user.name} has declined your invite to become second-reader for ${project.title}`;
+            message = `${timestamp} \n ${user.name} has declined your invite to become second-reader for ${project.title}`;
             break
           case "AcceptSecondReader":
-            message = `${user.name} has accepted your invite and is now a second-reader for ${project.title}`;
+            message = `${timestamp} \n ${user.name} has accepted your invite and is now a second-reader for ${project.title}`;
             break
           case "UnassignSecondReader":
-            message = `You have been unassigned as Second-Reader from ${project.title}`;
+            message = `${timestamp} \n You have been unassigned as Second-Reader from ${project.title}`;
             break
           case "InvitationSupervisor":
-            message = `You have been invited to supervise ${project.title} by ${user.name}`
+            message = `${timestamp} \n You have been invited to supervise ${project.title} by ${user.name}`
             break
           case "SupervisorAccept":
-            message = `${user.name} has accepted to supervise ${project.title}.`
+            message = ` ${timestamp} \n ${user.name} has accepted to supervise ${project.title}.`
             break
           case "SupervisorDecline":
-            message = `Your invite to ${user.name} has been declined for ${project.title}.`
+            message = `${timestamp} \n Your invite to ${user.name} has been declined for ${project.title}.`
             break
         }
 
@@ -138,6 +144,7 @@ const startServer = async () => {
           messageUser: messageUser,
           type: type,
           relatedProjectId: projectId,
+          timestamp: timestamp,
         });
 
         await notification.save();

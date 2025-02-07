@@ -19,6 +19,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     status: false,
     visibility: "Private",
     description: "",
+    secondReader: "",
     applicants: [],
     files: "",
   });
@@ -27,8 +28,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     []
   );
   const [unassignedSecondReader, setUnassignedSecondReader] = useState<string | null>(null);
-
-
   const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
   const [invitedLecturers, setInvitedLecturers] = useState<string[]>([]); // Track invited lecturers
   const [invitedLecturer, setInvitedLecturer] = useState<User | null>(null);
@@ -39,6 +38,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const socket = useSocket();
+
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,6 +58,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             status: projectData.project.status,
             visibility: projectData.project.visibility,
             description: projectData.project.description || "",
+            secondReader: projectData.project.secondReader || "",
             applicants: projectData.project.applicants || [],
             files: projectData.project.files || "",
           });
@@ -77,6 +79,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           );
           setSelectedSecondReader(matchedLecturer?._id || null); // Set to null if no match
 
+
+          // Need to make it so that if the the secondReader is unassigned then, update this.
           setIsGroupProject(assignedStudent.length > 1);
         } else {
           setError("Failed to fetch project or lecturers");
@@ -120,13 +124,19 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       setShowInviteModal(true);
       return;
     } 
+
+    let secondReader;
+
     if (selectedId === "") {
-      setUnassignedSecondReader(project?.projectAssignedTo?.secondReaderId || null);
+      console.log("This is empty.")
+      secondReader = "";
     } else {
-      setUnassignedSecondReader(null);
+      secondReader = project?.projectAssignedTo.secondReaderId 
+      console.log(project?.projectAssignedTo.secondReaderId);
+      // setUnassignedSecondReader(project?.projectAssignedTo?.secondReaderId || null);
     }
   
-    setSelectedSecondReader(selectedId);
+    // setSelectedSecondReader(secondReader);
     
 
   };
@@ -195,7 +205,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       const updatedProject = await res.json();
 
       if (res.ok) {
-        router.push("../projects");
+        router.push("/pages/projects");
 
         const userId = session?.user.id;
         const assignedReceivers = selectedStudents;
@@ -351,6 +361,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               <select
                 id="secondReader"
                 name="secondReader"
+                key = {selectedSecondReader}
                 value={selectedSecondReader || ""}
                 onChange={handleSecondReaderChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
@@ -363,7 +374,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                   )?.name || "No one has been assigned"}
                 </option>
                 {selectedSecondReader && (
-                  <option value={""}>Unassign...</option>
+                  <option value="">Unassign...</option>
                 )}
               </select>
             </div>
