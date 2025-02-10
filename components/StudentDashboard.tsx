@@ -57,7 +57,7 @@ export default function StudentDashboard() {
     <>
       <div className="mb-6">
         <img
-          src={"/iStock-1357672566.jpg"}
+          src={"/iStock-1208275903.jpg"}
           alt="Student Dashboard Banner"
           className="w-screen h-64 object-cover rounded-b-lg "
         />
@@ -102,7 +102,7 @@ export default function StudentDashboard() {
                   <p className="text-md font-semibold text-gray-800">
                     Students:
                   </p>
-                  <ul className="list-disc list-inside text-sm text-gray-600">
+                  <p className="list-inside text-sm text-gray-600">
                     {assignedProject.projectAssignedTo.studentsId.length > 0 ? (
                       assignedProject.projectAssignedTo.studentsId.map(
                         (student) => <li key={student._id}>{student.name}</li>
@@ -110,7 +110,7 @@ export default function StudentDashboard() {
                     ) : (
                       <p>No Students Assigned</p>
                     )}
-                  </ul>
+                  </p>
                 </div>
               </div>
 
@@ -127,9 +127,9 @@ export default function StudentDashboard() {
               <div className="mt-6">
                 <Link
                   href={`/pages/deliverables?projectId=${assignedProject._id}`}
-                  className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200"
+                  className="bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600 transition duration-200"
                 >
-                  Manage Deliverables
+                  📝 Manage Deliverables
                 </Link>
               </div>
             </div>

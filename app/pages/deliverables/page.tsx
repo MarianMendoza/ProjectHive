@@ -1,9 +1,11 @@
-"use client";
+"use client"
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
+import { useSession } from "next-auth/react";  // Import session hook
 
 export default function DeliverablesPage() {
+  const { data: session } = useSession();  // Access session data
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
 
@@ -20,25 +22,26 @@ export default function DeliverablesPage() {
       uploadedAt: "",
       deadline: "",
       description:
-        "A one page document consisting of a short analysis of the project in the students own words and a broad plan of the steps to complete the work. The supervisor should give the pass mark if and only if s/he is convinced that this document demonstrates that the student has understood the FYP.",
+        "A one-page document consisting of a short analysis of the project in the student's own words and a broad plan of the steps to complete the work. The supervisor should give the pass mark if and only if s/he is convinced that this document demonstrates that the student has understood the FYP.",
     },
     extendedAbstract: {
       file: "",
       uploadedAt: "",
       deadline: "",
       description:
-        "A written document of about 5 pages. It must contain a summary of the most important findings of the work undertaken. The format should allow for consistent reading, similar to a journal publication.\nThe purpose of this stage is to ensure that the student starts to write their final report in a timely fashion. The assessment and feedback should focus on the quality of the document and not on the technical quality of work per se. A pass judgment for this stage should not be construed as a promise that the work as a whole is pass worthy.",
+        "A written document of about 5 pages. It must contain a summary of the most important findings of the work undertaken. The format should allow for consistent reading, similar to a journal publication.\nThe purpose of this stage is to ensure that the student starts to write their final report in a timely fashion. The assessment and feedback should focus on the quality of the document and not on the technical quality of work per se. A pass judgment for this stage should not be construed as a promise that the work as a whole is pass-worthy.",
     },
     finalReport: {
       file: "",
       uploadedAt: "",
       deadline: "",
       description:
-        "Report writing guidelines were given separately. Upload instructions: Prepare a zip or or tar.gz archive with your report as PDF in the folder root and one sub-folder with all source code you wrote as part of your FYP. If you have any online demonstration then create a file with the name demo.html with clickable links and add it also to the root folder of the archive. Maximum file size for this upload: 70MB.",
+        "Report writing guidelines were given separately. Upload instructions: Prepare a zip or tar.gz archive with your report as PDF in the folder root and one sub-folder with all source code you wrote as part of your FYP. If you have any online demonstration, create a file with the name demo.html with clickable links and add it also to the root folder of the archive. Maximum file size for this upload: 70MB.",
     },
   });
 
   const [loading, setLoading] = useState<boolean>(true);
+  const [supervisorId, setSupervisorId] = useState<string | null>(null); // State to hold supervisor ID
 
   useEffect(() => {
     const fetchDeliverables = async () => {
@@ -49,7 +52,6 @@ export default function DeliverablesPage() {
         if (res.ok) {
           const data = await res.json();
 
-          // Filter only relevant fields
           const allowedKeys = [
             "outlineDocument",
             "extendedAbstract",
@@ -65,7 +67,7 @@ export default function DeliverablesPage() {
               key,
               {
                 ...value,
-                description: deliverables[key]?.description || "", // Preserve existing descriptions
+                description: deliverables[key]?.description || "",
               },
             ])
           );
@@ -82,6 +84,29 @@ export default function DeliverablesPage() {
     };
 
     fetchDeliverables();
+  }, [projectId]);
+
+  // Fetch supervisor ID on page load
+  useEffect(() => {
+    const fetchSupervisorId = async () => {
+      if (!projectId) return;
+
+      try {
+        const res = await fetch(`/api/projects/${projectId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSupervisorId(data.project.projectAssignedTo.supervisorId._id)
+
+
+        } else {
+          console.log("Failed to fetch supervisor data.");
+        }
+      } catch (error) {
+        console.error("Error fetching supervisor data", error);
+      }
+    };
+
+    fetchSupervisorId();
   }, [projectId]);
 
   const handleFileChange = (
@@ -120,6 +145,9 @@ export default function DeliverablesPage() {
     }
   };
 
+  // Check if the session user ID matches the supervisor ID
+  const canSubmitGrade = session?.user?.id === supervisorId;
+
   if (loading)
     return <p className="text-center text-lg text-gray-600">Loading...</p>;
 
@@ -149,19 +177,6 @@ export default function DeliverablesPage() {
                 <strong>Last Uploaded:</strong>{" "}
                 {uploadedAt ? new Date(uploadedAt).toLocaleString() : "Never"}
               </p>
-              {/* <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Grade
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                  placeholder="Enter marks"
-                //   onChange={(e) => handleGradeChange(e, key)}
-                />
-              </div> */}
               <p className="text-sm text-gray-600 mb-4">{description}</p>
 
               <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
@@ -186,6 +201,24 @@ export default function DeliverablesPage() {
                   onChange={(e) => handleFileChange(e, key)}
                 />
               </div>
+
+              {canSubmitGrade && (
+                <div className="mt-4">
+                  <label className="block text-sm text-gray-700">Grade Out Of 100</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full p-2 border border-gray-300 rounded-md mt-2"
+                    placeholder="Enter grade"
+                  />
+                  <label className="block text-sm text-gray-700 mt-4">Feedback</label>
+                  <textarea
+                    className="w-full p-2 border border-gray-300 rounded-md mt-2"
+                    placeholder="Enter feedback"
+                  ></textarea>
+                </div>
+              )}
 
               <button
                 disabled={!file}

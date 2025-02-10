@@ -7,23 +7,30 @@ export interface IDeliverables extends Document{
         file: string | null;
         uploadedAt: Date | null;
         deadline: Date | null;
-        grade: number | null;
+        supervisorGrade: number | null;
+        supervisorFeedback: string | null;
+        secondReaderGrade: number | null;
+        secondReaderFeedback: string | null;
+
     };
     extendedAbstract:{
         file: string | null;
         uploadedAt: Date | null;
         deadline: Date | null;
-        grade: number | null;
-
+        supervisorGrade: number | null;
+        supervisorFeedback: string | null;
+        secondReaderGrade: number | null;
+        secondReaderFeedback: string | null;
     };
     finalReport:{
         file: string | null;
         uploadedAt: Date | null;
         deadline: Date | null;
-        grade: number | null;
-
+        supervisorGrade: number | null;
+        supervisorFeedback: string | null;
+        secondReaderGrade: number | null;
+        secondReaderFeedback: string | null;
     };
-
     createdAt: Date;
     updatedAt: Date;
 }
@@ -34,21 +41,28 @@ const DeliverablesSchema: Schema = new Schema({
         file: {type: String, default: null},
         uploadedAt: {type: Date, default: null},
         deadline:{type:Date, default: null},
-        grade: {type:Number, default: null},
+        supervisorGrade: {type:Number, default: null},
+        supervisorFeedback: {type: String, default: null},
+        secondReaderGrade: {type:Number, default: null},
+        secondReaderFeedback: {type: String, default: null},
     },
     extendedAbstract:{
         file: {type: String, default: null},
         uploadedAt: {type: Date, default: null},
         deadline:{type:Date, default: null},
-        grade: {type:Number, default: null},
-
+        supervisorGrade: {type:Number, default: null},
+        supervisorFeedback: {type: String, default: null},
+        secondReaderGrade: {type:Number, default: null},
+        secondReaderFeedback: {type: String, default: null},
     },    
     finalReport:{
         file: {type: String, default: null},
         uploadedAt: {type: Date, default: null},
         deadline:{type:Date, default: null},
-        grade: {type:Number, default: null},
-
+        supervisorGrade: {type:Number, default: null},
+        supervisorFeedback: {type: String, default: null},
+        secondReaderGrade: {type:Number, default: null},
+        secondReaderFeedback: {type: String, default: null},
     },
     createdAt: { type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
