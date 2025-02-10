@@ -136,6 +136,7 @@ export default function DeliverablesPage() {
 
   // Check if the session user ID matches the supervisor ID
   const canSubmitGrade = session?.user?.id === supervisorId;
+  const isStudent = session?.user?.role === "Student";
 
   if (loading)
     return <p className="text-center text-lg text-gray-600">Loading...</p>;
@@ -168,7 +169,7 @@ export default function DeliverablesPage() {
               </p>
               <p className="text-sm text-gray-600 mb-4">{description}</p>
 
-              <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
+              {isStudent && (<div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
                 <label
                   htmlFor={key}
                   className="cursor-pointer flex flex-col items-center justify-center"
@@ -190,6 +191,7 @@ export default function DeliverablesPage() {
                   onChange={(e) => handleFileChange(e, key)}
                 />
               </div>
+              )}
 
               {canSubmitGrade && (
                 <div className="mt-4">
