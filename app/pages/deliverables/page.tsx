@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
 import { useSession } from "next-auth/react";  // Import session hook
+import { Deliverable } from "@/types/deliverable"; 
 
 export default function DeliverablesPage() {
   const { data: session } = useSession();  // Access session data
@@ -10,19 +11,18 @@ export default function DeliverablesPage() {
   const projectId = searchParams.get("projectId");
 
   const [deliverables, setDeliverables] = useState<{
-    [key: string]: {
-      file: string;
-      uploadedAt: string;
-      deadline: string;
-      description?: string;
-    };
-  }>({
+    [key: string]: Deliverable}> 
+  ({
     outlineDocument: {
       file: "",
       uploadedAt: "",
       deadline: "",
       description:
         "A one-page document consisting of a short analysis of the project in the student's own words and a broad plan of the steps to complete the work. The supervisor should give the pass mark if and only if s/he is convinced that this document demonstrates that the student has understood the FYP.",
+      supervisorGrade: 0,
+      supervisorFeedback: "",
+      secondReaderGrade: 0,
+      secondReaderFeedback: "",
     },
     extendedAbstract: {
       file: "",
@@ -30,6 +30,10 @@ export default function DeliverablesPage() {
       deadline: "",
       description:
         "A written document of about 5 pages. It must contain a summary of the most important findings of the work undertaken. The format should allow for consistent reading, similar to a journal publication.\nThe purpose of this stage is to ensure that the student starts to write their final report in a timely fashion. The assessment and feedback should focus on the quality of the document and not on the technical quality of work per se. A pass judgment for this stage should not be construed as a promise that the work as a whole is pass-worthy.",
+      supervisorGrade: 0,
+      supervisorFeedback: "",
+      secondReaderGrade: 0,
+      secondReaderFeedback: "",
     },
     finalReport: {
       file: "",
@@ -37,6 +41,10 @@ export default function DeliverablesPage() {
       deadline: "",
       description:
         "Report writing guidelines were given separately. Upload instructions: Prepare a zip or tar.gz archive with your report as PDF in the folder root and one sub-folder with all source code you wrote as part of your FYP. If you have any online demonstration, create a file with the name demo.html with clickable links and add it also to the root folder of the archive. Maximum file size for this upload: 70MB.",
+      supervisorGrade: 0,
+      supervisorFeedback: "",
+      secondReaderGrade: 0,
+      secondReaderFeedback: "",
     },
   });
 
@@ -51,6 +59,9 @@ export default function DeliverablesPage() {
         const res = await fetch(`/api/deliverables?projectId=${projectId}`);
         if (res.ok) {
           const data = await res.json();
+          console.log(data.deliverables);
+          setSupervisorId(data.deliverables.projectId.projectAssignedTo.supervisorId?._id)
+
 
           const allowedKeys = [
             "outlineDocument",
@@ -86,28 +97,6 @@ export default function DeliverablesPage() {
     fetchDeliverables();
   }, [projectId]);
 
-  // Fetch supervisor ID on page load
-  useEffect(() => {
-    const fetchSupervisorId = async () => {
-      if (!projectId) return;
-
-      try {
-        const res = await fetch(`/api/projects/${projectId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setSupervisorId(data.project.projectAssignedTo.supervisorId._id)
-
-
-        } else {
-          console.log("Failed to fetch supervisor data.");
-        }
-      } catch (error) {
-        console.error("Error fetching supervisor data", error);
-      }
-    };
-
-    fetchSupervisorId();
-  }, [projectId]);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -218,7 +207,11 @@ export default function DeliverablesPage() {
                     placeholder="Enter feedback"
                   ></textarea>
                 </div>
+
+                
               )}
+              
+
 
               <button
                 disabled={!file}

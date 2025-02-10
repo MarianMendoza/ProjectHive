@@ -16,7 +16,23 @@ export async function GET(req: Request) {
 
     try {
         // Fetch the deliverables associated with the projectId
-        const deliverables = await Deliverables.findOne({ projectId: new mongoose.Types.ObjectId(projectId) });
+        const deliverables = await Deliverables.findOne({ projectId: new mongoose.Types.ObjectId(projectId) })
+            .populate({
+                path: "projectId",
+                select: "projectAssignedTo",
+                populate: [
+                    {
+                        path: "projectAssignedTo.supervisorId",
+                        select: "_id"
+                    },
+                    {
+                        path: 'projectAssignedTo.secondReaderId', // Populate the `secondReaderId` within `projectAssignedTo`
+                        select: '_id' // Select only the `_id` of second reader
+                    }
+                ]
+
+            });
+
         if (!deliverables) {
             return NextResponse.json({ message: "Deliverables not found" }, { status: 404 });
         }
