@@ -2,17 +2,18 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
-import { useSession } from "next-auth/react";  // Import session hook
-import { Deliverable } from "@/types/deliverable"; 
+import { useSession } from "next-auth/react";
+import { Deliverable } from "@/types/deliverable";
 
 export default function DeliverablesPage() {
   const { data: session } = useSession();  // Access session data
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
+  const [deliverablesId, setDeliverablesId] = useState<string |null>(null);
 
   const [deliverables, setDeliverables] = useState<{
-    [key: string]: Deliverable}> 
-  ({
+    [key: string]: Deliverable;
+  }>({
     outlineDocument: {
       file: "",
       uploadedAt: "",
@@ -62,7 +63,6 @@ export default function DeliverablesPage() {
           console.log(data.deliverables);
           setSupervisorId(data.deliverables.projectId.projectAssignedTo.supervisorId?._id)
 
-
           const allowedKeys = [
             "outlineDocument",
             "extendedAbstract",
@@ -84,6 +84,8 @@ export default function DeliverablesPage() {
           );
 
           setDeliverables(updatedData);
+          setDeliverablesId(data.deliverables._id);
+          // console.log(deliverablesId)
         } else {
           console.log("No deliverables found.");
         }
@@ -97,21 +99,46 @@ export default function DeliverablesPage() {
     fetchDeliverables();
   }, [projectId]);
 
-
-  const handleFileChange = (
+  const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: string
   ) => {
     if (!e.target.files) return;
 
-    setDeliverables({
-      ...deliverables,
-      [type]: {
-        ...deliverables[type as keyof typeof deliverables],
-        file: e.target.files[0].name,
-        uploadedAt: new Date().toISOString(),
-      },
-    });
+    const formData = new FormData();
+    formData.append("file", e.target.files[0]);
+    formData.append("projectId", projectId!);
+    formData.append("type", type)
+    formData.append("deliverablesId", deliverablesId!);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setDeliverables((prevDeliverables) => ({
+          ...prevDeliverables,
+          [type]: {
+            ...prevDeliverables[type as keyof typeof prevDeliverables],
+            file: data.fileUrl,
+            uploadedAt: new Date().toISOString(),
+          }
+        }));
+        alert("File uploaded successfully!");
+      } else {
+        alert("Failed to upload file.");
+      }
+    } catch (error) {
+      console.error("Error uploading file", error);
+    }
+  };
+
+  const handleDownload = (fileName: string) => {
+    const url = `/api/download?fileName=${fileName}`;
+    window.location.href = url;
   };
 
   const handleSaveChanges = async () => {
@@ -142,12 +169,22 @@ export default function DeliverablesPage() {
     return <p className="text-center text-lg text-gray-600">Loading...</p>;
 
   return (
+
+    <>
+
+    <div className="mb-6">
+        <img
+          src={"/iStock-1208275903.jpg"}
+          alt="Student Dashboard Banner"
+          className="w-screen h-64 object-cover rounded-b-lg "
+        />
+      </div>
     <div className="flex flex-col items-center justify-center mt-10 bg-cover bg-center">
       <h3 className="text-2xl font-bold mb-2 text-center">
         Manage Deliverables
       </h3>
 
-      <div className="w-full max-w-3xl p-6">
+      <div className="w-full max-w-4xl p-6">
         <p className="text-gray-600 text-center mb-6">
           Upload and manage the necessary documents for your project. Ensure all
           files are submitted before their deadlines.
@@ -155,8 +192,8 @@ export default function DeliverablesPage() {
 
         {Object.entries(deliverables).map(
           ([key, { file, uploadedAt, deadline, description }]) => (
-            <div key={key} className="bg-gray-50 p-4 rounded-lg mb-4 shadow-sm">
-              <h4 className="text-lg font-semibold capitalize text-gray-700">
+            <div key={key} className="p-4 mb-4 bg-white rounded-lg shadow-lg">
+              <h4 className="text-lg font-semibold capitalize text-lime-600">
                 {key.replace(/([A-Z])/g, " $1")}
               </h4>
 
@@ -169,33 +206,36 @@ export default function DeliverablesPage() {
               </p>
               <p className="text-sm text-gray-600 mb-4">{description}</p>
 
-              {isStudent && (<div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
-                <label
-                  htmlFor={key}
-                  className="cursor-pointer flex flex-col items-center justify-center"
-                >
-                  <div className="flex flex-col items-center mb-2 ">
-                    <span role="img" aria-label="file" className="text-2xl">
-                      📁
+              {isStudent && (
+                <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
+                  <label
+                    htmlFor={key}
+                    className="cursor-pointer flex flex-col items-center justify-center"
+                  >
+                    <div className="flex flex-col items-center mb-2 ">
+                      <span role="img" aria-label="file" className="text-2xl">
+                        📁
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      Drag & drop files here or{" "}
+                      <span className="text-lime-600 font-semibold">browse</span>
                     </span>
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    Drag & drop files here or{" "}
-                    <span className="text-lime-600 font-semibold">browse</span>
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  id={key}
-                  className="hidden"
-                  onChange={(e) => handleFileChange(e, key)}
-                />
-              </div>
+                  </label>
+                  <input
+                    type="file"
+                    id={key}
+                    className="hidden"
+                    onChange={(e) => handleFileChange(e, key)}
+                  />
+                </div>
               )}
 
               {canSubmitGrade && (
                 <div className="mt-4">
-                  <label className="block text-sm text-gray-700">Grade Out Of 100</label>
+                  <label className="block text-sm text-gray-700">
+                    Grade Out Of 100
+                  </label>
                   <input
                     type="number"
                     min="0"
@@ -203,33 +243,34 @@ export default function DeliverablesPage() {
                     className="w-full p-2 border border-gray-300 rounded-md mt-2"
                     placeholder="Enter grade"
                   />
-                  <label className="block text-sm text-gray-700 mt-4">Feedback</label>
+                  <label className="block text-sm text-gray-700 mt-4">
+                    Feedback
+                  </label>
                   <textarea
                     className="w-full p-2 border border-gray-300 rounded-md mt-2"
                     placeholder="Enter feedback"
                   ></textarea>
                 </div>
-
-                
               )}
-              
-
 
               <button
                 disabled={!file}
-                className={`flex items-center gap-2 mt-2  px-4 py-2 rounded-lg  transition w-full text-center ${
+                className={`flex items-center gap-2 mt-2 px-4 py-2 rounded-lg transition w-full text-center ${
                   !file
                     ? "bg-gray-400 text-gray-700 cursor-not-allowed "
                     : "bg-yellow-600 text-white hover:bg-yellow-700"
                 }`}
+                onClick={() => handleDownload(file)}
               >
                 <FaDownload />
-                Download {file || ""}
+                Download {file || "File not available"}
               </button>
             </div>
           )
         )}
       </div>
     </div>
+    </>
+
   );
 }

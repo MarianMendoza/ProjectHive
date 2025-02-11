@@ -251,7 +251,7 @@ export default function LecturerDashboard() {
                           <div className="mt-4 flex justify-between gap-3 ">
                             <Link
                               href={`/pages/deliverables?projectId=${project._id}`}
-                              className="bg-amber-500 p-2 justify-start text-white text-center rounded-lg hover:bg-amber-600 transition duration-200 ease-in-out"
+                              className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
                             >
                               📝 Manage Deliverables
                             </Link>

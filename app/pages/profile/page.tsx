@@ -17,6 +17,7 @@ export default function Profile() {
           if (!response.ok) throw new Error("Failed to fetch profile image");
 
           const data = await response.json();
+          
           if (data.user.pfpurl) {
             setProfileImage(data.user.pfpurl);
           } else {
@@ -41,12 +42,11 @@ export default function Profile() {
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("userId", session?.user.id);
+      formData.append("userId", session?.user.id!);
 
       try {
         setUploading(true);
 
-        // Send file to the server via an API route
         const response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
@@ -57,7 +57,7 @@ export default function Profile() {
         }
 
         const data = await response.json();
-        setProfileImage(data.pfpUrl); // Update profile image URL from the response
+        setProfileImage(data.pfpUrl); 
       } catch (error) {
         console.error("Error uploading image:", error);
       } finally {

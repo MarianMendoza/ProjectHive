@@ -127,7 +127,7 @@ export default function StudentDashboard() {
               <div className="mt-6">
                 <Link
                   href={`/pages/deliverables?projectId=${assignedProject._id}`}
-                  className="bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600 transition duration-200"
+                  className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
                 >
                   📝 Manage Deliverables
                 </Link>
