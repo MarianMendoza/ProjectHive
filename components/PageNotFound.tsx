@@ -4,7 +4,7 @@ export default function PageNotFound(){
         <div className="w-full md:w-1/2">
             <div className="relative w-full h-70 md:h-70">
               <img
-                src= {"../image1.jpg"} 
+                src= {"/image1.jpg"} 
                 alt="Project Management"
                 className="rounded-lg shadow-lg"
               />

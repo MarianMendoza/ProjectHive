@@ -4,9 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import { Deliverable } from "@/types/deliverable";
+import PageNotFound from "@/components/PageNotFound";
 
 export default function DeliverablesPage() {
-  const { data: session } = useSession();  // Access session data
+  const { data: session } = useSession(); 
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
   const [deliverablesId, setDeliverablesId] = useState<string |null>(null);
@@ -136,9 +137,13 @@ export default function DeliverablesPage() {
     }
   };
 
-  const handleDownload = (fileName: string) => {
-    const url = `/api/download?fileName=${fileName}`;
-    window.location.href = url;
+  const handleDownload = (fileName: string): void => {
+    const link: HTMLAnchorElement = document.createElement('a');
+    link.href = fileName;
+    link.setAttribute('download', '');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleSaveChanges = async () => {
@@ -165,6 +170,9 @@ export default function DeliverablesPage() {
   const canSubmitGrade = session?.user?.id === supervisorId;
   const isStudent = session?.user?.role === "Student";
 
+  if(!session ){
+    return <PageNotFound></PageNotFound>
+  }
   if (loading)
     return <p className="text-center text-lg text-gray-600">Loading...</p>;
 
@@ -263,7 +271,7 @@ export default function DeliverablesPage() {
                 onClick={() => handleDownload(file)}
               >
                 <FaDownload />
-                Download {file || "File not available"}
+                 { "Download File" || "File not available"}
               </button>
             </div>
           )

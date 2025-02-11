@@ -6,6 +6,7 @@ import { IProjects } from "@/app/models/Projects";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
 import { User } from "@/types/users";
+import PageNotFound from "@/components/PageNotFound";
 
 const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
@@ -27,7 +28,9 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>(
     []
   );
-  const [unassignedSecondReader, setUnassignedSecondReader] = useState<string | null>(null);
+  const [unassignedSecondReader, setUnassignedSecondReader] = useState<
+    string | null
+  >(null);
   const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
   const [invitedLecturers, setInvitedLecturers] = useState<string[]>([]); // Track invited lecturers
   const [invitedLecturer, setInvitedLecturer] = useState<User | null>(null);
@@ -38,8 +41,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const socket = useSocket();
-
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,7 +79,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             (lecturer: User) => lecturer._id === assignedSecondReader
           );
           setSelectedSecondReader(matchedLecturer?._id || null); // Set to null if no match
-
 
           // Need to make it so that if the the secondReader is unassigned then, update this.
           setIsGroupProject(assignedStudent.length > 1);
@@ -123,22 +123,20 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     if (selectedId === "invite") {
       setShowInviteModal(true);
       return;
-    } 
+    }
 
     let secondReader;
 
     if (selectedId === "") {
-      console.log("This is empty.")
+      console.log("This is empty.");
       secondReader = "";
     } else {
-      secondReader = project?.projectAssignedTo.secondReaderId 
+      secondReader = project?.projectAssignedTo.secondReaderId;
       console.log(project?.projectAssignedTo.secondReaderId);
       // setUnassignedSecondReader(project?.projectAssignedTo?.secondReaderId || null);
     }
-  
-    // setSelectedSecondReader(secondReader);
-    
 
+    // setSelectedSecondReader(secondReader);
   };
 
   const handleInviteClick = async (lecturer: User) => {
@@ -188,7 +186,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       projectAssignedTo: {
         ...project?.projectAssignedTo,
         studentsId: selectedStudents,
-        supervisorId: project?.projectAssignedTo?.supervisorId || null, 
+        supervisorId: project?.projectAssignedTo?.supervisorId || null,
         secondReaderId: project?.projectAssignedTo?.secondReaderId || null,
       },
     };
@@ -220,7 +218,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               type: "StudentAccept",
             });
           }
-
 
           if (unassignedSecondReader) {
             socket.emit("sendNotification", {
@@ -272,6 +269,10 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     setShowModal(false);
     confirmAction();
   };
+
+  if (!session) {
+    return <PageNotFound />;
+  }
 
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error)
@@ -342,9 +343,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                   {isGroupProject ? "Select Students" : "Select a Student"}
                 </option>
                 {project?.applicants.map((applicant) => (
-                  <option
-                    value={applicant.studentId?._id}
-                  >
+                  <option value={applicant.studentId?._id}>
                     {applicant.studentId?.name}
                   </option>
                 ))}
@@ -361,7 +360,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               <select
                 id="secondReader"
                 name="secondReader"
-                key = {selectedSecondReader}
+                key={selectedSecondReader}
                 value={selectedSecondReader || ""}
                 onChange={handleSecondReaderChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
@@ -373,9 +372,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                     (lecturers) => lecturers._id === selectedSecondReader
                   )?.name || "No one has been assigned"}
                 </option>
-                {selectedSecondReader && (
-                  <option value="">Unassign...</option>
-                )}
+                {selectedSecondReader && <option value="">Unassign...</option>}
               </select>
             </div>
 
