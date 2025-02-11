@@ -8,27 +8,27 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    // Fetch the user's profile image when the component mounts
-    const fetchProfileImage = async () => {
-      if (session?.user?.id) {
-        try {
-          const response = await fetch(`/api/users/${session.user.id}`);
-          if (!response.ok) throw new Error("Failed to fetch profile image");
+  // Fetch the user's profile image when the component mounts
+  const fetchProfileImage = async () => {
+    if (session?.user?.id) {
+      try {
+        const response = await fetch(`/api/users/${session.user.id}`);
+        if (!response.ok) throw new Error("Failed to fetch profile image");
 
-          const data = await response.json();
-          
-          if (data.user.pfpurl) {
-            setProfileImage(data.user.pfpurl);
-          } else {
-            console.log("No profile image URL found");
-          }
-        } catch (error) {
-          console.error("Error fetching profile image:", error);
+        const data = await response.json();
+
+        if (data.user.pfpurl) {
+          setProfileImage(data.user.pfpurl);
+        } else {
+          console.log("No profile image URL found");
         }
+      } catch (error) {
+        console.error("Error fetching profile image:", error);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     if (session) {
       fetchProfileImage();
     }
@@ -56,8 +56,10 @@ export default function Profile() {
           throw new Error("Upload failed");
         }
 
-        const data = await response.json();
-        setProfileImage(data.pfpUrl); 
+        // const data = await response.json();
+        // setProfileImage(data.pfpUrl);
+
+        await fetchProfileImage();
       } catch (error) {
         console.error("Error uploading image:", error);
       } finally {
@@ -81,7 +83,7 @@ export default function Profile() {
             alt="Profile"
             className="w-full h-full object-cover rounded-full shadow-md "
           />
-          
+
           <input
             type="file"
             accept="image/*"

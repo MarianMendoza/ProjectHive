@@ -258,7 +258,7 @@ export default function DeliverablesPage() {
                 className={`flex items-center gap-2 mt-2 px-4 py-2 rounded-lg transition w-full text-center ${
                   !file
                     ? "bg-gray-400 text-gray-700 cursor-not-allowed "
-                    : "bg-yellow-600 text-white hover:bg-yellow-700"
+                    : "bg-lime-700 text-white hover:bg-lime-800"
                 }`}
                 onClick={() => handleDownload(file)}
               >

@@ -60,10 +60,12 @@ export async function POST(request: Request) {
       destinationFolder = path.join(process.cwd(), "public", "uploads", "profileImages");
       await fs.promises.mkdir(destinationFolder, { recursive: true });
 
-      const newFilePath = path.join(destinationFolder, path.basename(file.filepath));
+
+      const newFileName = path.basename(file.filepath);
+      const newFilePath = path.join(destinationFolder, newFileName);
       await fs.promises.rename(file.filepath, newFilePath);
 
-      fileUrl = `/uploads/profileImages/${path.basename(file.filepath)}`;
+      fileUrl = `/uploads/profileImages/${newFileName}`;
 
       const userId = fields.userId as string;
 
@@ -93,9 +95,6 @@ export async function POST(request: Request) {
         ? fields.deliverablesId[0]
         : fields.deliverablesId;
 
-      console.log(fields);
-      console.log(projectId);
-      console.log(deliverableId);
 
       if (!projectId) {
         return NextResponse.json({ error: "Project Id is required" }, { status: 400 });
@@ -122,9 +121,6 @@ export async function POST(request: Request) {
       const updateData: Record<string, any> = {};
       updateData[`${deliverableType}.file`] = fileUrl;
       updateData[`${deliverableType}.uploadedAt`] = new Date();
-
-
-
 
       const updatedDeliverable = await Deliverables.findByIdAndUpdate(
         { _id : deliverableId },
