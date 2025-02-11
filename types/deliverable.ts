@@ -7,9 +7,11 @@ export interface Deliverable {
   supervisorFeedback?: string;
   secondReaderGrade?: number;
   secondReaderFeedback?: string;
+  isPublished?: boolean;
 }
 
 export interface IDeliverables {
+  id: string;
   projectId: string;
   outlineDocument: Deliverable;
   extendedAbstract: Deliverable;

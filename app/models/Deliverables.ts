@@ -8,7 +8,8 @@ const DeliverableSchema = new Schema({
   supervisorGrade: { type: Number, default: null },
   supervisorFeedback: { type: String, default: null },
   secondReaderGrade: { type: Number, default: null },
-  secondReaderFeedback: { type: String, default: null }
+  secondReaderFeedback: { type: String, default: null },
+  isPublished: {type: Boolean , default: false}
 });
 
 export interface IDeliverables extends Document {
