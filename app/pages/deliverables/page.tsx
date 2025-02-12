@@ -115,9 +115,9 @@ export default function DeliverablesPage() {
     const grade = gradeInput ? Number(gradeInput.value) : 0;
     const feedback = feedbackInput ? feedbackInput.value : "";
 
-    if (grade > 100){
-      alert("Must mark grade out of 100!");
-      return
+    if (grade < 0 || grade > 100) {
+      alert("Must mark grade in range (0-100)!");
+      return;
     }
 
     const updateData = {
