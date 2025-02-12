@@ -43,45 +43,4 @@ export async function GET(req: Request) {
 }
 
 
-export async function PUT(req: Request) {
-  await connectMongo();
 
-  const url = new URL(req.url);
-  const projectId = url.searchParams.get("projectId");
-
-  if (!projectId) {
-    return NextResponse.json(
-      { message: "Project ID is required" },
-      { status: 400 }
-    );
-  }
-
-  try {
- 
-    const body = await req.json();
-
-    const updatedDeliverables = await Deliverables.findOneAndUpdate(
-      { projectId: new mongoose.Types.ObjectId(projectId) },
-      { $set: body },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedDeliverables) {
-      return NextResponse.json(
-        { message: "Deliverables not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { deliverables: updatedDeliverables },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error updating deliverables:", error);
-    return NextResponse.json(
-      { message: "Error updating deliverables" },
-      { status: 500 }
-    );
-  }
-}

@@ -105,6 +105,12 @@ export default function DeliverablesPage() {
     // console.log(id)
     const gradeInput = document.getElementById(`grade-${type}`) as HTMLInputElement;
     const feedbackInput = document.getElementById(`feedback-${type}`) as HTMLTextAreaElement;
+    
+    if (!gradeInput || !feedbackInput ){
+      console.error("Grade or feedback input is not found.");
+      return
+    }
+    
     const grade = gradeInput ? Number(gradeInput.value) : 0;
     const feedback = feedbackInput ? feedbackInput.value : "";
 
@@ -123,6 +129,8 @@ export default function DeliverablesPage() {
         body: JSON.stringify(updateData),
       });
       if (res.ok) {
+        console.log(updateData);
+
         alert("Grade submitted successfully.");
         setDeliverables((prev) => ({
           ...prev,
@@ -267,6 +275,7 @@ export default function DeliverablesPage() {
                       Grade Out Of 100
                     </label>
                     <input
+                      id={`grade-${key}`}
                       type="number"
                       min="0"
                       max="100"
@@ -277,6 +286,7 @@ export default function DeliverablesPage() {
                       Feedback
                     </label>
                     <textarea
+                      id={`feedback-${key}`}
                       className="w-full p-2 border border-gray-300 rounded-md mt-2"
                       placeholder="Enter feedback"
                     ></textarea>
