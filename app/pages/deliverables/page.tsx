@@ -110,9 +110,15 @@ export default function DeliverablesPage() {
       console.error("Grade or feedback input is not found.");
       return
     }
+
     
     const grade = gradeInput ? Number(gradeInput.value) : 0;
     const feedback = feedbackInput ? feedbackInput.value : "";
+
+    if (grade > 100){
+      alert("Must mark grade out of 100!");
+      return
+    }
 
     const updateData = {
       [`${type}.supervisorGrade`]: grade,
@@ -281,6 +287,7 @@ export default function DeliverablesPage() {
                       max="100"
                       className="w-full p-2 border border-gray-300 rounded-md mt-2"
                       placeholder="Enter grade"
+                      defaultValue={deliverables?.[key]?.supervisorGrade || ""}
                     />
                     <label className="block text-sm text-gray-700 mt-4">
                       Feedback
@@ -289,6 +296,7 @@ export default function DeliverablesPage() {
                       id={`feedback-${key}`}
                       className="w-full p-2 border border-gray-300 rounded-md mt-2"
                       placeholder="Enter feedback"
+                      defaultValue={deliverables?.[key]?.supervisorFeedback || ""}
                     ></textarea>
                     <div className="flex  gap-3">
                       <button
