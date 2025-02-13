@@ -135,6 +135,9 @@ const startServer = async () => {
           case "SupervisorDecline":
             message = `${timestamp} \n Your invite to ${user.name} has been declined for ${project.title}.`
             break
+          case "GradesPublished":
+            message = `${timestamp} \n Your grades for ${project.title} has been published. View this in your deliverables page.`
+            break
         }
 
         const notification = new Notification({

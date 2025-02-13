@@ -6,6 +6,7 @@ export async function PUT(req: Request) {
     await connectMongo();
   
     const deliverableId = req.url.split("/").pop() as string;
+    const { supervisorGrade, supervisorFeedback, secondReaderGrade, secondReaderFeedback } = await req.json;
 
   
     if (!deliverableId) {

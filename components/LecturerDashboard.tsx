@@ -300,6 +300,18 @@ export default function LecturerDashboard() {
                     <p className="text-gray-600">
                       Assigned by: {project.projectAssignedTo.authorId.name}
                     </p>
+                    <div className="mt-4 flex gap-3 ">
+                      <Link
+                        href={`/pages/deliverables?projectId=${project._id}`}
+                        className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
+                      >
+                        📝 Manage Deliverables
+                      </Link>
+                      
+                      <button className="bg-orange-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
+                        Withdraw
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (

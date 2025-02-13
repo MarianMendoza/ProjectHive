@@ -5,12 +5,18 @@ import { FaCloudUploadAlt, FaDownload } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import { Deliverable } from "@/types/deliverable";
 import PageNotFound from "@/components/PageNotFound";
+import { useSocket } from "@/app/provider";
 
 export default function DeliverablesPage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
   const [deliverablesId, setDeliverablesId] = useState<string | null>(null);
+  const [showModalPublish, setShowModalPublish] = useState<boolean>(false);
+  const userId = session?.user.id;
+  const socket = useSocket();
+  const [ DeliverableType, setDeliverableType] = useState<string | null>(null);
+  
 
   const [deliverables, setDeliverables] = useState<{
     [key: string]: Deliverable;
@@ -50,7 +56,9 @@ export default function DeliverablesPage() {
   });
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [supervisorId, setSupervisorId] = useState<string | null>(null); // State to hold supervisor ID
+  const [supervisorId, setSupervisorId] = useState<string | null>(null);
+  const [secondReaderId, setSecondReaderId] = useState<string | null>(null);
+  const [studentsId, setStudentsId] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchDeliverables = async () => {
@@ -60,9 +68,16 @@ export default function DeliverablesPage() {
         const res = await fetch(`/api/deliverables?projectId=${projectId}`);
         if (res.ok) {
           const data = await res.json();
-          console.log(data.deliverables);
+          // console.log(data)
+          
+          setStudentsId(data.deliverables.projectId.projectAssignedTo.studentsId);
+          // console.log(studentsId);
           setSupervisorId(
             data.deliverables.projectId.projectAssignedTo.supervisorId?._id
+          );
+
+          setSecondReaderId(
+            data.deliverables.projectId.projectAssignedTo.secondReaderId?._id
           );
 
           const allowedKeys = [
@@ -87,7 +102,6 @@ export default function DeliverablesPage() {
 
           setDeliverables(updatedData);
           setDeliverablesId(data.deliverables._id);
-          // console.log(deliverablesId)
         } else {
           console.log("No deliverables found.");
         }
@@ -101,17 +115,32 @@ export default function DeliverablesPage() {
     fetchDeliverables();
   }, [projectId]);
 
-  const handleSubmitGrade = async (id: String, type: Deliverable): Promise<void> => {
-    // console.log(id)
-    const gradeInput = document.getElementById(`grade-${type}`) as HTMLInputElement;
-    const feedbackInput = document.getElementById(`feedback-${type}`) as HTMLTextAreaElement;
-    
-    if (!gradeInput || !feedbackInput ){
+  
+  const closeModal = () => {
+    setShowModalPublish(false);
+  };
+
+  const openModal = async(type : Deliverable) => {
+    setShowModalPublish(true);
+    setDeliverableType(type.toString());
+  };
+
+  const handleSubmitGrade = async (
+    id: String,
+    type: Deliverable
+  ): Promise<void> => {
+    const gradeInput = document.getElementById(
+      `grade-${type}`
+    ) as HTMLInputElement;
+    const feedbackInput = document.getElementById(
+      `feedback-${type}`
+    ) as HTMLTextAreaElement;
+
+    if (!gradeInput || !feedbackInput) {
       console.error("Grade or feedback input is not found.");
-      return
+      return;
     }
 
-    
     const grade = gradeInput ? Number(gradeInput.value) : 0;
     const feedback = feedbackInput ? feedbackInput.value : "";
 
@@ -126,7 +155,6 @@ export default function DeliverablesPage() {
     };
 
     try {
-
       const res = await fetch(`/api/deliverables/${id}`, {
         method: "PUT",
         headers: {
@@ -154,6 +182,53 @@ export default function DeliverablesPage() {
     }
   };
 
+  const handlePublishGrade = async (
+    id: String,
+  ): Promise<void> => {
+
+    const updateData = {
+      [`${DeliverableType}.isPublished`]: true,
+    };
+
+
+
+
+    const userId = session?.user.id;
+    const receiversId = studentsId;
+    const typeNotification = "GradesPublished";
+
+    console.log("Session", userId);
+    console.log("Recievers", receiversId);
+    console.log("Type", typeNotification)
+    console.log("ProjectId", projectId);
+
+    if (socket) {
+      socket.emit("sendNotification", {userId, receiversId, projectId, typeNotification});
+    } else {
+      console.error("Socket is not initialized")
+    }
+    try {
+      const res = await fetch(`/api/deliverables/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (res.ok) {
+        console.log(updateData);
+
+        alert("Grade  published successfully.");
+        setShowModalPublish(false);
+      } else {
+        alert("Failed to submit grade.");
+      }
+      return
+    } catch (error) {
+      console.error("Error submitting grade:", error);
+    }
+  };
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -201,13 +276,14 @@ export default function DeliverablesPage() {
     document.body.removeChild(link);
   };
 
-
-  const canSubmitGrade = session?.user?.id === supervisorId;
+  // const canSubmitGrade = session?.user?.id === supervisorId;
   const isStudent = session?.user?.role === "Student";
+  const isSupervisor = session?.user?.id === supervisorId;
+  const isSecondReader = session?.user?.id === secondReaderId;
 
-  if (!session) {
-    return <PageNotFound></PageNotFound>;
-  }
+  // if ( userId != secondReaderId || userId != supervisorId) {
+  //   return <PageNotFound></PageNotFound>;
+  // }
   if (loading)
     return <p className="text-center text-lg text-gray-600">Loading...</p>;
 
@@ -274,7 +350,33 @@ export default function DeliverablesPage() {
                   </div>
                 )}
 
-                {canSubmitGrade && (
+                {/* Need to view finalReport FeedBack */}
+
+                {/* {isSupervisor && key === "FinalReport" &&(
+                  <div className="mt-4">
+                    <h3>Supervisor Feedback</h3>
+                    <p className="w-full p-2 border border-gray-300 rounded-md mt-2">
+                      {deliverables?.[key]?.secondReaderGrade|| ""}
+                    </p>
+                    <p className="w-full p-2 border border-gray-300 rounded-md mt-2">
+                      {deliverables?.[key]?.secondReaderFeedback || ""}
+                    </p>
+                  </div>
+                )} */}
+
+                {isSecondReader && (
+                  <div className="mt-4">
+                    <h3>Supervisor Grade & Feedback</h3>
+                    <p className="w-full p-2 border bg-gray-200 rounded-md mt-2">
+                      {deliverables?.[key]?.supervisorGrade || ""}
+                    </p>
+                    <p className="w-full p-2 border rounded-md mt-2">
+                      {deliverables?.[key]?.supervisorFeedback || ""}
+                    </p>
+                  </div>
+                )}
+
+                {isSupervisor && (
                   <div className="mt-4">
                     <p>{}</p>
                     <label className="block text-sm text-gray-700">
@@ -296,16 +398,26 @@ export default function DeliverablesPage() {
                       id={`feedback-${key}`}
                       className="w-full p-2 border border-gray-300 rounded-md mt-2"
                       placeholder="Enter feedback"
-                      defaultValue={deliverables?.[key]?.supervisorFeedback || ""}
+                      defaultValue={
+                        deliverables?.[key]?.supervisorFeedback || ""
+                      }
                     ></textarea>
                     <div className="flex  gap-3">
                       <button
                         className="bg-lime-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                        onClick={() =>handleSubmitGrade(deliverablesId?.toString()!, key as Deliverable)}
+                        onClick={() =>
+                          handleSubmitGrade(
+                            deliverablesId?.toString()!,
+                            key as unknown as Deliverable
+                          )
+                        }
                       >
                         Submit
                       </button>
-                      <button className="bg-cyan-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-cyan-700 transition duration-200 ease-in-out">
+                      <button
+                        className="bg-cyan-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-cyan-700 transition duration-200 ease-in-out"
+                        onClick={() => openModal(key as unknown as Deliverable)}
+                      >
                         Publish
                       </button>
                     </div>
@@ -328,6 +440,35 @@ export default function DeliverablesPage() {
             )
           )}
         </div>
+
+        {showModalPublish && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+              <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
+                Confirm Publish Grades
+              </h2>
+              <p className="text-center text-gray-700 mb-6">
+                Confirming this action will show the assigned student(s) the grade saved for this document.
+              </p>
+              <div className="flex justify-between">
+                <button
+                  onClick={closeModal}
+                  className="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition duration-200 ease-in-out"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() =>
+                    handlePublishGrade(
+                      deliverablesId?.toString()!                    )}
+                  className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition duration-200 ease-in-out"
+                >
+                  Confirm Publish
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
