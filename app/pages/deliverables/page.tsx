@@ -120,20 +120,20 @@ export default function DeliverablesPage() {
     setShowModalPublish(false);
   };
 
-  const openModal = async(type : Deliverable) => {
+  const openModal = async(deliverableType : Deliverable) => {
     setShowModalPublish(true);
-    setDeliverableType(type.toString());
+    setDeliverableType(deliverableType.toString());
   };
 
   const handleSubmitGrade = async (
     id: String,
-    type: Deliverable
+    deliverableType: Deliverable
   ): Promise<void> => {
     const gradeInput = document.getElementById(
-      `grade-${type}`
+      `grade-${deliverableType}`
     ) as HTMLInputElement;
     const feedbackInput = document.getElementById(
-      `feedback-${type}`
+      `feedback-${deliverableType}`
     ) as HTMLTextAreaElement;
 
     if (!gradeInput || !feedbackInput) {
@@ -150,8 +150,8 @@ export default function DeliverablesPage() {
     }
 
     const updateData = {
-      [`${type}.supervisorGrade`]: grade,
-      [`${type}.supervisorFeedback`]: feedback,
+      [`${deliverableType}.supervisorGrade`]: grade,
+      [`${deliverableType}.supervisorFeedback`]: feedback,
     };
 
     try {
@@ -168,8 +168,8 @@ export default function DeliverablesPage() {
         alert("Grade submitted successfully.");
         setDeliverables((prev) => ({
           ...prev,
-          [type]: {
-            ...prev[type],
+          [deliverableType]: {
+            ...prev[deliverableType],
             supervisorGrade: grade,
             supervisorFeedback: feedback,
           },
@@ -195,15 +195,11 @@ export default function DeliverablesPage() {
 
     const userId = session?.user.id;
     const receiversId = studentsId;
-    const typeNotification = "GradesPublished";
+    const type = "GradesPublished";
 
-    console.log("Session", userId);
-    console.log("Recievers", receiversId);
-    console.log("Type", typeNotification)
-    console.log("ProjectId", projectId);
 
     if (socket) {
-      socket.emit("sendNotification", {userId, receiversId, projectId, typeNotification});
+      socket.emit("sendNotification", {userId, receiversId, projectId, type});
     } else {
       console.error("Socket is not initialized")
     }
@@ -217,9 +213,7 @@ export default function DeliverablesPage() {
       });
 
       if (res.ok) {
-        console.log(updateData);
 
-        alert("Grade  published successfully.");
         setShowModalPublish(false);
       } else {
         alert("Failed to submit grade.");
@@ -232,14 +226,14 @@ export default function DeliverablesPage() {
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: string
+    deliverableType: string
   ) => {
     if (!e.target.files) return;
 
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
     formData.append("projectId", projectId!);
-    formData.append("type", type);
+    formData.append("deliverableType", deliverableType);
     formData.append("deliverablesId", deliverablesId!);
 
     try {
@@ -252,8 +246,8 @@ export default function DeliverablesPage() {
         const data = await res.json();
         setDeliverables((prevDeliverables) => ({
           ...prevDeliverables,
-          [type]: {
-            ...prevDeliverables[type as keyof typeof prevDeliverables],
+          [deliverableType]: {
+            ...prevDeliverables[deliverableType as keyof typeof prevDeliverables],
             file: data.fileUrl,
             uploadedAt: new Date().toISOString(),
           },

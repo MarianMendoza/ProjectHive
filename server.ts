@@ -65,7 +65,7 @@ const startServer = async () => {
 
     // Handle sending notifications
     socket.on("sendNotification", async ({ userId, receiversId, projectId, messageUser, type }) => {
-      // console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`);
+      // console.log(`User ${userId} applied for project ${projectId} that is supervised by ${supervisorId}`)
       try {
         if (!Array.isArray(receiversId)) {
           throw new Error(`Invalid receiversId: Expected an array got ${typeof receiversId}`);
@@ -100,7 +100,6 @@ const startServer = async () => {
 
         let message = "";
 
-        // Save the notification to the database
         switch (type) {
           case "ApplicationStudent":
             message = `${timestamp} \n ${user.name} applied to your project ${project.title}`;
@@ -151,7 +150,7 @@ const startServer = async () => {
         });
 
         await notification.save();
-        console.log(receiversId);
+        console.log("Type", type);
 
 
         for (const receiverId of receiversId) {
