@@ -149,15 +149,24 @@ export default function DeliverablesPage() {
       return;
     }
 
+
+
+    let receiversId;
+    let type;
+
     let updateData = {};
 
     if (userId == supervisorId) {
+      receiversId = [secondReaderId];
+      type = "SubmitSupervisor";      
       updateData = {
         [`${deliverableType}.supervisorGrade`]: grade,
         [`${deliverableType}.supervisorFeedback`]: feedback,
       };
     }
     if (userId == secondReaderId) {
+      receiversId = [supervisorId];
+      type = "SubmitSecondReader";      
       updateData = {
         [`${deliverableType}.secondReaderGrade`]: grade,
         [`${deliverableType}.secondReaderFeedback`]: feedback,
@@ -196,6 +205,17 @@ export default function DeliverablesPage() {
               secondReaderFeedback: feedback,
             },
           }));
+        }
+
+        if (socket) {
+          socket.emit("sendNotification", {
+            userId,
+            receiversId,
+            projectId,
+            type,
+          });
+        } else {
+          console.error("Socket is not initialized");
         }
       } else {
         alert("Failed to submit grade.");

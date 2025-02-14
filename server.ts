@@ -137,6 +137,12 @@ const startServer = async () => {
           case "GradesPublished":
             message = `${timestamp} \n Your grades have been updated! View this in your deliverables page to view more details.`
             break
+          case "SubmitSupervisor":
+            message = `${timestamp} \n ${user.name} has submitted grades for ${project.title}`
+            break
+          case "SubmitSecondReader":
+            message = `${timestamp} \n ${user.name} has submitted grades for ${project.title}`
+            break
         }
 
         const notification = new Notification({
