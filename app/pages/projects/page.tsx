@@ -254,6 +254,11 @@ const ProjectsPage = () => {
                         {project.projectAssignedTo.supervisorId?.name ||
                           "Not Assigned"}
                       </p>
+
+                      <p className="text-black">
+                        <strong>Abstract:</strong>
+                        {project.abstract || ""}
+                      </p>
                     </div>
 
                     {/* Badge section */}
@@ -395,6 +400,11 @@ const ProjectsPage = () => {
                       </>
                     )}
                 </div>
+
+                <p className="mb-5">
+                  <strong>Abstract:</strong>{" "}
+                  {selectedProject.abstract || "No description"}
+                </p>
 
                 <p>
                   <strong>Description:</strong>{" "}

@@ -10,7 +10,7 @@ import Deliverables from "@/app/models/Deliverables";
 export async function POST(req: Request) {
     await connectMongo();
 
-    const { title, status, visibility, description, files } = await req.json();
+    const { title, status, visibility, description,abstract, files } = await req.json();
 
     try {
         const session = await getServerSession(authOptions);
@@ -38,6 +38,7 @@ export async function POST(req: Request) {
             title,
             status,
             visibility,
+            abstract,
             description,
             files,
             projectAssignedTo: {

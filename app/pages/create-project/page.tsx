@@ -9,6 +9,7 @@ const CreateProjectPage = () => {
     title: "",
     status: false,
     visibility: "Private",
+    abstract: "",
     description: "",
     files: "",
   });
@@ -119,6 +120,24 @@ const CreateProjectPage = () => {
           </div>
 
           <div className="mb-4">
+          <label
+              htmlFor="abstract"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Abstract
+            </label>
+            <textarea
+              id="abstract"
+              name="abstract"
+              value={formData.abstract}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={4}
+              required
+            />
+            <div className="text-right text-sm text-gray-500 mt-2">
+              {formData.abstract.length}/500 characters
+            </div>
             <label
               htmlFor="description"
               className="block text-gray-700 font-medium mb-2"

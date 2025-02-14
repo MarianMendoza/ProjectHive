@@ -74,7 +74,7 @@ export async function PUT(req: Request) {
     await connectMongo();
 
     const id = req.url.split("/").pop() as string; // Extract project ID from the URL
-    const { title, status, visibility, description, files, projectAssignedTo, applicants } = await req.json();
+    const { title, status, visibility, abstract, description, files, projectAssignedTo, applicants } = await req.json();
 
     try {
         // Ensure the studentsId is normalized correctly
@@ -86,6 +86,7 @@ export async function PUT(req: Request) {
             title,
             status,
             visibility,
+            abstract,
             description,
             files,
             updatedAt: new Date(),

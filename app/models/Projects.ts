@@ -15,6 +15,7 @@ export interface IProjects extends Document {
     studentId: mongoose.Types.ObjectId, 
   }[];
   //Queue FIFO, lecturer dashboard
+  abstract: string;
   description: string;
   files: string;
   createdAt: Date;
@@ -42,6 +43,7 @@ const ProjectsSchema: Schema = new Schema({
       studentId: {type: mongoose.Types.ObjectId, ref: "User"},
     },
   ],
+  abstract: {type: String, required: false },
   description: { type: String, required: false },
   files: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },

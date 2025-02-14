@@ -19,6 +19,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     title: "",
     status: false,
     visibility: "Private",
+    abstract: "",
     description: "",
     secondReader: "",
     applicants: [],
@@ -494,6 +495,24 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           </div>
 
           <div className="col-span-2">
+          <label
+              htmlFor="abstract"
+              className="block text-lg text-gray-700 mb-2"
+            >
+              Abstract
+            </label>
+            <textarea
+              id="abstract"
+              name="abstract"
+              value={formData.abstract}
+              onChange={handleChange}
+              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+              rows={4}
+              maxLength={1000}
+            />
+            <div className="text-right text-sm text-gray-500 mt-2">
+              {formData.abstract.length}/1000 characters
+            </div>
             <label
               htmlFor="description"
               className="block text-lg text-gray-700 mb-2"

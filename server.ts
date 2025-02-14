@@ -135,7 +135,7 @@ const startServer = async () => {
             message = `${timestamp} \n Your invite to ${user.name} has been declined for ${project.title}.`
             break
           case "GradesPublished":
-            message = `${timestamp} \n Your grades for ${project.title} has been published. View this in your deliverables page.`
+            message = `${timestamp} \n Your grades have been updated! View this in your deliverables page to view more details.`
             break
         }
 

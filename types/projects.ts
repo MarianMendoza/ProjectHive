@@ -14,6 +14,7 @@ export interface Project {
     applicants: {
       studentId: User;
     }[];
+    abstract: string;
     description: string;
     files: string;
     createdAt: string;  

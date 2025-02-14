@@ -15,8 +15,7 @@ export default function DeliverablesPage() {
   const [showModalPublish, setShowModalPublish] = useState<boolean>(false);
   const userId = session?.user.id;
   const socket = useSocket();
-  const [ DeliverableType, setDeliverableType] = useState<string | null>(null);
-  
+  const [DeliverableType, setDeliverableType] = useState<string | null>(null);
 
   const [deliverables, setDeliverables] = useState<{
     [key: string]: Deliverable;
@@ -69,8 +68,10 @@ export default function DeliverablesPage() {
         if (res.ok) {
           const data = await res.json();
           // console.log(data)
-          
-          setStudentsId(data.deliverables.projectId.projectAssignedTo.studentsId);
+
+          setStudentsId(
+            data.deliverables.projectId.projectAssignedTo.studentsId
+          );
           // console.log(studentsId);
           setSupervisorId(
             data.deliverables.projectId.projectAssignedTo.supervisorId?._id
@@ -115,12 +116,11 @@ export default function DeliverablesPage() {
     fetchDeliverables();
   }, [projectId]);
 
-  
   const closeModal = () => {
     setShowModalPublish(false);
   };
 
-  const openModal = async(deliverableType : Deliverable) => {
+  const openModal = async (deliverableType: Deliverable) => {
     setShowModalPublish(true);
     setDeliverableType(deliverableType.toString());
   };
@@ -149,10 +149,20 @@ export default function DeliverablesPage() {
       return;
     }
 
-    const updateData = {
-      [`${deliverableType}.supervisorGrade`]: grade,
-      [`${deliverableType}.supervisorFeedback`]: feedback,
-    };
+    let updateData = {};
+
+    if (userId == supervisorId) {
+      updateData = {
+        [`${deliverableType}.supervisorGrade`]: grade,
+        [`${deliverableType}.supervisorFeedback`]: feedback,
+      };
+    }
+    if (userId == secondReaderId) {
+      updateData = {
+        [`${deliverableType}.secondReaderGrade`]: grade,
+        [`${deliverableType}.secondReaderFeedback`]: feedback,
+      };
+    }
 
     try {
       const res = await fetch(`/api/deliverables/${id}`, {
@@ -166,14 +176,27 @@ export default function DeliverablesPage() {
         console.log(updateData);
 
         alert("Grade submitted successfully.");
-        setDeliverables((prev) => ({
-          ...prev,
-          [deliverableType]: {
-            ...prev[deliverableType],
-            supervisorGrade: grade,
-            supervisorFeedback: feedback,
-          },
-        }));
+
+        if (userId == supervisorId) {
+          setDeliverables((prev) => ({
+            ...prev,
+            [deliverableType]: {
+              ...prev[deliverableType],
+              supervisorGrade: grade,
+              supervisorFeedback: feedback,
+            },
+          }));
+        }
+        if (userId == secondReaderId) {
+          setDeliverables((prev) => ({
+            ...prev,
+            [deliverableType]: {
+              ...prev[deliverableType],
+              secondReaderGrade: grade,
+              secondReaderFeedback: feedback,
+            },
+          }));
+        }
       } else {
         alert("Failed to submit grade.");
       }
@@ -182,26 +205,24 @@ export default function DeliverablesPage() {
     }
   };
 
-  const handlePublishGrade = async (
-    id: String,
-  ): Promise<void> => {
-
+  const handlePublishGrade = async (id: String): Promise<void> => {
     const updateData = {
       [`${DeliverableType}.isPublished`]: true,
     };
-
-
-
 
     const userId = session?.user.id;
     const receiversId = studentsId;
     const type = "GradesPublished";
 
-
     if (socket) {
-      socket.emit("sendNotification", {userId, receiversId, projectId, type});
+      socket.emit("sendNotification", {
+        userId,
+        receiversId,
+        projectId,
+        type,
+      });
     } else {
-      console.error("Socket is not initialized")
+      console.error("Socket is not initialized");
     }
     try {
       const res = await fetch(`/api/deliverables/${id}`, {
@@ -213,12 +234,11 @@ export default function DeliverablesPage() {
       });
 
       if (res.ok) {
-
         setShowModalPublish(false);
       } else {
         alert("Failed to submit grade.");
       }
-      return
+      return;
     } catch (error) {
       console.error("Error submitting grade:", error);
     }
@@ -247,7 +267,9 @@ export default function DeliverablesPage() {
         setDeliverables((prevDeliverables) => ({
           ...prevDeliverables,
           [deliverableType]: {
-            ...prevDeliverables[deliverableType as keyof typeof prevDeliverables],
+            ...prevDeliverables[
+              deliverableType as keyof typeof prevDeliverables
+            ],
             file: data.fileUrl,
             uploadedAt: new Date().toISOString(),
           },
@@ -302,7 +324,10 @@ export default function DeliverablesPage() {
           </p>
 
           {Object.entries(deliverables).map(
-            ([key, { file, uploadedAt, deadline, description }]) => (
+            ([
+              key,
+              { file, uploadedAt, deadline, description, isPublished },
+            ]) => (
               <div key={key} className="p-4 mb-4 bg-white rounded-lg shadow-lg">
                 <h4 className="text-lg font-semibold capitalize text-lime-600">
                   {key.replace(/([A-Z])/g, " $1")}
@@ -316,6 +341,78 @@ export default function DeliverablesPage() {
                   {uploadedAt ? new Date(uploadedAt).toLocaleString() : "Never"}
                 </p>
                 <p className="text-sm text-gray-600 mb-4">{description}</p>
+
+                {isPublished == true && isStudent && (
+                  <div className="mt-4 mb-4">
+                    <h3 className="text-small font-semibold text-gray-800 mb-2">
+                      📋 Supervisor's Grade & Feedback
+                    </h3>
+
+                    {deliverables?.[key]?.supervisorGrade ? (
+                      <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
+                        <div
+                          className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
+                          style={{
+                            width: `${deliverables[key].supervisorGrade}%`,
+                          }}
+                        >
+                          {deliverables[key].supervisorGrade}/100
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">
+                        Yet to be published
+                      </p>
+                    )}
+
+                    <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
+                      <strong>Feedback: </strong>
+                      {deliverables?.[key]?.supervisorFeedback ? (
+                        deliverables[key].supervisorFeedback
+                      ) : (
+                        <span className="text-gray-500">
+                          Yet to be published
+                        </span>
+                      )}
+                    </p>
+
+                    {key == "finalReport" && (
+                      <div className="mt-4 mb-4">
+                        <h3 className="text-small font-semibold text-gray-800 mb-2">
+                          📋 Second Readers's Grade & Feedback
+                        </h3>
+
+                        {deliverables?.[key]?.secondReaderGrade ? (
+                          <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
+                            <div
+                              className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
+                              style={{
+                                width: `${deliverables[key].secondReaderGrade}%`,
+                              }}
+                            >
+                              {deliverables[key].secondReaderGrade}/100
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 text-sm">
+                            Yet to be published
+                          </p>
+                        )}
+
+                        <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
+                          <strong>Feedback: </strong>
+                          {deliverables?.[key]?.secondReaderFeedback ? (
+                            deliverables[key].secondReaderFeedback
+                          ) : (
+                            <span className="text-gray-500">
+                              Yet to be published
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {isStudent && (
                   <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
@@ -344,35 +441,134 @@ export default function DeliverablesPage() {
                   </div>
                 )}
 
-                {/* Need to view finalReport FeedBack */}
-
-                {/* {isSupervisor && key === "FinalReport" &&(
-                  <div className="mt-4">
-                    <h3>Supervisor Feedback</h3>
-                    <p className="w-full p-2 border border-gray-300 rounded-md mt-2">
-                      {deliverables?.[key]?.secondReaderGrade|| ""}
-                    </p>
-                    <p className="w-full p-2 border border-gray-300 rounded-md mt-2">
-                      {deliverables?.[key]?.secondReaderFeedback || ""}
-                    </p>
-                  </div>
-                )} */}
-
                 {isSecondReader && (
-                  <div className="mt-4">
-                    <h3>Supervisor Grade & Feedback</h3>
-                    <p className="w-full p-2 border bg-gray-200 rounded-md mt-2">
-                      {deliverables?.[key]?.supervisorGrade || ""}
+                  <div className="mt-4 mb-4">
+                    <h3 className="text-small font-semibold text-gray-800 mb-2">
+                      📋 Supervisor's Grade & Feedback
+                    </h3>
+
+                    {deliverables?.[key]?.supervisorGrade ? (
+                      <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
+                        <div
+                          className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
+                          style={{
+                            width: `${deliverables[key].supervisorGrade}%`,
+                          }}
+                        >
+                          {deliverables[key].supervisorGrade}/100
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">
+                        Yet to be published
+                      </p>
+                    )}
+
+                    <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
+                      <strong>Feedback: </strong>
+                      {deliverables?.[key]?.supervisorFeedback ? (
+                        deliverables[key].supervisorFeedback
+                      ) : (
+                        <span className="text-gray-500">
+                          Yet to be published
+                        </span>
+                      )}
                     </p>
-                    <p className="w-full p-2 border rounded-md mt-2">
-                      {deliverables?.[key]?.supervisorFeedback || ""}
-                    </p>
+
+                    {key == "finalReport" && (
+                      <div className="mt-4">
+                        <p>{}</p>
+                        <label className="block text-sm text-gray-700">
+                          Grade Out Of 100
+                        </label>
+                        
+                        <input
+                          id={`grade-${key}`}
+                          type="number"
+                          min="0"
+                          max="100"
+                          className="w-full p-2 border border-gray-300 rounded-md mt-2"
+                          placeholder="Enter grade"
+                          defaultValue={
+                            deliverables?.[key]?.secondReaderGrade || ""
+                          }
+                        />
+                        <label className="block text-sm text-gray-700 mt-4">
+                          Feedback
+                        </label>
+                        <textarea
+                          id={`feedback-${key}`}
+                          className="w-full p-2 border border-gray-300 rounded-md mt-2"
+                          placeholder="Enter feedback"
+                          defaultValue={
+                            deliverables?.[key]?.secondReaderFeedback || ""
+                          }
+                        ></textarea>
+                        <div className="flex  gap-3">
+                          <button
+                            className="bg-lime-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                            onClick={() =>
+                              handleSubmitGrade(
+                                deliverablesId?.toString()!,
+                                key as unknown as Deliverable
+                              )
+                            }
+                          >
+                            Submit
+                          </button>
+                          <button
+                            className="bg-cyan-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-cyan-700 transition duration-200 ease-in-out"
+                            onClick={() =>
+                              openModal(key as unknown as Deliverable)
+                            }
+                          >
+                            Publish
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {isSupervisor && (
                   <div className="mt-4">
                     <p>{}</p>
+
+                    {key == "finalReport" && (
+                      <div className="mt-4 mb-4">
+                        <h3 className="text-small font-semibold text-gray-800 mb-2">
+                          📋 Second Reader's Grade & Feedback
+                        </h3>
+
+                        {deliverables?.[key]?.secondReaderGrade ? (
+                          <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
+                            <div
+                              className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
+                              style={{
+                                width: `${deliverables[key].secondReaderGrade}%`,
+                              }}
+                            >
+                              {deliverables[key].secondReaderGrade}/100
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 text-sm">
+                            Yet to be published
+                          </p>
+                        )}
+
+                        <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
+                          <strong>Feedback: </strong>
+                          {deliverables?.[key]?.secondReaderFeedback ? (
+                            deliverables[key].secondReaderFeedback
+                          ) : (
+                            <span className="text-gray-500">
+                              Yet to be published
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    )}
                     <label className="block text-sm text-gray-700">
                       Grade Out Of 100
                     </label>
@@ -442,7 +638,8 @@ export default function DeliverablesPage() {
                 Confirm Publish Grades
               </h2>
               <p className="text-center text-gray-700 mb-6">
-                Confirming this action will show the assigned student(s) the grade saved for this document.
+                Confirming this action will show the assigned student(s) the
+                grade saved for this document.
               </p>
               <div className="flex justify-between">
                 <button
@@ -453,8 +650,8 @@ export default function DeliverablesPage() {
                 </button>
                 <button
                   onClick={() =>
-                    handlePublishGrade(
-                      deliverablesId?.toString()!                    )}
+                    handlePublishGrade(deliverablesId?.toString()!)
+                  }
                   className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition duration-200 ease-in-out"
                 >
                   Confirm Publish
