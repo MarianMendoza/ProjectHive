@@ -4,7 +4,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 const DeliverableSchema = new Schema({
   file: { type: String, default: null },
   uploadedAt: { type: Date, default: null },
-  deadline: { type: Date, default: null },
   supervisorGrade: { type: Number, default: null },
   supervisorFeedback: { type: String, default: null },
   secondReaderGrade: { type: Number, default: null },
@@ -27,6 +26,7 @@ const DeliverablesSchema: Schema = new Schema({
   outlineDocument: DeliverableSchema,
   extendedAbstract: DeliverableSchema,
   finalReport: DeliverableSchema,
+  deadlineId: { type: mongoose.Types.ObjectId, ref: 'Deadline', required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

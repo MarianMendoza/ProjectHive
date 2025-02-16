@@ -1,7 +1,6 @@
 export interface Deliverable {
   file: string;
   uploadedAt: string;
-  deadline: string;
   description?: string;
   supervisorGrade?: number;
   supervisorFeedback?: string;

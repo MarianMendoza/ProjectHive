@@ -59,6 +59,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             title: projectData.project.title,
             status: projectData.project.status,
             visibility: projectData.project.visibility,
+            abstract: projectData.project.abstract|| "",
             description: projectData.project.description || "",
             secondReader: projectData.project.secondReader || "",
             applicants: projectData.project.applicants || [],
@@ -134,7 +135,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     } else {
       secondReader = project?.projectAssignedTo.secondReaderId;
       console.log(project?.projectAssignedTo.secondReaderId);
-      // setUnassignedSecondReader(project?.projectAssignedTo?.secondReaderId || null);
+      // setUnassignedSecondReader(project?.projectAssignedTo?.secondReaderId?._id);
     }
 
     // setSelectedSecondReader(secondReader);
@@ -511,7 +512,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               maxLength={1000}
             />
             <div className="text-right text-sm text-gray-500 mt-2">
-              {formData.abstract.length}/1000 characters
+              {formData.abstract?.length}/500 characters
             </div>
             <label
               htmlFor="description"
@@ -529,7 +530,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               maxLength={1000}
             />
             <div className="text-right text-sm text-gray-500 mt-2">
-              {formData.description.length}/1000 characters
+              {formData.description?.length}/1000 characters
             </div>
           </div>
 

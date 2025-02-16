@@ -23,7 +23,6 @@ export default function DeliverablesPage() {
     outlineDocument: {
       file: "",
       uploadedAt: "",
-      deadline: "",
       description:
         "A one-page document consisting of a short analysis of the project in the student's own words and a broad plan of the steps to complete the work. The supervisor should give the pass mark if and only if s/he is convinced that this document demonstrates that the student has understood the FYP.",
       supervisorGrade: 0,
@@ -33,7 +32,6 @@ export default function DeliverablesPage() {
     extendedAbstract: {
       file: "",
       uploadedAt: "",
-      deadline: "",
       description:
         "A written document of about 5 pages. It must contain a summary of the most important findings of the work undertaken. The format should allow for consistent reading, similar to a journal publication.\nThe purpose of this stage is to ensure that the student starts to write their final report in a timely fashion. The assessment and feedback should focus on the quality of the document and not on the technical quality of work per se. A pass judgment for this stage should not be construed as a promise that the work as a whole is pass-worthy.",
       supervisorGrade: 0,
@@ -43,7 +41,6 @@ export default function DeliverablesPage() {
     finalReport: {
       file: "",
       uploadedAt: "",
-      deadline: "",
       description:
         "Report writing guidelines were given separately. Upload instructions: Prepare a zip or tar.gz archive with your report as PDF in the folder root and one sub-folder with all source code you wrote as part of your FYP. If you have any online demonstration, create a file with the name demo.html with clickable links and add it also to the root folder of the archive. Maximum file size for this upload: 70MB.",
       supervisorGrade: 0,
@@ -346,16 +343,16 @@ export default function DeliverablesPage() {
           {Object.entries(deliverables).map(
             ([
               key,
-              { file, uploadedAt, deadline, description, isPublished },
+              { file, uploadedAt, description, isPublished },
             ]) => (
               <div key={key} className="p-4 mb-4 bg-white rounded-lg shadow-lg">
                 <h4 className="text-lg font-semibold capitalize text-lime-600">
                   {key.replace(/([A-Z])/g, " $1")}
                 </h4>
 
-                <p className="text-sm text-gray-600">
+                {/* <p className="text-sm text-gray-600">
                   <strong>Due Date:</strong> {deadline || "Not set"}
-                </p>
+                </p> */}
                 <p className="text-sm text-gray-600">
                   <strong>Last Uploaded:</strong>{" "}
                   {uploadedAt ? new Date(uploadedAt).toLocaleString() : "Never"}

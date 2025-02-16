@@ -29,7 +29,9 @@ export async function GET(req: Request) {
                     }
                 ]
 
-            });
+            }).populate('deadlineId', 'outlineDocumentDeadline extendedAbstractDeadline finalReportDeadline');
+
+        
 
         if (!deliverables) {
             return NextResponse.json({ message: "Deliverables not found" }, { status: 404 });
