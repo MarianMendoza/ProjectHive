@@ -1,40 +1,65 @@
 "use client";
 import Notification from "./Notifications";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); 
-    const outlineDocumentDate = (e.target as any).outlineDocumentDate.value;
-    const abstractDate = (e.target as any).abstractDate.value;
-    const finalReportDate = (e.target as any).finalReportDate.value;
-    const openDayDate = (e.target as any).openDayDate.value;
+  const [deadlines, setDeadlines] = useState({
+    outlineDocumentDeadline: "",
+    extendedAbstractDeadline: "",
+    finalReportDeadline: "",
+    openDayDate: "",
+    pastProjectDate: "",
+  });
 
-    const updateData = {
-        outlineDocumentDeadline: new Date(outlineDocumentDate).toISOString().split('T')[0],
-        extendedAbstractDeadline: new Date(abstractDate).toISOString().split('T')[0],
-        finalReportDeadline: new Date(finalReportDate).toISOString().split('T')[0],
-        openDayDate: new Date(openDayDate).toISOString().split('T')[0],
-      };
-      
+  useEffect(() => {
+    const fetchDeadlines = async () => {
+      try {
+        const res = await fetch("/api/deadlines");
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const formatDate = (isoString: string) => isoString ? isoString.split("T")[0] : "";
 
-    try {
-        const res = await fetch(`/api/deadlines`,{
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(updateData),
-        });
-
-        if (res.ok){
-            console.log("Success")
+          setDeadlines({
+            outlineDocumentDeadline: formatDate(data[0].outlineDocumentDeadline),
+            extendedAbstractDeadline: formatDate(data[0].extendedAbstractDeadline),
+            finalReportDeadline: formatDate(data[0].finalReportDeadline),
+            openDayDate: formatDate(data[0].openDayDate),
+            pastProjectDate: formatDate(data[0].pastProjectDate),
+          });
+        } else {
+          console.error("No deadlines found in API response");
         }
-        
+
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchDeadlines();
+  }, []);
+
+  const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    setDeadlines({...deadlines, [e.target.name]: e.target.value})
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/deadlines`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(deadlines),
+      
+      });
+      console.log(deadlines)
+
+      if (res.ok) {
+        console.log("Success");
+      }
     } catch (error) {
-        console.error("An error occurred:", error);
-        alert("An error occurred while updating deadlines.");
-        
+      console.error("An error occurred:", error);
+      alert("An error occurred while updating deadlines.");
     }
   };
 
@@ -67,49 +92,34 @@ export default function AdminDashboard() {
 
           {/* Deadline Fields */}
           <div className="space-y-4 mt-6">
-            <h3 className="text-lg font-semibold text-gray-900">Set Deadlines</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Set Deadlines
+            </h3>
 
             {/* Deadline input fields */}
-            <form onSubmit={handleSubmit} className="space-y-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Outline Document Deadline</label>
-                <input
-                  id="outlineDocumentDate"
-                  type="date"
-                  name="outlineDocumentDate"
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Abstract Deadline</label>
-                <input
-                  id="abstractDate"
-                  type="date"
-                  name="abstractDate"
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Final Report Deadline</label>
-                <input
-                  id="finalReportDate"
-                  type="date"
-                  name="finalReportDate"
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Open Day Deadline</label>
-                <input
-                  id="openDayDate"
-                  type="date"
-                  name="openDayDate"
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {Object.entries(deadlines).map(([key, value]) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-gray-700">
+                    {key
+                      .replace(/([A-Z])/g, " $1")
+                      .replace("Date", " Deadline")
+                      .split(' ') 
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                      .join(' ')}
+                  </label>
+                  <input
+                    type="date"
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              ))}
               <button
                 type="submit"
-                className="bg-lime-600 px-4 py-2 justify-start text-white text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                className="bg-lime-600 px-4 py-2 text-white rounded-lg hover:bg-lime-700 transition"
               >
                 Submit
               </button>

@@ -24,7 +24,7 @@ const UserSchema: Schema = new Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ["Student", "Lecturer", "Admin"], default: "Student" },
   assigned: {type:Boolean, default: false},
-  approved: { type: Boolean, default: false }, // Default to false for non-admin users
+  approved: { type: Boolean, default: false }, 
   pfpurl: {type: String, default: ""},
 });
 
