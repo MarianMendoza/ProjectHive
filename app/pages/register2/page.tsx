@@ -26,7 +26,7 @@ export default function Register2(){
     }
 
     try {
-      const res = await fetch('../api/register2', {
+      const res = await fetch('/api/register2', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",

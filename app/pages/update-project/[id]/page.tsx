@@ -3,73 +3,108 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { IProjects } from "@/app/models/Projects";
-import { useSession } from "next-auth/react"; // Import useSession
+import { useSession } from "next-auth/react";
+import { useSocket } from "@/app/provider";
+import { User } from "@/types/users";
+import PageNotFound from "@/components/PageNotFound";
 
 const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const router = useRouter();
-  const { data: session } = useSession(); // Get session data
+  const { data: session } = useSession();
   const [project, setProject] = useState<IProjects | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
     title: "",
-    status: "", // Default to false (Unavailable)
+    status: false,
     visibility: "Private",
+    abstract: "",
     description: "",
+    secondReader: "",
     applicants: [],
     files: "",
   });
-  const [selectedStudents, setSelectedStudents] = useState<string[]>([]); // Pre-filled with assigned students if any
-  const [isGroupProject, setIsGroupProject] = useState<boolean>(false); // Toggle for group/individual project
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
-  const [modalMessage, setModalMessage] = useState(""); // Modal message content
-  const [confirmAction, setConfirmAction] = useState<() => void>(() => {}); // Confirmation action callback
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>(
+    []
+  );
+  const [unassignedSecondReader, setUnassignedSecondReader] = useState<
+    string | null
+  >(null);
+  const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
+  const [invitedLecturers, setInvitedLecturers] = useState<string[]>([]); // Track invited lecturers
+  const [invitedLecturer, setInvitedLecturer] = useState<User | null>(null);
+
+  const [isGroupProject, setIsGroupProject] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+  const socket = useSocket();
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`../../api/projects/${id}`);
-        const data = await res.json();
+        const projectRes = await fetch(`/api/projects/${id}`);
+        const projectData = await projectRes.json();
+        console.log(projectRes.json);
 
-        if (res.ok) {
-          setProject(data.project);
+        const lecturersRes = await fetch("/api/users");
+        const lecturersData = await lecturersRes.json();
+
+        if (projectRes.ok) {
+          setProject(projectData.project);
           setFormData({
-            title: data.project.title,
-            status: data.project.status, // Boolean from the project
-            visibility: data.project.visibility,
-            description: data.project.description || "",
-            applicants: data.project.applicants || [],
-            files: data.project.files || ""
+            title: projectData.project.title,
+            status: projectData.project.status,
+            visibility: projectData.project.visibility,
+            abstract: projectData.project.abstract|| "",
+            description: projectData.project.description || "",
+            secondReader: projectData.project.secondReader || "",
+            applicants: projectData.project.applicants || [],
+            files: projectData.project.files || "",
           });
 
-          // Pre-fill selected students based on projectAssignedTo
+          const filteredLecturers = lecturersData.filter(
+            (user: User) =>
+              user.role === "Lecturer" && user._id !== session?.user.id
+          );
+          setLecturers(filteredLecturers);
+
           const assignedStudent =
-            data.project.projectAssignedTo?.studentsId || [];
+            projectData.project.projectAssignedTo?.studentsId || [];
           setSelectedStudents(assignedStudent);
-          setIsGroupProject(assignedStudent.length > 1); // Detect if it's a group project
+          const assignedSecondReader =
+            projectData.project.projectAssignedTo?.secondReaderId._id;
+          const matchedLecturer = filteredLecturers.find(
+            (lecturer: User) => lecturer._id === assignedSecondReader
+          );
+          setSelectedSecondReader(matchedLecturer?._id || null); // Set to null if no match
+
+          // Need to make it so that if the the secondReader is unassigned then, update this.
+          setIsGroupProject(assignedStudent.length > 1);
         } else {
-          setError(data.message);
+          setError("Failed to fetch project or lecturers");
         }
       } catch (err) {
-        setError("Error fetching project");
+        // setError("Error fetching project");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchProject();
+    fetchData();
   }, [id]);
 
   const handleChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
     >
   ) => {
     if (e.target.name === "status") {
       setFormData({
         ...formData,
-        status: e.target.value === "Open" ? true : false, // Set to true if "Available", false if "Unavailable"
+        status: e.target.value === "Open",
       });
     } else {
       setFormData({
@@ -79,11 +114,55 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
+  const handleSecondReaderChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedId = e.target.value;
+    console.log(selectedId);
+
+    const receiverId = project?.projectAssignedTo.secondReaderId?._id;
+
+    if (selectedId === "invite") {
+      setShowInviteModal(true);
+      return;
+    }
+
+    let secondReader;
+
+    if (selectedId === "") {
+      console.log("This is empty.");
+      secondReader = "";
+    } else {
+      secondReader = project?.projectAssignedTo.secondReaderId;
+      console.log(project?.projectAssignedTo.secondReaderId);
+      // setUnassignedSecondReader(project?.projectAssignedTo?.secondReaderId?._id);
+    }
+
+    // setSelectedSecondReader(secondReader);
+  };
+
+  const handleInviteClick = async (lecturer: User) => {
+    setInvitedLecturers((prev) => [...prev, lecturer._id]); // Add lecturer to invited list
+    setInvitedLecturer(lecturer);
+
+    const userId = session?.user.id;
+    const receiversId = [lecturer._id];
+    const projectId = project?._id;
+    const type = "InvitationSecondReader";
+
+    // console.log("User ID", userId, "ReceiversId", receiversId, "ProjectId", projectId, "type", type);
+    if (socket) {
+      socket.emit("sendNotification", { userId, receiversId, projectId, type });
+    } else {
+      console.error("Socket is not initialized");
+    }
+
+    alert("You have sent an invite.");
+  };
+
   const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
-
     if (isGroupProject) {
-      // Add to selected students if in group project mode
       if (selectedId && !selectedStudents.includes(selectedId)) {
         setSelectedStudents([...selectedStudents, selectedId]);
       }
@@ -92,38 +171,30 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
-
   const removeStudent = (studentId: string) => {
-    setSelectedStudents(selectedStudents.filter((id) => id !== studentId)); // Remove student by ID
+    setSelectedStudents(selectedStudents.filter((id) => id !== studentId));
   };
 
   const handleGroupToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsGroupProject(e.target.checked);
     if (!e.target.checked) {
-      setSelectedStudents(selectedStudents.slice(0, 1)); // Keep only one student if group project is not selected
+      setSelectedStudents(selectedStudents.slice(0, 1));
     }
   };
 
-  const updateProjectWithStudents = async () => {
-    const updateApplicants = project?.applicants.map((applicant) => {
-      const studentId = applicant.studentId._id || applicant.studentId;
-      if (selectedStudents.includes(applicant.studentId.toString())) {
-        return { ...applicant, applicationStatus: "Assigned" };
-      }
-      return applicant;
-    });
-
+  const updateProjectWithNotifications = async () => {
     const updatedData = {
       ...formData,
       projectAssignedTo: {
         ...project?.projectAssignedTo,
-        studentsId: selectedStudents
+        studentsId: selectedStudents,
+        supervisorId: project?.projectAssignedTo?.supervisorId || null,
+        secondReaderId: project?.projectAssignedTo?.secondReaderId || null,
       },
-      applicants: updateApplicants,
     };
 
     try {
-      const response = await fetch(`../../api/projects/${id}`, {
+      const res = await fetch(`/api/projects/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -131,12 +202,52 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         body: JSON.stringify(updatedData),
       });
 
-      const data = await response.json();
+      const updatedProject = await res.json();
 
-      if (response.ok) {
-        router.push("../projects");
+      if (res.ok) {
+        router.push("/pages/projects");
+
+        const userId = session?.user.id;
+        const assignedReceivers = selectedStudents;
+        const projectId = updatedProject.project._id;
+
+        if (socket) {
+          if (assignedReceivers.length > 0 && formData.status) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId: assignedReceivers,
+              projectId,
+              type: "StudentAccept",
+            });
+          }
+
+          if (unassignedSecondReader) {
+            socket.emit("sendNotification", {
+              userId: session?.user.id,
+              receiversId: [unassignedSecondReader],
+              projectId: project?._id,
+              type: "UnassignSecondReader",
+            });
+            alert("You have unassigned the second reader.");
+          }
+
+          if (!formData.status) {
+            const applicantReceivers = updatedProject.project.applicants.map(
+              (applicant: { studentId: string }) => applicant.studentId
+            );
+            console.log(applicantReceivers);
+            socket.emit("sendNotification", {
+              userId,
+              receiversId: applicantReceivers,
+              projectId,
+              type: "Closed",
+            });
+          }
+        } else {
+          console.error("Socket is not initialized");
+        }
       } else {
-        setError(data.message);
+        setError(updatedProject.message);
       }
     } catch (err) {
       setError("Error updating project");
@@ -145,11 +256,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    setShowModal(true); // Show confirmation modal before submitting
+    setShowModal(true);
     setModalMessage(
       "Are you sure you want to update this project? Please check the status before proceeding."
     );
-    setConfirmAction(() => () => updateProjectWithStudents()); // Default confirm action to update with students
+    setConfirmAction(() => () => updateProjectWithNotifications());
   };
 
   const handleModalClose = () => {
@@ -158,14 +269,16 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
   const handleModalConfirm = () => {
     setShowModal(false);
-    confirmAction(); // Execute the confirmed action (project update)
+    confirmAction();
   };
+
+  if (!session) {
+    return <PageNotFound />;
+  }
 
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error)
     return <div className="text-center py-8 text-red-500">{error}</div>;
-
-  const isEditable = session?.user.id === project?.projectAssignedTo.supervisorId.toString(); // Check if session user is the supervisor
 
   return (
     <div className="container mx-auto p-10 flex items-center justify-center">
@@ -232,10 +345,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                   {isGroupProject ? "Select Students" : "Select a Student"}
                 </option>
                 {project?.applicants.map((applicant) => (
-                  <option
-                    key={applicant.studentId._id}
-                    value={applicant.studentId._id}
-                  >
+                  <option value={applicant.studentId?._id}>
                     {applicant.studentId?.name}
                   </option>
                 ))}
@@ -249,18 +359,65 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               >
                 Second Reader
               </label>
-              <input
-                type="text"
+              <select
                 id="secondReader"
                 name="secondReader"
-                value={
-                  project?.projectAssignedTo.secondReaderId?.name ||
-                  "No Second Reader Assigned"
-                }
+                key={selectedSecondReader}
+                value={selectedSecondReader || ""}
+                onChange={handleSecondReaderChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-                disabled // Disable the input field to make it read-only
-              />
+              >
+                <option value="invite">Invite...</option>
+                <option value={selectedSecondReader}>
+                  Assigned:{" "}
+                  {lecturers.find(
+                    (lecturers) => lecturers._id === selectedSecondReader
+                  )?.name || "No one has been assigned"}
+                </option>
+                {selectedSecondReader && <option value="">Unassign...</option>}
+              </select>
             </div>
+
+            {showInviteModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                  <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
+                    Invite a Lecturer
+                  </h2>
+                  <div className="space-y-4">
+                    {lecturers.map((lecturer) => (
+                      <div
+                        key={lecturer._id}
+                        className="flex justify-between items-center bg-gray-100 p-4 rounded-lg"
+                      >
+                        <span>{lecturer.name}</span>
+                        <button
+                          onClick={() => handleInviteClick(lecturer)}
+                          className={`px-4 py-2 rounded-lg ${
+                            invitedLecturers.includes(lecturer._id)
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-lime-500 text-white hover:bg-lime-600"
+                          }`}
+                          disabled={invitedLecturers.includes(lecturer._id)}
+                        >
+                          {invitedLecturers.includes(lecturer._id)
+                            ? "Invited"
+                            : "Invite"}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end mt-4">
+                    <button
+                      onClick={() => setShowInviteModal(false)}
+                      className="bg-gray-300 text-black px-4 py-2 rounded-lg"
+                    >
+                      Go Back
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {isGroupProject && (
               <div>
@@ -333,12 +490,30 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               >
                 <option value="Open">Open</option>
-                <option value="Close">Closed</option>
+                <option value="Closed">Closed</option>
               </select>
             </div>
           </div>
 
           <div className="col-span-2">
+          <label
+              htmlFor="abstract"
+              className="block text-lg text-gray-700 mb-2"
+            >
+              Abstract
+            </label>
+            <textarea
+              id="abstract"
+              name="abstract"
+              value={formData.abstract}
+              onChange={handleChange}
+              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+              rows={4}
+              maxLength={1000}
+            />
+            <div className="text-right text-sm text-gray-500 mt-2">
+              {formData.abstract?.length}/500 characters
+            </div>
             <label
               htmlFor="description"
               className="block text-lg text-gray-700 mb-2"
@@ -352,11 +527,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               onChange={handleChange}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               rows={4}
-              maxLength={1000}    
+              maxLength={1000}
             />
             <div className="text-right text-sm text-gray-500 mt-2">
-            {formData.description.length}/1000 characters  
-            </div>  
+              {formData.description?.length}/1000 characters
+            </div>
           </div>
 
           <div className="col-span-2">
@@ -407,7 +582,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         </form>
       </div>
 
-      {/* Confirmation Modal */}
       {showModal && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-8 rounded-lg max-w-sm w-full">

@@ -2,18 +2,27 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
 
 export default function SignIn() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const router = useRouter(); // Use router for navigation
+  const router = useRouter();
   const socket = useSocket();
 
+  const { data: session, status } = useSession(); // Track session status
+
+  useEffect(() => {
+    // If there is an active session, redirect to the profile/dashboard page
+    if (status === "authenticated") {
+      router.push("/pages/profile"); // Redirect to the profile page
+    }
+  }, [status, router]); // Re-run effect if session status changes
+
   const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault(); // Prevent default form submission
 
     try {
       const result = await signIn("credentials", {
@@ -22,7 +31,7 @@ export default function SignIn() {
         password,
       });
 
-      const res = await fetch("../api/login", {
+      const res = await fetch("/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +49,7 @@ export default function SignIn() {
         }
         localStorage.setItem("token", data.token); // Store token in local storage
 
-        router.push("/pages/profile"); // Redirect to the profile or dashboard
+        router.push("/pages/profile"); // Redirect to profile/dashboard
       } else {
         const errorData = await res.json();
         setError(errorData.message || "Failed to log in");
@@ -61,8 +70,6 @@ export default function SignIn() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleLogin} className="space-y-6">
-          {" "}
-          {/* Call handleLogin on submit */}
           <div>
             <label
               htmlFor="email"
@@ -93,7 +100,7 @@ export default function SignIn() {
               </label>
               <div className="text-sm">
                 <a
-                  href="#"
+                  href="/pages/forgot-password"
                   className="font-semibold text-lime-600 hover:text-lime-500"
                 >
                   Forgot password?
@@ -129,7 +136,7 @@ export default function SignIn() {
         </form>
 
         <p className="mt-10 text-center text-sm text-gray-500">
-          Don't Have An Account?{""}
+          Don't Have An Account?{" "}
           <Link
             href="/pages/register"
             className="font-semibold leading-6 text-lime-600 hover:text-lime-500"

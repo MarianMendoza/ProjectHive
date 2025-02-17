@@ -32,6 +32,6 @@
     ".next/types/**/*.ts",
     "app/pages/**/*.tsx",
     "app/pages/**/*.jsx"
-, "next.config.mjs"  ],
+, "next.config.mjs", "lib/mongodb.js", "app/models/Notification.js"  ],
   "exclude": ["node_modules", "dist", "build"]
 }

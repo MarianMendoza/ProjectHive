@@ -1,6 +1,8 @@
-import Link from "next/link";
 
-export default function home(){
+import Link from "next/link";
+import Countdown from "./CountDown";
+
+export default function Home(){
     return (
         <div className="flex flex-col items-center">
         <section className="container mx-auto px-6 py-12 flex flex-col md:flex-row items-center md:space-x-10">
@@ -20,8 +22,7 @@ export default function home(){
             <p className="mt-4 text-gray-600">
                 Your Final Year Project Manager.
             </p>
-            <Link href = "/pages/register" className="mt-2 w-40 flex  justify-center rounded-md bg-lime-600 px-1 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600">Sign Up!</Link>
-            
+            <Link href = "/pages/register" className="mt-2 w-40 flex  justify-center rounded-md bg-lime-600 px-1 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600">Join the Hive!</Link>
           </div>
   
           
@@ -35,7 +36,8 @@ export default function home(){
           With Project Hive, you have the ability to monitor progress. This tool is designed to improve project workflow, making it easy to track and manage every stage.
           </p>
         </section>
-  
+        
+        <Countdown></Countdown>
   
         {/* Scroll Down Section */}
         <section id="scroll-down" className="w-full py-12 bg-gray-100">
@@ -54,7 +56,7 @@ export default function home(){
             </a>
           </div>
         </section>
-  
+
         {/* Additional Info Section */}
         <section id="more-info" className="w-full py-12 px-6">
           <div className="max-w-3xl mx-auto text-center">

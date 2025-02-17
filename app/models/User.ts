@@ -6,11 +6,12 @@ export interface IUser extends Document {
   name: string;
   email: string;
   course: string;
-  description: string,
+  description: string;
   password: string;
   role: "Student" | "Lecturer" | "Admin"; // Use a union type for better type safety
   approved: boolean; // Indicates whether the user is approved
   assigned: boolean;
+  pfpurl: string;
 
 }
 
@@ -23,7 +24,8 @@ const UserSchema: Schema = new Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ["Student", "Lecturer", "Admin"], default: "Student" },
   assigned: {type:Boolean, default: false},
-  approved: { type: Boolean, default: false }, // Default to false for non-admin users
+  approved: { type: Boolean, default: false }, 
+  pfpurl: {type: String, default: ""},
 });
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);

@@ -57,10 +57,9 @@ export const authOptions: NextAuthOptions = {
     },
   },
   session: {
-    strategy: "jwt", // Ensures session data is stored in JWT
+    strategy: "jwt", 
   },
   events: {
-    // Disable synchronization across tabs by not handling these events
     signIn: async () => {},
     signOut: async () => {},
     session: async () => {},

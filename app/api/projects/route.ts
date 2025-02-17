@@ -1,15 +1,16 @@
-import { NextResponse } from 'next/server';
-import connectMongo from '../../../lib/mongodb'; // Adjust the path based on your project structure
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import mongoose from 'mongoose';
+import { NextResponse } from "next/server";
+import connectMongo from "../../../lib/mongodb"; // Adjust the path based on your project structure
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import mongoose from "mongoose";
 import Projects from "../../models/Projects"
-import Deliverables from '@/app/models/Deliverables';
+import Deliverables from "@/app/models/Deliverables";
+
 // POST: Create a new project
 export async function POST(req: Request) {
     await connectMongo();
 
-    const { title, status, visibility, description, files } = await req.json();
+    const { title, status, visibility, description,abstract, files } = await req.json();
 
     try {
         const session = await getServerSession(authOptions);
@@ -20,6 +21,7 @@ export async function POST(req: Request) {
         const userId = session.user.id;
         const userRole = session.user.role;
         let supervisorId = null;
+        let studentId = null;
 
         if (!userId){
             return NextResponse.json({message: "Username not found in the session"},{status: 400});
@@ -27,20 +29,26 @@ export async function POST(req: Request) {
 
         if(userRole == "Lecturer" ){
             supervisorId = userId;
-        } else{
-            supervisorId = null;
-        }
+        } 
+        if (userRole == "Student"){
+            studentId = userId;
+        } 
+        
         const newProject = new Projects({
             title,
             status,
             visibility,
+            abstract,
             description,
             files,
             projectAssignedTo: {
                 supervisorId,
                 secondReaderId: null,
-                studentsId: [],
+                studentsId: [studentId],
                 authorId: userId,
+            },
+            applicants: {
+                studentId: studentId,
             },
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -52,17 +60,17 @@ export async function POST(req: Request) {
             outlineDocument: {
                 file: null,
                 uploadedAt: null,
-                deadline: null,
+                // deadline: null,
             },
             extendedAbstract: {
                 file: null,
                 uploadedAt: null,
-                deadline: null,
+                // deadline: null,
             },
             finalReport: {
                 file: null,
                 uploadedAt: null,
-                deadline: null,
+                // deadline: null,
             },
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -70,10 +78,10 @@ export async function POST(req: Request) {
 
         await newDeliverables.save();
 
-        return NextResponse.json({ message: 'Project and Deliverables created successfully', project: savedProject }, { status: 201 });
+        return NextResponse.json({ message: "Project and Deliverables created successfully", project: savedProject }, { status: 201 });
     } catch (error) {
         console.error("Error creating project or deliverables:", error);
-        return NextResponse.json({ message: 'Error creating project or deliverables' }, { status: 400 });
+        return NextResponse.json({ message: "Error creating project or deliverables" }, { status: 400 });
     }
 }
 
@@ -86,31 +94,31 @@ export async function GET(req: Request) {
 
         const projects = await Projects.find()
         .populate({
-            path: 'projectAssignedTo.supervisorId',
-            select: 'name'
+            path: "projectAssignedTo.supervisorId",
+            select: "name"
         })
         .populate({
-            path: 'projectAssignedTo.secondReaderId',
-            select: 'name'
+            path: "projectAssignedTo.secondReaderId",
+            select: "name"
         })
         .populate({
-            path: 'projectAssignedTo.studentsId',
-            select: 'name'
+            path: "projectAssignedTo.studentsId",
+            select: "name"
         })
         .populate({
-            path: 'projectAssignedTo.authorId',
-            select: 'name'
+            path: "projectAssignedTo.authorId",
+            select: "name"
         })
         .populate({
             path: "applicants.studentId",
-            select: 'name'
+            select: "name"
         });
         
 
         return NextResponse.json(projects, { status: 200 });
     } catch (error) {
         console.error("Error fetching projects:", error);
-        return NextResponse.json({ message: 'Error fetching projects' }, { status: 400 });
+        return NextResponse.json({ message: "Error fetching projects" }, { status: 400 });
     }
 }
 

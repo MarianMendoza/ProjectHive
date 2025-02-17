@@ -6,7 +6,6 @@ import mongoose from "mongoose";
 export async function GET(req: Request) {
     await connectMongo();
 
-    // Parse the projectId from the query parameters
     const url = new URL(req.url);
     const projectId = url.searchParams.get("projectId");
 
@@ -15,8 +14,25 @@ export async function GET(req: Request) {
     }
 
     try {
-        // Fetch the deliverables associated with the projectId
-        const deliverables = await Deliverables.findOne({ projectId: new mongoose.Types.ObjectId(projectId) });
+        const deliverables = await Deliverables.findOne({ projectId: new mongoose.Types.ObjectId(projectId) })
+            .populate({
+                path: "projectId",
+                select: "projectAssignedTo",
+                populate: [
+                    {
+                        path: "projectAssignedTo.supervisorId",
+                        select: "_id"
+                    },
+                    {
+                        path: 'projectAssignedTo.secondReaderId', 
+                        select: '_id'
+                    }
+                ]
+
+            }).populate('deadlineId', 'outlineDocumentDeadline extendedAbstractDeadline finalReportDeadline');
+
+        
+
         if (!deliverables) {
             return NextResponse.json({ message: "Deliverables not found" }, { status: 404 });
         }
@@ -27,3 +43,6 @@ export async function GET(req: Request) {
         return NextResponse.json({ message: "Error fetching deliverables" }, { status: 500 });
     }
 }
+
+
+

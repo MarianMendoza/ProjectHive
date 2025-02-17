@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import connectMongo from '../../../lib/mongodb'; 
+import connectMongo from '@/lib/mongodb'; 
 import User, { IUser } from '../../models/User';
 import bcrypt from "bcryptjs"; 
 import { signToken } from "@/lib/tokenUtils";
