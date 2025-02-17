@@ -325,6 +325,7 @@ const ProjectsPage = () => {
                   </div>
                 </div>
 
+                <div className="flex gap-2 mt-2">
                 {session?.user.role == "Student" &&
                   session?.user.id !==
                     selectedProject.projectAssignedTo.authorId._id &&
@@ -351,7 +352,7 @@ const ProjectsPage = () => {
                         appliedStudents[selectedProject._id]?.includes(
                           session.user.id
                         )
-                      } // Check if the user ID is in that array
+                      }
                     >
                       {selectedProject.applicants.some(
                         (applicant) =>
@@ -364,6 +365,20 @@ const ProjectsPage = () => {
                         : "Apply"}
                     </button>
                   )}
+
+                {selectedProject.projectAssignedTo.studentsId.some(
+                  (student) => student._id === session?.user.id
+                ) && (
+                  <Link
+                    href={`/pages/deliverables?projectId=${selectedProject._id}`}
+                    className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
+                  >
+                    📝 Manage Deliverables
+                  </Link>
+                )}
+                </div>
+
+                
 
                 <p>
                   <strong>Visibility:</strong> {selectedProject.visibility}

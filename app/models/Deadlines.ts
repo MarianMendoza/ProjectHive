@@ -2,10 +2,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // Define the Deadline schema
 const DeadlineSchema = new Schema({
-  outlineDocumentDeadline: { type: Date, required: true },
-  extendedAbstractDeadline: { type: Date, required: true },
-  finalReportDeadline: { type: Date, required: true },
-  openDayDate: {type: Date, required: true},
+  outlineDocumentDeadline: { type: Date, required: false },
+  extendedAbstractDeadline: { type: Date, required: false },
+  finalReportDeadline: { type: Date, required: false },
+  openDayDate: {type: Date, required: false},
+  pastProjectDate: {type:Date, required: false},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
@@ -16,6 +17,7 @@ export interface IDeadline extends Document {
   extendedAbstractDeadline: Date;
   finalReportDeadline: Date;
   openDayDate: Date;
+  pastProjectDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }

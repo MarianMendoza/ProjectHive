@@ -248,7 +248,7 @@ export default function LecturerDashboard() {
                           </div>
 
                           {/* Deliverables Button */}
-                          <div className="mt-4 flex justify-between gap-3 ">
+                          <div className="mt-4 flex gap-3 justify-between ">
                             <Link
                               href={`/pages/deliverables?projectId=${project._id}`}
                               className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
@@ -257,6 +257,9 @@ export default function LecturerDashboard() {
                             </Link>
 
                             <div className="flex gap-3 right justify-end">
+                              <button className="bg-yellow-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
+                                Withdraw
+                              </button> 
                               <Link
                                 href={`/pages/update-project/${project._id}`}
                                 className="bg-lime-600 text-white p-2 w-[100px] text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
@@ -307,7 +310,7 @@ export default function LecturerDashboard() {
                       >
                         📝 Manage Deliverables
                       </Link>
-                      
+
                       <button className="bg-orange-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
                         Withdraw
                       </button>

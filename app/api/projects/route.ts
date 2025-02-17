@@ -60,17 +60,17 @@ export async function POST(req: Request) {
             outlineDocument: {
                 file: null,
                 uploadedAt: null,
-                deadline: null,
+                // deadline: null,
             },
             extendedAbstract: {
                 file: null,
                 uploadedAt: null,
-                deadline: null,
+                // deadline: null,
             },
             finalReport: {
                 file: null,
                 uploadedAt: null,
-                deadline: null,
+                // deadline: null,
             },
             createdAt: new Date(),
             updatedAt: new Date(),

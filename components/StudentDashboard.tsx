@@ -61,7 +61,6 @@ export default function StudentDashboard() {
           alt="Student Dashboard Banner"
           className="w-screen h-64 object-cover rounded-b-lg "
         />
-
       </div>
       <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
@@ -124,13 +123,16 @@ export default function StudentDashboard() {
                 </p>
               </div>
 
-              <div className="mt-6">
+              <div className="mt-6 flex gap-3">
                 <Link
                   href={`/pages/deliverables?projectId=${assignedProject._id}`}
                   className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
                 >
                   📝 Manage Deliverables
                 </Link>
+                <button className="bg-orange-500 mr-3 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
+                  Withdraw
+                </button>
               </div>
             </div>
           ) : (

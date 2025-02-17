@@ -350,9 +350,9 @@ export default function DeliverablesPage() {
                   {key.replace(/([A-Z])/g, " $1")}
                 </h4>
 
-                {/* <p className="text-sm text-gray-600">
-                  <strong>Due Date:</strong> {deadline || "Not set"}
-                </p> */}
+                <p className="text-sm text-gray-600">
+                  <strong>Due Date:</strong> { "" || "Not set"}
+                </p> 
                 <p className="text-sm text-gray-600">
                   <strong>Last Uploaded:</strong>{" "}
                   {uploadedAt ? new Date(uploadedAt).toLocaleString() : "Never"}

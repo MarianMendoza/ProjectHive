@@ -4,16 +4,11 @@ import React from "react";
 
 export default function AdminDashboard() {
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault(); 
     const outlineDocumentDate = (e.target as any).outlineDocumentDate.value;
     const abstractDate = (e.target as any).abstractDate.value;
     const finalReportDate = (e.target as any).finalReportDate.value;
     const openDayDate = (e.target as any).openDayDate.value;
-
-    console.log(outlineDocumentDate)
-    // Save the dates to localStorage
-    localStorage.setItem("openDayDate", openDayDate);
-
 
     const updateData = {
         outlineDocumentDeadline: new Date(outlineDocumentDate).toISOString().split('T')[0],
@@ -22,7 +17,6 @@ export default function AdminDashboard() {
         openDayDate: new Date(openDayDate).toISOString().split('T')[0],
       };
       
-      console.log(updateData);
 
     try {
         const res = await fetch(`/api/deadlines`,{
