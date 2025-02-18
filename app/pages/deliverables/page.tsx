@@ -8,6 +8,12 @@ import PageNotFound from "@/components/PageNotFound";
 import { useSocket } from "@/app/provider";
 
 export default function DeliverablesPage() {
+  const [deadlines, setDeadlines] = useState({
+    outlineDocumentDeadline: "",
+    extendedAbstractDeadline: "",
+    finalReportDeadline: "",
+  });
+
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
@@ -111,6 +117,34 @@ export default function DeliverablesPage() {
     };
 
     fetchDeliverables();
+
+    const fetchDeadlines = async () => {
+      try {
+        const deadlineres = await fetch("/api/deadlines");
+        const deadlinedata = await deadlineres.json();
+        if (Array.isArray(deadlinedata) && deadlinedata.length > 0) {
+          const formatDate = (isoString: string) =>
+            isoString ? isoString.split("T")[0] : "";
+
+          setDeadlines({
+            outlineDocumentDeadline: formatDate(
+              deadlinedata[0].outlineDocumentDeadline
+            ),
+            extendedAbstractDeadline: formatDate(
+              deadlinedata[0].extendedAbstractDeadline
+            ),
+            finalReportDeadline: formatDate(
+              deadlinedata[0].finalReportDeadline
+            ),
+          });
+        } else {
+          console.error("No deadlines found in API response.");
+        }
+      } catch (error) {
+        console.error("Error fetching the deadlines:", error);
+      }
+    };
+    fetchDeadlines();
   }, [projectId]);
 
   const closeModal = () => {
@@ -146,8 +180,6 @@ export default function DeliverablesPage() {
       return;
     }
 
-
-
     let receiversId;
     let type;
 
@@ -155,7 +187,7 @@ export default function DeliverablesPage() {
 
     if (userId == supervisorId) {
       receiversId = [secondReaderId];
-      type = "SubmitSupervisor";      
+      type = "SubmitSupervisor";
       updateData = {
         [`${deliverableType}.supervisorGrade`]: grade,
         [`${deliverableType}.supervisorFeedback`]: feedback,
@@ -163,7 +195,7 @@ export default function DeliverablesPage() {
     }
     if (userId == secondReaderId) {
       receiversId = [supervisorId];
-      type = "SubmitSecondReader";      
+      type = "SubmitSecondReader";
       updateData = {
         [`${deliverableType}.secondReaderGrade`]: grade,
         [`${deliverableType}.secondReaderFeedback`]: feedback,
@@ -341,18 +373,17 @@ export default function DeliverablesPage() {
           </p>
 
           {Object.entries(deliverables).map(
-            ([
-              key,
-              { file, uploadedAt, description, isPublished },
-            ]) => (
+            ([key, { file, uploadedAt, description, isPublished }]) => (
               <div key={key} className="p-4 mb-4 bg-white rounded-lg shadow-lg">
                 <h4 className="text-lg font-semibold capitalize text-lime-600">
                   {key.replace(/([A-Z])/g, " $1")}
                 </h4>
 
                 <p className="text-sm text-gray-600">
-                  <strong>Due Date:</strong> { "" || "Not set"}
-                </p> 
+                  <strong>Deadline:</strong>{" "}
+                  {deadlines?.[key + "Deadline"] ?? "Not set"}
+                </p>
+
                 <p className="text-sm text-gray-600">
                   <strong>Last Uploaded:</strong>{" "}
                   {uploadedAt ? new Date(uploadedAt).toLocaleString() : "Never"}
@@ -431,32 +462,38 @@ export default function DeliverablesPage() {
                   </div>
                 )}
 
-                {isStudent && (
-                  <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
-                    <label
-                      htmlFor={key}
-                      className="cursor-pointer flex flex-col items-center justify-center"
-                    >
-                      <div className="flex flex-col items-center mb-2 ">
-                        <span role="img" aria-label="file" className="text-2xl">
-                          📁
+                {isStudent &&
+                  deadlines?.[key + "Deadline"] &&
+                  new Date(deadlines[key + "Deadline"]) >= new Date() && (
+                    <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
+                      <label
+                        htmlFor={key}
+                        className="cursor-pointer flex flex-col items-center justify-center"
+                      >
+                        <div className="flex flex-col items-center mb-2 ">
+                          <span
+                            role="img"
+                            aria-label="file"
+                            className="text-2xl"
+                          >
+                            📁
+                          </span>
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          Drag & drop files here or{" "}
+                          <span className="text-lime-600 font-semibold">
+                            browse
+                          </span>
                         </span>
-                      </div>
-                      <span className="text-sm text-gray-500">
-                        Drag & drop files here or{" "}
-                        <span className="text-lime-600 font-semibold">
-                          browse
-                        </span>
-                      </span>
-                    </label>
-                    <input
-                      type="file"
-                      id={key}
-                      className="hidden"
-                      onChange={(e) => handleFileChange(e, key)}
-                    />
-                  </div>
-                )}
+                      </label>
+                      <input
+                        type="file"
+                        id={key}
+                        className="hidden"
+                        onChange={(e) => handleFileChange(e, key)}
+                      />
+                    </div>
+                  )}
 
                 {isSecondReader && (
                   <div className="mt-4 mb-4">
@@ -498,7 +535,7 @@ export default function DeliverablesPage() {
                         <label className="block text-sm text-gray-700">
                           Grade Out Of 100
                         </label>
-                        
+
                         <input
                           id={`grade-${key}`}
                           type="number"
