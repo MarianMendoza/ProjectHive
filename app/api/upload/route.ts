@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ pfpurl: fileUrl });
     }
-    else {
+    if (file.mimetype && file.mimetype.startsWith("application/")  ) {
       const projectId = Array.isArray(fields.projectId)
         ? fields.projectId[0]
         : fields.projectId;
