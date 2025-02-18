@@ -300,6 +300,8 @@ export default function DeliverablesPage() {
     if (!e.target.files) return;
 
     const formData = new FormData();
+
+  
     formData.append("file", e.target.files[0]);
     formData.append("projectId", projectId!);
     formData.append("deliverableType", deliverableType);
@@ -313,6 +315,7 @@ export default function DeliverablesPage() {
 
       if (res.ok) {
         const data = await res.json();
+        console.log(data);
         setDeliverables((prevDeliverables) => ({
           ...prevDeliverables,
           [deliverableType]: {
@@ -462,9 +465,7 @@ export default function DeliverablesPage() {
                   </div>
                 )}
 
-                {isStudent &&
-                  deadlines?.[key + "Deadline"] &&
-                  new Date(deadlines[key + "Deadline"]) >= new Date() && (
+                {isStudent && deadlines?.[key + "Deadline"] && new Date(deadlines[key + "Deadline"]) >= new Date() && (
                     <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
                       <label
                         htmlFor={key}

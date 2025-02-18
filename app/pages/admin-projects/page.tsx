@@ -1,9 +1,20 @@
 "use client";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import jsPDF from "jspdf";
+import PageNotFound from "@/components/PageNotFound";
 
 export default function ProjectDashboard() {
+  const { data: session } = useSession();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [editedProject, setEditedProject] = useState({
+    title: "",
+    supervisor : "",
+    secondReader: "",
+    students: []
+  })
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
@@ -19,10 +30,40 @@ export default function ProjectDashboard() {
     fetchProjects();
   }, []);
 
-  const handleEdit = (id: string) => {
-    alert(`Edit project with ID: ${id}`);
-    // Implement your edit logic here
+  const handleEdit = (project: string) => {
+    setSelectedProject(project);
+    setEditedProject({ ...project});
+    setIsModalOpen(true);
   };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedProject((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      const res = await fetch(`/api/projects/${selectedProject._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editedProject),
+      });
+      if (res.ok) {
+        setProjects(
+          projects.map((Project) =>
+            project._id === selectedProject._id ? editedProject : project
+          )
+        );
+        alert("Project updated successfully");
+        setIsModalOpen(false);
+      } else {
+        alert("Failed to update Project");
+      }
+    } catch (error) {
+      console.error("Error updating Project:", error);
+    }
+  };
+
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
@@ -61,7 +102,11 @@ export default function ProjectDashboard() {
   };
 
   const columns = [
-    { name: "Project Title", selector: (row: any) => row.title, sortable: true },
+    { name: "Project Title", selector: (row: any) => row.title, sortable: true, style: {
+      whiteSpace: "normal", 
+      wordWrap: "break-word", 
+      maxWidth: "auto",
+    }, },
     {
       name: "Supervisor",
       selector: (row: any) =>
@@ -102,13 +147,13 @@ export default function ProjectDashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => handleEdit(row._id)}
-            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            className="bg-lime-500 text-white px-3 py-1 rounded hover:bg-lime-600"
           >
             Edit
           </button>
           <button
             onClick={() => handleDelete(row._id)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+            className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
           >
             Delete
           </button>
@@ -116,6 +161,10 @@ export default function ProjectDashboard() {
       ),
     },
   ];
+
+   if (!session || session.user.role !== "Admin") {
+        return <PageNotFound />;
+      }
 
   return (
     <div className="p-6">
@@ -131,26 +180,71 @@ export default function ProjectDashboard() {
         />
       </div>
 
-      <div className="flex justify-center mt-6 gap-4">
+      <div className="flex mt-6 gap-4">
         <button
           onClick={handleDownloadPDF}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+          className="bg-lime-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600"
         >
           Save as PDF
         </button>
         <button
           onClick={() => alert("Feature coming soon!")}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
-        >
-          Export as CSV
-        </button>
-        <button
-          onClick={() => alert("Feature coming soon!")}
-          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+          className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
         >
           Print
         </button>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Edit Project</h2>
+            <label className="block mb-2">Project:</label>
+            <textarea
+              name="title"
+              value={editedProject.title}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+            <label className="block mt-2 mb-2">Supervisor:</label>
+            <textarea
+              name="supervisor"
+              value={editedProject.supervisor}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+            <label className="block mt-2 mb-2">Second Reader:</label>
+            <textarea
+              name="secondReader"
+              value={editedProject.secondReader}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+                        <label className="block mt-2 mb-2">Students:</label>
+            <textarea
+              name="secondReader"
+              value={editedProject.students}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+           
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSaveChanges}
+                className="bg-lime-500 text-white px-4 py-2 rounded hover:bg-lime-600"
+              >
+                Confirm Change
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
