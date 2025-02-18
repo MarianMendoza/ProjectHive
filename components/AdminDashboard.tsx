@@ -1,5 +1,6 @@
 "use client";
 import Notification from "./Notifications";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
@@ -80,14 +81,16 @@ export default function AdminDashboard() {
 
           {/* Navigation buttons */}
           <div className="mt-4 grid grid-cols-2 gap-4">
-            <button className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3">
-              <span>🐝</span>
-              <span>Manage Users</span>
-            </button>
-            <button className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3">
-              <span>📁</span>
-              <span>Manage Projects</span>
-            </button>
+            <Link 
+            href = {"/pages/admin-users"}
+            className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3">
+              🐝 Manage Users
+            </Link>
+            <Link 
+            href = {"/pages/admin-projects"}
+            className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3">
+              📁 Manage Projects
+            </Link>
           </div>
 
           {/* Deadline Fields */}
