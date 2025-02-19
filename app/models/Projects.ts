@@ -17,7 +17,6 @@ export interface IProjects extends Document {
   //Queue FIFO, lecturer dashboard
   abstract: string;
   description: string;
-  files: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,7 +38,6 @@ const ProjectsSchema: Schema = new Schema({
   ],
   abstract: {type: String, required: false },
   description: { type: String, required: false },
-  files: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

@@ -33,11 +33,15 @@ export default function StudentDashboard() {
 
           const assigned = appliedProjects.find((project: Project) =>
             project.projectAssignedTo.studentsId.some(
-              (student) => student?._id === session.user.id
+              (student) =>
+                (typeof student === "string" ? student : student?._id) === session.user.id
             )
           );
-
           setAssignedProject(assigned);
+          
+          // console.log(assignedProject);
+          // console.log(session.user.id)
+
         } else {
           console.error("Failed to fetch projects.");
         }
