@@ -1,17 +1,20 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DataTable from "react-data-table-component";
-import jsPDF from "jspdf";
 import PageNotFound from "@/components/PageNotFound";
 import { User } from "@/types/users";
 import { Domain } from "@/types/domain";
 import { Tag } from "@/types/tag";
+import Papa from "papaparse";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 export default function AdminDashboard() {
   const { data: session } = useSession();
   const [users, setUsers] = useState<User[]>([]);
-
+  const tableRef = useRef<HTMLTableElement>(null);
   const [tag, setTag] = useState<Tag[]>([]);
   const [newTag, setNewTag] = useState("");
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
@@ -33,7 +36,7 @@ export default function AdminDashboard() {
         setUsers(data);
       } catch (error) {
         console.error("Error fetching users:", error);
-      }
+      };
     };
     fetchUsers();
 
@@ -198,18 +201,58 @@ export default function AdminDashboard() {
     }
   };
 
+  const rows = [
+    { name: 'Admin', email: 'admin@gmail.com', role: 'Admin' },
+    { name: 'Klaas Jan Stol', email: 'klaas@gmail.com', role: 'Lecturer' }
+  ];
+
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("User List", 20, 10);
+    const columns = ["Name", "Email", "Role"]; // Simple array of headers
 
-    const tableData = users.map((user) => [user.name, user.email, user.role]);
+    const rows = users.map((user) => [user.name, user.email, user.role]);
 
-    (doc as any).autoTable({
-      head: [["Username", "Email", "Role"]],
-      body: tableData,
+
+    autoTable(doc, {
+      head: [columns], 
+      body: rows,  
     });
-    doc.save("user_list.pdf");
+  
+    doc.save("user-list.pdf");
+
   };
+
+  const handleDownloadCSV = () => {
+    const filteredUsers = users.map(({ name, email, role }) => ({
+      name,
+      email,
+      role,
+    }));
+  
+    const csv = Papa.unparse(filteredUsers); // Convert to CSV format
+    const blob = new Blob([csv], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "users_data.csv";
+    link.click();
+  };
+
+  const handlePrint = () => {
+    const doc = new jsPDF();
+    const columns = ["Name", "Email", "Role"]; // Simple array of headers
+  
+    const rows = users.map((user) => [user.name, user.email, user.role]);
+  
+    autoTable(doc, {
+      head: [columns],  // Column headers
+      body: rows,  
+    });
+  
+    // Open the PDF in a new tab for printing
+    const pdfUrl = doc.output("bloburl");
+    window.open(pdfUrl, "_blank"); // Open in a new tab
+  };
+  
 
   const columns = [
     { name: "Username", selector: (row: any) => row.name, sortable: true },
@@ -260,14 +303,16 @@ export default function AdminDashboard() {
   return (
     <div className="p-6 h-max flex gap-4">
       <div className="bg-white h-full mb-4 p-4 w-1/2">
-        <DataTable
-          className="h-full"
-          title="User Management"
-          columns={columns}
-          data={users}
-          pagination
-          highlightOnHover
-        />
+        <div ref={tableRef}>
+          <DataTable
+            className="h-full"
+            title="User Management"
+            columns={columns}
+            data={users}
+            pagination
+            highlightOnHover
+          />
+        </div>
         {/* Save PDF,CSV */}
         <div className="flex mt-6 gap-4">
           <button
@@ -278,14 +323,14 @@ export default function AdminDashboard() {
           </button>
 
           <button
-            onClick={() => alert("Feature coming soon!")}
+            onClick={handleDownloadCSV}
             className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
           >
             Save as CSV
           </button>
 
           <button
-            onClick={() => alert("Feature coming soon!")}
+            onClick={handlePrint}
             className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
           >
             Print
@@ -356,7 +401,7 @@ export default function AdminDashboard() {
           <button
             onClick={handleAddDomain}
             className="bg-lime-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500 transition duration-300"
-            >
+          >
             Add
           </button>
         </div>
