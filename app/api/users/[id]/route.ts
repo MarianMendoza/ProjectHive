@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import connectMongo from "@/lib/mongodb";
 import User from "@/app/models/User";
-import Projects from "@/app/models/Projects";
 
 // GET: Retrieve a user by ID.
 export async function GET(req: Request){

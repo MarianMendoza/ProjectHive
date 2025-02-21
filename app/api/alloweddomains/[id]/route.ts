@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import connectMongo from "@/lib/mongodb";
-import { AllowedDomain } from "@/app/models/AllowedDomains";
+import AllowedDomain from "@/app/models/AllowedDomains";
+
 
 export async function DELETE(req: Request){
     await connectMongo();
 
     const url = new URL(req.url);
     const id = url.pathname.split("/").pop();
+    console.log(id);
 
     try {
         const deletedDomain = await AllowedDomain.findByIdAndDelete(id);
-
+        console.log(deletedDomain)
         if (!deletedDomain) {
             return NextResponse.json({ message: "Domain not found" }, { status: 404 });
         }
