@@ -70,7 +70,6 @@ export default function DeliverablesPage() {
         const res = await fetch(`/api/deliverables?projectId=${projectId}`);
         if (res.ok) {
           const data = await res.json();
-          // console.log(data)
 
           setStudentsId(
             data.deliverables.projectId.projectAssignedTo.studentsId
@@ -296,43 +295,59 @@ export default function DeliverablesPage() {
     e: React.ChangeEvent<HTMLInputElement>,
     deliverableType: string
   ) => {
-    if (!e.target.files) return;
 
     const formData = new FormData();
 
+    if (!e.target.files) return;
   
-    formData.append("file", e.target.files[0]);
-    formData.append("projectId", projectId!);
+    // Check if projectId and deliverablesId are defined
+    if (!projectId || !deliverablesId) {
+      alert("Missing project or deliverable ID");
+      return;
+    }
+
+    const file = e.target.files[0];
+    formData.append("file", file);
+    formData.append("projectId", projectId);
     formData.append("deliverableType", deliverableType);
-    formData.append("deliverablesId", deliverablesId!);
+    formData.append("deliverablesId", deliverablesId);
+
+    formData.forEach((value, key) => {
+      console.log(key, value);  // Check the keys and values
+    });
+
 
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
-
+  
       if (res.ok) {
         const data = await res.json();
         console.log(data);
+  
         setDeliverables((prevDeliverables) => ({
           ...prevDeliverables,
           [deliverableType]: {
-            ...prevDeliverables[
-              deliverableType as keyof typeof prevDeliverables
-            ],
+            ...prevDeliverables[deliverableType] || {},
             file: data.fileUrl,
             uploadedAt: new Date().toISOString(),
           },
-        }));
+        })
+      
+      );
+  
         alert("File uploaded successfully!");
       } else {
         alert("Failed to upload file.");
       }
     } catch (error) {
       console.error("Error uploading file", error);
+      alert("There was an error uploading the file. Please try again.");
     }
   };
+  
 
   const handleDownload = (fileName: string): void => {
     const link: HTMLAnchorElement = document.createElement("a");

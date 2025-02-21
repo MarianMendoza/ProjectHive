@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import Projects from "../../models/Projects"
 import Deliverables from "@/app/models/Deliverables";
 import Deadlines from "@/app/models/Deadlines";
+import { Project } from "@/types/projects";
 
 // POST: Create a new project
 export async function POST(req: Request) {
@@ -117,10 +118,20 @@ export async function GET(req: Request) {
         .populate({
             path: "applicants.studentId",
             select: "name"
+        }).lean();
+
+        const deliverables = await Deliverables.find().lean();
+
+        const projectsWithDeliverables = projects.map((project) => {
+            const projectDeliverables = deliverables.find((d) => d.projectId.toString() === project._id.toString());
+            return {
+                ...project,
+                deliverables: projectDeliverables || null,
+            };
         });
         
 
-        return NextResponse.json(projects, { status: 200 });
+        return NextResponse.json(projectsWithDeliverables, { status: 200 });
     } catch (error) {
         console.error("Error fetching projects:", error);
         return NextResponse.json({ message: "Error fetching projects" }, { status: 400 });
