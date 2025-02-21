@@ -11,3 +11,4 @@ const AllowedDomainSchema: Schema = new Schema({
 
 export const AllowedDomain =
   mongoose.models.AllowedDomain || mongoose.model("AllowedDomain", AllowedDomainSchema);
+export default AllowedDomain;

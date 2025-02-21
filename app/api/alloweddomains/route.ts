@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectMongo from '@/lib/mongodb'; 
 import { AllowedDomain, IAllowedDomain } from '@/app/models/AllowedDomains';
-import { GET } from '../deadlines/route';
 
+// Add domain
 export async function POST(req: Request){
     try {
         const { domain } : {domain: string} = await req.json();
@@ -20,7 +20,7 @@ export async function POST(req: Request){
         )
 
         await newDomain.save();
-        return NextResponse.json({messsage: "New Domain Saved!"}, {status: 201})
+        return NextResponse.json({message: "New Domain Saved!"}, {status: 201})
 
         
     } catch (error) {
@@ -34,10 +34,11 @@ export async function GET(req:Request){
     await connectMongo();
     try {
         const domains = await AllowedDomain.find();
-        return NextResponse.json({message: "Fetched Domains Successfully"},{status: 200})
+        return NextResponse.json(domains,{status: 200})
     }catch(error){
         console.error("Error fetching domains:", error);
         return NextResponse.json({ message: "Error fetching domains" }, { status: 400 });
     }
-
 }
+
+
