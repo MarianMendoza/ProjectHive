@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
 import Projects from "../../models/Projects"
 import Deliverables from "@/app/models/Deliverables";
+import Deadlines from "@/app/models/Deadlines";
 
 // POST: Create a new project
 export async function POST(req: Request) {
@@ -53,28 +54,32 @@ export async function POST(req: Request) {
             createdAt: new Date(),
             updatedAt: new Date(),
         });
+
         const savedProject = await newProject.save();
+        const deadline = await Deadlines.findOne();
+
 
         const newDeliverables = new Deliverables({
             projectId: savedProject._id,
+            deadlineId: deadline._id, // Only if a deadline exists
             outlineDocument: {
-                file: null,
-                uploadedAt: null,
-                // deadline: null,
+              file: null,
+              uploadedAt: null
             },
             extendedAbstract: {
-                file: null,
-                uploadedAt: null,
-                // deadline: null,
+              file: null,
+              uploadedAt: null
             },
             finalReport: {
-                file: null,
-                uploadedAt: null,
-                // deadline: null,
+              file: null,
+              uploadedAt: null
             },
             createdAt: new Date(),
-            updatedAt: new Date(),
-        });
+            updatedAt: new Date()
+          });
+          
+          await newDeliverables.save();
+          
 
         await newDeliverables.save();
 

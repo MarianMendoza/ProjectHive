@@ -46,7 +46,7 @@ export async function GET(req: Request) {
         return NextResponse.json(users, { status: 200 });
     } catch (error) {
         console.error("Error fetching users:", error);
-        return NextResponse.json({ message: 'Error fetching users' }, { status: 400 });
+        return NextResponse.json({ message: "Error fetching users" }, { status: 400 });
     }
 }
 

@@ -49,7 +49,6 @@ export default function LecturerDashboard() {
           if (res.ok) {
             const data = await res.json();
 
-            // Filter the projects to get only those assigned to the lecturer
             const filteredProjects = data.filter((project: Project) => {
               return (
                 project.projectAssignedTo.supervisorId?._id.toString() ===
@@ -253,7 +252,7 @@ export default function LecturerDashboard() {
                               href={`/pages/deliverables?projectId=${project._id}`}
                               className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
                             >
-                              📝 Manage Deliverables
+                              📝 View Deliverables
                             </Link>
 
                             <div className="flex gap-3 right justify-end">
