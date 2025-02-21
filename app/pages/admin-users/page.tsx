@@ -5,10 +5,11 @@ import DataTable from "react-data-table-component";
 import jsPDF from "jspdf";
 import PageNotFound from "@/components/PageNotFound";
 
-
 export default function AdminDashboard() {
   const { data: session } = useSession();
   const [users, setUsers] = useState([]);
+  const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
+  const [newDomain, setNewDomain] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editedUser, setEditedUser] = useState({
@@ -16,10 +17,11 @@ export default function AdminDashboard() {
     email: "",
     role: "",
   });
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("/api/users"); // Adjust API endpoint
+        const res = await fetch("/api/users");
         const data = await res.json();
         setUsers(data);
       } catch (error) {
@@ -28,6 +30,17 @@ export default function AdminDashboard() {
     };
     fetchUsers();
   }, []);
+
+  const handleAddDomain = () => {
+    if (newDomain && !allowedDomains.includes(newDomain)) {
+      setAllowedDomains([...allowedDomains, newDomain]);
+      setNewDomain("");
+    }
+  };
+
+  const handleRemoveDomain = (domain: string) => {
+    setAllowedDomains(allowedDomains.filter((d) => d !== domain));
+  };
 
   const handleEdit = (user: string) => {
     setSelectedUser(user);
@@ -89,7 +102,6 @@ export default function AdminDashboard() {
       head: [["Username", "Email", "Role"]],
       body: tableData,
     });
-
     doc.save("user_list.pdf");
   };
 
@@ -118,13 +130,15 @@ export default function AdminDashboard() {
     },
   ];
 
-    if (!session || session.user.role !== "Admin") {
-      return <PageNotFound />;
-    }
+  
+
+  if (!session || session.user.role !== "Admin") {
+    return <PageNotFound />;
+  }
 
   return (
     <div className="p-6 h-max">
-      <div className="bg-white p-4 ">
+      <div className="bg-white p-4">
         <DataTable
           title="User Management"
           columns={columns}
@@ -134,6 +148,7 @@ export default function AdminDashboard() {
         />
       </div>
 
+      {/* Save PDF,CSV */}
       <div className="flex mt-6 gap-4">
         <button
           onClick={handleDownloadPDF}
@@ -141,7 +156,7 @@ export default function AdminDashboard() {
         >
           Save as PDF
         </button>
-      
+
         <button
           onClick={() => alert("Feature coming soon!")}
           className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
@@ -149,6 +164,7 @@ export default function AdminDashboard() {
           Print
         </button>
       </div>
+      {/* Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -168,7 +184,12 @@ export default function AdminDashboard() {
               className="w-full p-2 border rounded"
             />
             <label className="block mt-2 mb-2">Role:</label>
-            <select name="role" value={editedUser.role} onChange={handleChange} className="w-full p-2 border rounded">
+            <select
+              name="role"
+              value={editedUser.role}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            >
               <option value="Lecturer">Lecturer</option>
               <option value="Admin">Admin</option>
               <option value="Student">Student</option>
@@ -180,17 +201,72 @@ export default function AdminDashboard() {
               >
                 Cancel
               </button>
-
               <button
                 onClick={handleSaveChanges}
                 className="bg-lime-500 text-white px-4 py-2 rounded hover:bg-lime-600"
               >
-                Confirm Change
+                Confirm Changes
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Allowed Email Domains Section */}
+      <div className="mt-6 p-4 bg-white">
+        <h2 className="text-lg mb-2">Allowed Email Domains</h2>
+
+        <div className="flex justify-between gap-2 mb-4">
+          <input
+            type="text"
+            placeholder="Enter domain (e.g., example.com)"
+            value={newDomain}
+            onChange={(e) => setNewDomain(e.target.value)}
+            className="p-2 border rounded w-full"
+          />
+          <button
+            onClick={handleAddDomain}
+            className="bg-lime-800 text-white w-24 px-4 py-2 rounded-lg hover:bg-lime-900"
+          >
+           + Add Domain
+          </button>
+        </div>
+
+        {/* List of Allowed Domains */}
+        <div className="border rounded-lg overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-lime-800 text-white">
+                <th className="p-2 text-left">Domain</th>
+                <th className="p-2 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allowedDomains.length > 0 ? (
+                allowedDomains.map((domain) => (
+                  <tr key={domain} className="border-t">
+                    <td className="p-2">{domain}</td>
+                    <td className="p-2">
+                      <button
+                        onClick={() => handleRemoveDomain(domain)}
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={2} className="p-2 text-center text-gray-500">
+                    No allowed domains added yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

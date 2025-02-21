@@ -83,12 +83,12 @@ export default function AdminDashboard() {
           <div className="mt-4 grid grid-cols-2 gap-4">
             <Link 
             href = {"/pages/admin-users"}
-            className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3">
+            className="w-full bg-lime-800 text-white py-4 rounded-lg hover:bg-lime-900 transition duration-300 text-center flex items-center justify-center space-x-3">
               🐝 Manage Users
             </Link>
             <Link 
             href = {"/pages/admin-projects"}
-            className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3">
+            className="w-full bg-lime-800 text-white py-4 rounded-lg hover:bg-lime-900 transition duration-300 text-center flex items-center justify-center space-x-3">
               📁 Manage Projects
             </Link>
           </div>
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
               ))}
               <button
                 type="submit"
-                className="bg-lime-600 px-4 py-2 text-white rounded-lg hover:bg-lime-700 transition"
+                className="bg-lime-800 px-4 py-2 text-white rounded-lg hover:bg-lime-900 transition"
               >
                 Submit
               </button>

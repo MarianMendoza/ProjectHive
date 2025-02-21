@@ -75,7 +75,6 @@ export default function DeliverablesPage() {
           setStudentsId(
             data.deliverables.projectId.projectAssignedTo.studentsId
           );
-          // console.log(studentsId);
           setSupervisorId(
             data.deliverables.projectId.projectAssignedTo.supervisorId?._id
           );
@@ -587,8 +586,6 @@ export default function DeliverablesPage() {
 
                 {isSupervisor && (
                   <div className="mt-4">
-                    <p>{}</p>
-
                     {key == "finalReport" && (
                       <div className="mt-4 mb-4">
                         <h3 className="text-small font-semibold text-gray-800 mb-2">

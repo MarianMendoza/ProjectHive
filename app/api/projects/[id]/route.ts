@@ -77,7 +77,6 @@ export async function PUT(req: Request) {
     const { title, status, visibility, abstract, description, files, projectAssignedTo, applicants } = await req.json();
 
     try {
-        // Ensure the studentsId is normalized correctly
         const assignedStudentsIds = projectAssignedTo?.studentsId || [];
         const normalizedAssignedIds = assignedStudentsIds.map((id: string) => new mongoose.Types.ObjectId(id));
 

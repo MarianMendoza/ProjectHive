@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import jsPDF from "jspdf";
 import { Project } from "@/types/projects";
+import { Deliverable } from "@/types/deliverable";
 import { User } from "@/types/users";
 import PageNotFound from "@/components/PageNotFound";
 
@@ -14,7 +15,7 @@ export default function ProjectDashboard() {
   const [lecturers, setLecturers] = useState<User[]>([]);
   const [students, setStudents] = useState<User[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-
+  const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
   const [editedProject, setEditedProject] = useState<Project | null>(null);
 
   useEffect(() => {
@@ -42,6 +43,16 @@ export default function ProjectDashboard() {
     fetchUsers();
   }, []);
 
+  const fetchDeliverables = async (projectId: string) => {
+    try {
+      const res = await fetch(`/api/deliverables?projectId=${projectId}`);
+      const data = await res.json();
+      setDeliverables(data); // Set the deliverables for the selected project
+    } catch (error) {
+      console.error("Error fetching deliverables:", error);
+    }
+  };
+
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     doc.text("User List", 20, 10);
@@ -63,6 +74,7 @@ export default function ProjectDashboard() {
     setStudents(students);
     setEditedProject({ ...project });
     setIsModalOpen(true);
+    fetchDeliverables(project._id);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -80,11 +92,14 @@ export default function ProjectDashboard() {
 
   const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!editedProject) return;
-  
-    const selectedIds = Array.from(e.target.selectedOptions, (option) => option.value);
-  
+
+    const selectedIds = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value
+    );
+
     const updatedStudents = selectedIds.length === 0 ? [] : selectedIds;
-  
+
     setEditedProject((prev) => ({
       ...prev!,
       projectAssignedTo: {
@@ -93,7 +108,6 @@ export default function ProjectDashboard() {
       },
     }));
   };
-  
 
   const handleSaveChanges = async () => {
     if (!selectedProject || !editedProject) return;
@@ -140,6 +154,12 @@ export default function ProjectDashboard() {
     }
   };
 
+  const downloadDeliverables = (project: Project) => {
+    // if (!project.deliverables || project.deliverables.length === 0) {
+    //   alert("No deliverables available for this project.");
+      return;
+    }
+
   const columns = [
     {
       name: "Project Title",
@@ -163,9 +183,22 @@ export default function ProjectDashboard() {
         "No Students",
     },
     {
+      name: "Deliverables",
+      selector: (row: Project) =>
+        row.deliverables?.length > 0
+          ? row.deliverables.join(", ")
+          : "No Deliverables",
+    },
+    {
       name: "Actions",
       cell: (row: Project) => (
         <div className="flex gap-2">
+          <button
+            onClick={() => downloadDeliverables(row)}
+            className="bg-teal-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+          >
+            Download
+          </button>
           <button
             onClick={() => handleEdit(row)}
             className="bg-lime-500 text-white px-3 py-1 rounded hover:bg-lime-600"
