@@ -2,11 +2,13 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
-import jsPDF from "jspdf";
 import { Project } from "@/types/projects";
-import { Deliverable } from "@/types/deliverable";
 import { User } from "@/types/users";
 import PageNotFound from "@/components/PageNotFound";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
+import Papa from "papaparse";
 
 export default function ProjectDashboard() {
   const { data: session } = useSession();
@@ -15,7 +17,6 @@ export default function ProjectDashboard() {
   const [lecturers, setLecturers] = useState<User[]>([]);
   const [students, setStudents] = useState<User[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
   const [editedProject, setEditedProject] = useState<Project | null>(null);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function ProjectDashboard() {
       try {
         const res = await fetch("/api/projects");
         const data = await res.json();
+        console.log(data);
         setProjects(data);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -43,29 +45,68 @@ export default function ProjectDashboard() {
     fetchUsers();
   }, []);
 
-  const fetchDeliverables = async (projectId: string) => {
-    try {
-      const res = await fetch(`/api/deliverables?projectId=${projectId}`);
-      const data = await res.json();
-      setDeliverables(data); // Set the deliverables for the selected project
-    } catch (error) {
-      console.error("Error fetching deliverables:", error);
-    }
-  };
-
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("User List", 20, 10);
-
-    const tableData = users.map((user) => [user.name, user.email, user.role]);
-
-    (doc as any).autoTable({
-      head: [["Username", "Email", "Role"]],
-      body: tableData,
+    const columns = ["Project Title", "Supervisor", "Second-Reader", "Student(s)", "OutlineDocument", "Extended Abstract", "FinalReport"];
+  
+    const rows = projects.map((project) => [
+      project.title, 
+      project.projectAssignedTo.supervisorId?.name || "Not Assigned",  
+      project.projectAssignedTo.secondReaderId?.name || "Not Assigned", 
+      project.projectAssignedTo.studentsId?.map(student => student.name).join(", ") || "No Students",
+      project.deliverables.outlineDocument?.file ?  "Uploaded" : "N/A",
+      project.deliverables.extendedAbstract?.file ?  "Uploaded" : "N/A",
+      project.deliverables.finalReport?.file ?  "Uploaded" : "N/A",
+    ]);
+  
+    autoTable(doc, {
+      head: [columns], 
+      body: rows,  
     });
-
-    doc.save("user_list.pdf");
+  
+    doc.save("project-list.pdf");
   };
+
+  const handleDownloadCSV = () => {
+    const filteredProjects = projects.map(({ title, projectAssignedTo }) => ({
+      title,
+      supervisor: projectAssignedTo.supervisorId?.name || "Not Assigned",
+      secondReader: projectAssignedTo.secondReaderId?.name || "Not Assigned",
+      students: projectAssignedTo.studentsId?.map(student => student.name).join(", ") || "No Students"
+    }));
+  
+    const csv = Papa.unparse(filteredProjects); // Convert to CSV format
+    const blob = new Blob([csv], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "projects_data.csv";
+    link.click();
+  };
+  
+  
+
+
+  const handlePrint = () => {
+    const doc = new jsPDF();
+    const columns = ["Project Title", "Supervisor", "Second-Reader", "Student(s)", "Deliverables"];
+  
+    const rows = projects.map((project) => [
+      project.title, 
+      project.projectAssignedTo.supervisorId?.name || "Not Assigned",  // Ensure we get the name, fallback if null
+      project.projectAssignedTo.secondReaderId?.name || "Not Assigned", // Same for second reader
+      project.projectAssignedTo.studentsId?.map(student => student.name).join(", ") || "No Students", // Join student names
+      ""  // Placeholder for Deliverables
+    ]);
+  
+    autoTable(doc, {
+      head: [columns],
+      body: rows,  
+    });
+  
+    const pdfUrl = doc.output("bloburl");
+    window.open(pdfUrl, "_blank"); // Open in a new tab
+  };
+  
 
   const handleEdit = (project: Project) => {
     setSelectedProject(project);
@@ -154,11 +195,41 @@ export default function ProjectDashboard() {
     }
   };
 
-  const downloadDeliverables = (project: Project) => {
-    // if (!project.deliverables || project.deliverables.length === 0) {
-    //   alert("No deliverables available for this project.");
-      return;
+  const downloadDeliverables = async (projectId: string) => {
+    try {
+      const response = await fetch(`/api/get-deliverables?projectId=${projectId}`);
+      const data = await response.json();
+  
+      if (!response.ok || !data.fileUrls) {
+        throw new Error(data.error || "Failed to fetch deliverables");
+      }
+  
+      const { outlineDocument, extendedAbstract, finalReport } = data.fileUrls;
+      const deliverablesToDownload = [outlineDocument, extendedAbstract, finalReport].filter(Boolean);
+  
+      if (deliverablesToDownload.length === 0) {
+        alert("No deliverables available for download.");
+        return;
+      }
+  
+      deliverablesToDownload.forEach((fileUrl) => {
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.setAttribute("download", fileUrl.split("/").pop() || "deliverable");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+  
+      alert("Deliverables downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Failed to download deliverables.");
     }
+  };
+  
+  
+  
 
   const columns = [
     {
@@ -183,19 +254,48 @@ export default function ProjectDashboard() {
         "No Students",
     },
     {
-      name: "Deliverables",
+      name: "Outline Document",
       selector: (row: Project) =>
-        row.deliverables?.length > 0
-          ? row.deliverables.join(", ")
-          : "No Deliverables",
+        row.deliverables.outlineDocument?.file ? "✅" : "❌",
+      cell: (row: any) => (
+        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%"}}>
+          {row.deliverables.outlineDocument?.file ? "✅" : "❌"}
+        </div>
+      ),
+      center: true,
+      width: "90px",
+    },
+    {
+      name: "Extended Abstract",
+      selector: (row: Project) =>
+        row.deliverables.extendedAbstract?.file ? "✅" : "❌",
+      cell: (row: any) => (
+        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%"}}>
+          {row.deliverables.extendedAbstract?.file ? "✅" : "❌"}
+        </div>
+      ),
+      center: true,
+      width: "90px", 
+    },
+    {
+      name: "Final Report",
+      selector: (row: Project) =>
+        row.deliverables.finalReport?.file ? "✅" : "❌",
+      cell: (row: any) => (
+        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%"}}>
+          {row.deliverables.finalReport?.file ? "✅" : "❌"}
+        </div>
+      ),
+      center: true,
+      width: "90px", 
     },
     {
       name: "Actions",
       cell: (row: Project) => (
         <div className="flex gap-2">
           <button
-            onClick={() => downloadDeliverables(row)}
-            className="bg-teal-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+            onClick={() => downloadDeliverables(row._id)}
+            className="bg-teal-500 text-white px-3 py-1 rounded hover:bg-teal-600"
           >
             Download
           </button>
@@ -221,31 +321,40 @@ export default function ProjectDashboard() {
   }
 
   return (
-    <div className="p-6">
-      <div className="bg-white p-4 rounded-lg">
+    <div className="p-6 h-max">
+      <div className="bg-white h-full p-4 rounded-lg">
         <DataTable
-          title="Projects"
+          className="h-full"
+          title="Project Management"
           columns={columns}
           data={projects}
           pagination
           highlightOnHover
         />
       </div>
-      <div className="flex mt-6 gap-4">
-        <button
-          onClick={handleDownloadPDF}
-          className="bg-lime-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600"
-        >
-          Save as PDF
-        </button>
+       {/* Save PDF,CSV */}
+       <div className="flex mt-6 gap-4">
+          <button
+            onClick={handleDownloadPDF}
+            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+          >
+            Save as PDF
+          </button>
 
-        <button
-          onClick={() => alert("Feature coming soon!")}
-          className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
-        >
-          Print
-        </button>
-      </div>
+          <button
+            onClick={handleDownloadCSV}
+            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+          >
+            Save as CSV
+          </button>
+
+          <button
+            onClick={handlePrint}
+            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+          >
+            Print
+          </button>
+        </div>
 
       {isModalOpen && editedProject && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">

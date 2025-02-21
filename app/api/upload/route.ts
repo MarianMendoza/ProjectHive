@@ -6,7 +6,6 @@ import { NextResponse } from "next/server";
 import { connectMongo } from "@/lib/mongodb";
 import User from "@/app/models/User";
 import Deliverables from "@/app/models/Deliverables";
-import { NEXT_BODY_SUFFIX } from "next/dist/lib/constants";
 
 export const config = {
   api: {
@@ -37,29 +36,20 @@ export async function POST(request: Request) {
       });
     });
 
-    const file =
-      files.file && Array.isArray(files.file) ? files.file[0] : files.file;
-    if (!file || !file.filepath || typeof file.filepath !== "string"
-    ) {
-      return NextResponse.json(
-        { error: "No file uploaded" },
-        { status: 400 }
-      );
+    const file = files.file && Array.isArray(files.file) ? files.file[0] : files.file;
+    if (!file || !file.filepath || typeof file.filepath !== "string") {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-
-
     await connectMongo();
-
 
     let destinationFolder: string;
     let fileUrl: string;
 
-    // Check if the file is an image
+    // Handle image uploads
     if (file.mimetype && file.mimetype.startsWith("image/")) {
       destinationFolder = path.join(process.cwd(), "public", "uploads", "profileImages");
       await fs.promises.mkdir(destinationFolder, { recursive: true });
-
 
       const newFileName = path.basename(file.filepath);
       const newFilePath = path.join(destinationFolder, newFileName);
@@ -76,26 +66,36 @@ export async function POST(request: Request) {
       );
 
       if (!updatedUser) {
-        return NextResponse.json(
-          { error: "User not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
       return NextResponse.json({ pfpurl: fileUrl });
     }
-    if (file.mimetype && file.mimetype.startsWith("application/")  ) {
-      const projectId = Array.isArray(fields.projectId)
-        ? fields.projectId[0]
-        : fields.projectId;
-      const deliverableType = Array.isArray(fields.type)
-        ? fields.type[0]
-        : fields.type;
-      const deliverableId = Array.isArray(fields.deliverablesId)
-        ? fields.deliverablesId[0]
-        : fields.deliverablesId;
+
+    // Handle document uploads (for project deliverables)
+    if (file.mimetype && file.mimetype.startsWith("application/")) {
+
+      const projectId = Array.isArray(fields.projectId) ? fields.projectId[0] : fields.projectId;
+      const deliverableType = Array.isArray(fields.deliverableType) ? fields.deliverableType[0] : fields.deliverableType;
+      const deliverableId = Array.isArray(fields.deliverablesId) ? fields.deliverablesId[0] : fields.deliverablesId;
 
 
+      // console.log(projectId)
+      // Bugs with naming variables!
+      // console.log(deliverableType)
+      // console.log(deliverableId)
+
+      destinationFolder = path.join(process.cwd(), "public", "uploads", "documents", projectId);
+      await fs.promises.mkdir(destinationFolder, { recursive: true });
+
+      const newFileName = path.basename(file.filepath);
+      const newFilePath = path.join(destinationFolder, newFileName);
+      await fs.promises.rename(file.filepath, newFilePath);
+
+      fileUrl = `/uploads/documents/${projectId}/${newFileName}`;
+
+
+   
       if (!projectId) {
         return NextResponse.json({ error: "Project Id is required" }, { status: 400 });
       }
@@ -106,33 +106,23 @@ export async function POST(request: Request) {
 
       const validTypes = ["outlineDocument", "extendedAbstract", "finalReport"];
       if (!deliverableType || !validTypes.includes(deliverableType)) {
-        return NextResponse.json({ error: "No valid types match" }, { status: 400 })
+        return NextResponse.json({ error: "No valid types match" }, { status: 400 });
       }
+      
 
-      destinationFolder = path.join(process.cwd(), "public", "uploads", "documents", `${projectId}`);
-      await fs.promises.mkdir(destinationFolder, { recursive: true });
-
-      const newFileName = path.basename(file.filepath);
-      const newFilePath = path.join(destinationFolder, newFileName);
-      await fs.promises.rename(file.filepath, newFilePath)
-
-      fileUrl = `/uploads/documents/${projectId}/${newFileName}`;
 
       const updateData: Record<string, any> = {};
       updateData[`${deliverableType}.file`] = fileUrl;
       updateData[`${deliverableType}.uploadedAt`] = new Date();
 
       const updatedDeliverable = await Deliverables.findByIdAndUpdate(
-        { _id : deliverableId },
+        { _id: deliverableId },
         updateData,
         { new: true, runValidators: true }
       );
 
       if (!updatedDeliverable) {
-        return NextResponse.json(
-          { error: "Deliverable not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Deliverable not found" }, { status: 404 });
       }
 
       return NextResponse.json({ fileUrl });
@@ -140,9 +130,6 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json(
-      { error: "Failed to process the file upload." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process the file upload." }, { status: 500 });
   }
 }

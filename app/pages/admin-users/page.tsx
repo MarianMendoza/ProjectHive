@@ -42,7 +42,7 @@ export default function AdminDashboard() {
 
     const fetchDomains = async () => {
       try {
-        const res = await fetch("/api/alloweddomains");
+        const res = await fetch("/api/allowed-domains");
         const data = await res.json();
         setDomains(data);
       } catch (error) {
@@ -201,10 +201,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const rows = [
-    { name: 'Admin', email: 'admin@gmail.com', role: 'Admin' },
-    { name: 'Klaas Jan Stol', email: 'klaas@gmail.com', role: 'Lecturer' }
-  ];
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
@@ -260,7 +256,7 @@ export default function AdminDashboard() {
     { name: "Role", selector: (row: any) => row.role, sortable: true },
     {
       name: "Actions",
-      cell: (row: any) => (
+      cell: (row: User) => (
         <div className="flex gap-2">
           <button
             onClick={() => handleEditUser(row)}
