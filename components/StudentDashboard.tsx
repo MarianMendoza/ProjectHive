@@ -132,7 +132,7 @@ export default function StudentDashboard() {
                   href={`/pages/deliverables?projectId=${assignedProject._id}`}
                   className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
                 >
-                  📝 Manage Deliverables
+                  📝 View Deliverables
                 </Link>
                 <button className="bg-orange-500 mr-3 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
                   Withdraw

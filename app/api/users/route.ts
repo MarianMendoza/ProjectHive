@@ -3,12 +3,23 @@ import connectMongo from '@/lib/mongodb';
 import User, { IUser } from '../../models/User';
 import bcrypt from "bcryptjs"; 
 import { signToken } from "@/lib/tokenUtils";
+import AllowedDomain from '@/app/models/AllowedDomains';
 
 //POST: Create a new user
 export async function POST(req: Request){
     try {
         const{name, email, password}: {name:string; email: string; password:string} = await req.json();
         await connectMongo();
+
+        const emailDomain = email.split("@")[1];
+        if(!emailDomain){
+            return NextResponse.json({ message: "Invalid email format!" }, { status: 400 });
+        }
+
+        const domainAllowed = await AllowedDomain.findOne({domain: emailDomain});
+        if (!domainAllowed) {
+            return NextResponse.json({ message: "Email domain is not allowed!" }, { status: 403 });
+          }
 
         const existingUser = await User.findOne({email});
         if (existingUser) {

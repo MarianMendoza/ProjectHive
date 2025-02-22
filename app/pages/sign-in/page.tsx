@@ -17,7 +17,7 @@ export default function SignIn() {
   useEffect(() => {
     // If there is an active session, redirect to the profile/dashboard page
     if (status === "authenticated") {
-      router.push("/pages/profile"); // Redirect to the profile page
+      router.push("/pages/dashboard"); // Redirect to the profile page
     }
   }, [status, router]); // Re-run effect if session status changes
 

@@ -77,7 +77,7 @@ export default function Profile() {
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">Profile</h2>
 
       <div className="flex flex-col items-center">
-        <div className="relative w-32 h-32 mb-4">
+        <div className="relative w-40 h-40 mb-4">
           <img
             src={profileImage || "/placeholder-profile.png"} // Use uploaded image or placeholder
             alt="Profile"
