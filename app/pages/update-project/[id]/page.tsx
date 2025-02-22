@@ -534,35 +534,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
 
-          <div className="col-span-2">
-            <label htmlFor="files" className="block text-lg text-gray-700 mb-2">
-              Upload Files
-            </label>
-            <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
-              <label
-                htmlFor="files"
-                className="cursor-pointer flex flex-col items-center justify-center"
-              >
-                <div className="flex flex-col items-center mb-2">
-                  <span role="img" aria-label="file" className="text-2xl">
-                    📁
-                  </span>
-                </div>
-                <span className="text-sm text-gray-500">
-                  Drag & drop files here or{" "}
-                  <span className="text-lime-600 font-semibold">browse</span>
-                </span>
-              </label>
-              <input
-                type="file"
-                id="files"
-                name="files"
-                multiple
-                onChange={handleChange}
-                className="hidden"
-              />
-            </div>
-          </div>
+          
 
           <div className="mt-6 flex justify-end">
             <Link
