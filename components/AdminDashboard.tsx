@@ -130,10 +130,13 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Notifications Section */}
-        <div className="w-1/3 mt-10">
+        {/* Notifications Section 
+           <div className="w-1/3 mt-10">
           <Notification />
         </div>
+      
+        */}
+     
       </div>
     </>
   );

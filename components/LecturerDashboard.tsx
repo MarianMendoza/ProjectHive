@@ -4,14 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Project } from "@/types/projects";
 import Notification from "./Notifications";
+import Deadline from "@/app/models/Deadlines";
 
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [activeProjects, setActiveProjects] = useState<Project[]>([]);
   const [secondReaderProjects, setSecondReaderProjects] = useState<Project[]>(
     []
   );
+  const [archivedProjects, setArchivedProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -36,71 +39,85 @@ export default function LecturerDashboard() {
         }
       }
     };
-
     fetchApprovalStatus();
+  }, [session, status]);
+  const fetchProjects = async () => {
+    if (status === "authenticated" && session?.user.id) {
+      try {
+        const res = await fetch("/api/projects");
+
+        if (res.ok) {
+          const data = await res.json();
+
+
+          const filteredProjects = data.filter((project: Project) => {
+            return (
+              project.projectAssignedTo.supervisorId?._id.toString() ===
+              session.user.id
+            );
+          });
+
+          const secondReaderFiltered = data.filter((project: Project) => {
+            return (
+              project.projectAssignedTo.secondReaderId?._id.toString() ===
+              session.user.id
+            );
+          });
+          setSecondReaderProjects(secondReaderFiltered);
+          setProjects(filteredProjects);
+        } else {
+          console.error("Error fetching projects");
+        }
+      } catch (error) {
+        console.error("Error fetching projects");
+      }
+    }
+    setLoadingProjects(false);
+  };
+
+  const fetchDeadlines = async () => {
+    try {
+      const deadlineres = await fetch("/api/deadlines");
+      const deadlinedata = await deadlineres.json();
+
+      
+      if (deadlinedata && deadlinedata.length > 0) {
+        // Ensure both dates are correctly parsed as Date objects
+        const pastProjectDate = new Date(deadlinedata[0].pastProjectDate); 
+        console.log("Deadline:" ,pastProjectDate);
+
+        const archived = projects.filter((project: Project) => {
+          const projectDate = new Date(project.createdAt);
+          console.log("ProjectDate",projectDate)
+          return projectDate < pastProjectDate;
+        });
+
+        const active = projects.filter((project: Project) => {
+          const projectDate = new Date(project.createdAt);
+          return projectDate >= pastProjectDate; // Active if createdAt is after or equal to pastProjectDate
+        });
+        setActiveProjects(active);
+        setArchivedProjects(archived);
+      } else {
+        console.error("No deadlines found in API response.");
+      }
+    } catch (error) {
+      console.error("Error fetching the deadlines:", error);
+    }
+  };
+
+
+  useEffect(() => {
+
+    fetchProjects();
+
   }, [session, status]);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      if (status === "authenticated" && session?.user.id) {
-        try {
-          const res = await fetch("/api/projects");
-
-          if (res.ok) {
-            const data = await res.json();
-
-            const filteredProjects = data.filter((project: Project) => {
-              return (
-                project.projectAssignedTo.supervisorId?._id.toString() ===
-                session.user.id
-              );
-            });
-
-            // Sort projects by creation date
-            const sortedProjects = filteredProjects.sort(
-              (a: Project, b: Project) => (a.createdAt > b.createdAt ? 1 : -1)
-            );
-
-            setProjects(sortedProjects);
-          } else {
-            console.error("Error fetching projects");
-          }
-        } catch (error) {
-          console.error("Error fetching projects");
-        }
-      }
-      setLoadingProjects(false);
-    };
-
-    const fetchSecondReaderProjects = async () => {
-      if (status === "authenticated" && session?.user.id) {
-        try {
-          const res = await fetch("/api/projects");
-
-          if (res.ok) {
-            const data = await res.json();
-
-            // Filter the projects where the user is assigned as a second reader
-            const secondReaderFiltered = data.filter((project: Project) => {
-              return (
-                project.projectAssignedTo.secondReaderId?._id.toString() ===
-                session.user.id
-              );
-            });
-
-            setSecondReaderProjects(secondReaderFiltered);
-          } else {
-            console.error("Error fetching second reader projects");
-          }
-        } catch (error) {
-          console.error("Error fetching second reader projects");
-        }
-      }
-    };
-
-    fetchProjects();
-    fetchSecondReaderProjects();
-  }, [session, status]);
+    if (projects.length > 0) {
+      fetchDeadlines();
+    }
+  }, [projects]);
 
   const closeModal = () => {
     setShowModal(false);
@@ -191,9 +208,9 @@ export default function LecturerDashboard() {
                 <div className="bg-white w-auto mt-2 rounded-lg col-span-3">
                   {loadingProjects ? (
                     <p>Loading projects...</p>
-                  ) : projects.length > 0 ? (
+                  ) : activeProjects.length > 0 ? (
                     <div className="space-y-4">
-                      {projects.map((project) => (
+                      {activeProjects.map((project) => (
                         <div
                           key={project._id}
                           className="p-4 rounded-lg shadow hover:shadow-md transition cursor-pointer"
@@ -204,6 +221,19 @@ export default function LecturerDashboard() {
                             <h4 className="text-lg font-semibold text-lime-600">
                               {project.title}
                             </h4>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <p className="text-sm text-gray-600">
+                              {new Date(project.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </p>
                           </div>
 
                           <div className="flex justify-between">
@@ -258,7 +288,7 @@ export default function LecturerDashboard() {
                             <div className="flex gap-3 right justify-end">
                               <button className="bg-yellow-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
                                 Withdraw
-                              </button> 
+                              </button>
                               <Link
                                 href={`/pages/update-project/${project._id}`}
                                 className="bg-lime-600 text-white p-2 w-[100px] text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
@@ -283,9 +313,9 @@ export default function LecturerDashboard() {
               </div>
 
               {/* Notifications Section */}
-              <div className="w-1/3 max-h-max">
+              {/* <div className="w-1/3 max-h-max">
                 <Notification></Notification>
-              </div>
+              </div> */}
             </div>
 
             {/* Second Reader Projects Section */}
@@ -299,6 +329,19 @@ export default function LecturerDashboard() {
                 secondReaderProjects.map((project) => (
                   <div key={project._id} className="p-4 shadow rounded-lg mb-4">
                     <h4 className="text-lg font-semibold">{project.title}</h4>
+                    <div className="flex justify-between">
+                            <p className="text-sm text-gray-600">
+                              {new Date(project.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
+
                     <p className="text-gray-600">
                       Assigned by: {project.projectAssignedTo.authorId.name}
                     </p>
@@ -318,6 +361,52 @@ export default function LecturerDashboard() {
                 ))
               ) : (
                 <p>You are not assigned as a second reader for any projects.</p>
+              )}
+            </div>
+
+            {/* Archived Projects Section */}
+            <div className="w-full bg-white p-6 mt-6 rounded-lg">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                Projects Archived
+              </h3>
+              {loadingProjects ? (
+                <p>Loading Archived projects...</p>
+              ) : archivedProjects.length > 0 ? (
+                archivedProjects.map((project) => (
+                  <div key={project._id} className="p-4 shadow rounded-lg mb-4">
+                    <h4 className="text-lg font-semibold">{project.title}</h4>
+                    <div className="flex justify-between">
+                            <p className="text-sm text-gray-600">
+                              {new Date(project.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
+
+                    <p className="text-gray-600">
+                      Assigned by: {project.projectAssignedTo.authorId.name}
+                    </p>
+                    <div className="mt-4 flex gap-3 ">
+                      <Link
+                        href={`/pages/deliverables?projectId=${project._id}`}
+                        className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
+                      >
+                        📝 Manage Deliverables
+                      </Link>
+
+                      <button className="bg-orange-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
+                        Withdraw
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No projects archived.</p>
               )}
             </div>
           </>

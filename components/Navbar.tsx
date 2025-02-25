@@ -2,13 +2,15 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Bell, LogOut } from "lucide-react";
+import { Bell, LogOut,BellRing } from "lucide-react";
+import Notifications from "./Notifications";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+
 
   const fetchProfileImage = async () => {
     if (session?.user?.id) {
@@ -103,7 +105,6 @@ export default function Navbar() {
                     className="relative flex items-center"
                   >
                     <Bell size={24} className="text-gray-700" />
-                    {/* Notification Indicator */}
                     <span className="absolute top-0 right-0 block w-2.5 h-2.5 bg-red-500 rounded-full" />
                   </button>
 
@@ -148,12 +149,9 @@ export default function Navbar() {
                     )}
 
                     {notificationOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+                      <div className="absolute top-full right-0 mt-2 w-60 bg-white border rounded-lg shadow-lg z-50">
                         <div className="py-1">
-                          <p className="px-4 py-2 text-gray-700">
-                            No new notifications
-                          </p>
-                          {/* Add more notifications here if necessary */}
+                          <Notifications></Notifications>
                         </div>
                       </div>
                     )}

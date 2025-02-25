@@ -223,7 +223,7 @@ const ProjectsPage = () => {
             {session && (
               <Link
                 href={`/pages/create-project`}
-                className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                className="bg-lime-800 text-white px-6 py-3 rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
               >
                 Create New Project
               </Link>
@@ -408,7 +408,7 @@ const ProjectsPage = () => {
                         </Link>
                         <button
                           onClick={() => confirmDelete(selectedProject._id)}
-                          className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+                          className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out"
                         >
                           🗑️ Delete
                         </button>
