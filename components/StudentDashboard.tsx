@@ -177,9 +177,9 @@ export default function StudentDashboard() {
         </div>
 
         {/* Notifications Section */}
-        <div className="md:col-span-1">
+        {/* <div className="md:col-span-1">
           <Notifications />
-        </div>
+        </div> */}
       </div>
     </>
   );

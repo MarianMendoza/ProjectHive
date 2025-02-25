@@ -49,7 +49,7 @@ export default function SignIn() {
         }
         localStorage.setItem("token", data.token); // Store token in local storage
 
-        router.push("/pages/profile"); // Redirect to profile/dashboard
+        router.push("/pages/dashboard"); // Redirect to profile/dashboard
       } else {
         const errorData = await res.json();
         setError(errorData.message || "Failed to log in");

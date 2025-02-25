@@ -49,8 +49,6 @@ const Notifications = () => {
     let type;
     let user;
 
-
-
     const userId = relatedProject.receiversId.toString();
     const receiversId = [relatedProject.userId?._id];
     const projectId = relatedProject.relatedProjectId?._id;
@@ -176,8 +174,8 @@ const Notifications = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto h-[50vh] overflow-y-auto">
-      <h3 className="text-xl font-bold text-gray-800 mb-4">Notifications</h3>
+    <div className="p-3 rounded-lg w-60 max-h-60 overflow-y-auto">
+      <h3 className="text-sm font-bold text-gray-800 mb-4">Notifications</h3>
       {notifications.length === 0 ? (
         <p className="text-gray-500">It's quiet in here...</p>
       ) : (
@@ -189,18 +187,18 @@ const Notifications = () => {
                   notification.isRead ? "opacity-50" : ""
                 } transition-opacity duration-300`}
               >
-                <p className="text-gray-800 font-medium mb-4">
+                <p className="text-gray-800 font-medium text-sm mb-4">
                   {notification.message}
                 </p>
 
-                <p className="text-gray-800 font-medium mb-4">
+                <p className="text-gray-800 font-medium text-sm mb-4">
                   {notification.messageUser}
                 </p>
 
                 <div className="flex flex-col space-y-2 w-full">
                   {!notification.isRead && (
                     <button
-                      className="px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                      className="px-2 py-2 bg-lime-500 text-sm text-white rounded-lg hover:bg-lime-600 transition duration-200"
                       onClick={() => markAsRead(notification._id)}
                     >
                       Mark as Read
