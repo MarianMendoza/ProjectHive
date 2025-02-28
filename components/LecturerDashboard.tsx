@@ -345,7 +345,7 @@ export default function LecturerDashboard() {
                         href={`/pages/deliverables?projectId=${project._id}`}
                         className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
                       >
-                        📝 Manage Deliverables
+                        📝 View Deliverables
                       </Link>
                       <WithdrawButton projectId={project._id} />
 

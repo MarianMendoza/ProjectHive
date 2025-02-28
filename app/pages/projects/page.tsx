@@ -265,7 +265,7 @@ const ProjectsPage = () => {
                             : "bg-yellow-100 text-yellow-600"
                         }`}
                       >
-                        {project.status ? "Open" : "Closed"}
+                        {project.status ? " Open" : " Closed"}
                       </span>
                     </div>
                   </div>
@@ -380,7 +380,7 @@ const ProjectsPage = () => {
                 </p>
 
                 <p>
-                  <strong>Status:</strong>
+                  <strong>Status: </strong>
                   {(() => {
                     if (selectedProject.status === false) {
                       return "Closed";

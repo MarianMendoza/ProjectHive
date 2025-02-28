@@ -6,8 +6,11 @@ import { useSession } from "next-auth/react";
 import { Deliverable } from "@/types/deliverable";
 import PageNotFound from "@/components/PageNotFound";
 import { useSocket } from "@/app/provider";
+import React from "react";
 
 export default function DeliverablesPage() {
+ 
+  const [dragging, setDragging] = useState(false);
   const [deadlines, setDeadlines] = useState({
     outlineDocumentDeadline: "",
     extendedAbstractDeadline: "",
@@ -295,49 +298,44 @@ export default function DeliverablesPage() {
     e: React.ChangeEvent<HTMLInputElement>,
     deliverableType: string
   ) => {
-
     const formData = new FormData();
+    let file;
 
     if (!e.target.files) return;
-  
+
     // Check if projectId and deliverablesId are defined
     if (!projectId || !deliverablesId) {
       alert("Missing project or deliverable ID");
       return;
     }
 
-    const file = e.target.files[0];
+    file = e.target.files[0];
+
     formData.append("file", file);
     formData.append("projectId", projectId);
     formData.append("deliverableType", deliverableType);
     formData.append("deliverablesId", deliverablesId);
-
-    formData.forEach((value, key) => {
-      console.log(key, value);  // Check the keys and values
-    });
-
 
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
-  
+
       if (res.ok) {
         const data = await res.json();
         console.log(data);
-  
+
+        // Update deliverables with the new file URL
         setDeliverables((prevDeliverables) => ({
           ...prevDeliverables,
           [deliverableType]: {
-            ...prevDeliverables[deliverableType] || {},
+            ...(prevDeliverables[deliverableType] || {}),
             file: data.fileUrl,
             uploadedAt: new Date().toISOString(),
           },
-        })
-      
-      );
-  
+        }));
+
         alert("File uploaded successfully!");
       } else {
         alert("Failed to upload file.");
@@ -347,7 +345,73 @@ export default function DeliverablesPage() {
       alert("There was an error uploading the file. Please try again.");
     }
   };
-  
+
+  const handleDrop = async (
+    e: React.DragEvent<HTMLDivElement>,
+    deliverableType: string
+  ) => {
+    e.preventDefault();
+    setDragging(false);
+
+    const formData = new FormData();
+    let file;
+
+    if (e.dataTransfer.files.length === 0) return;
+
+    file = e.dataTransfer.files[0];
+
+    if (!projectId || !deliverablesId) {
+      alert("Missing project or deliverable ID");
+      return;
+    }
+
+    formData.append("file", file);
+    formData.append("projectId", projectId);
+    formData.append("deliverableType", deliverableType);
+    formData.append("deliverablesId", deliverablesId);
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/upload", true);
+
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          console.log(data);
+
+          setDeliverables((prevDeliverables) => ({
+            ...prevDeliverables,
+            [deliverableType]: {
+              ...(prevDeliverables[deliverableType] || {}),
+              file: data.fileUrl,
+              uploadedAt: new Date().toISOString(),
+            },
+          }));
+
+          alert("File uploaded successfully!");
+        } else {
+          alert("Failed to upload file.");
+        }
+      };
+
+      xhr.onerror = () => {
+        alert("There was an error uploading the file. Please try again.");
+      };
+
+      xhr.send(formData);
+    } catch (error) {
+      console.error("Error uploading file", error);
+      alert("There was an error uploading the file. Please try again.");
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    setDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragging(false);
+  };
 
   const handleDownload = (fileName: string): void => {
     const link: HTMLAnchorElement = document.createElement("a");
@@ -479,8 +543,15 @@ export default function DeliverablesPage() {
                   </div>
                 )}
 
-                {isStudent && deadlines?.[key + "Deadline"] && new Date(deadlines[key + "Deadline"]) >= new Date() && (
-                    <div className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center">
+                {isStudent &&
+                  deadlines?.[key + "Deadline"] &&
+                  new Date(deadlines[key + "Deadline"]) >= new Date() && (
+                    <div
+                      onDrop={(e) => handleDrop(e, key)}
+                      className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center"
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                    >
                       <label
                         htmlFor={key}
                         className="cursor-pointer flex flex-col items-center justify-center"
@@ -507,43 +578,14 @@ export default function DeliverablesPage() {
                         className="hidden"
                         onChange={(e) => handleFileChange(e, key)}
                       />
+                      <div className="mt-4">
+                       
+                      </div>
                     </div>
                   )}
 
                 {isSecondReader && (
                   <div className="mt-4 mb-4">
-                    <h3 className="text-small font-semibold text-gray-800 mb-2">
-                      📋 Supervisor's Grade & Feedback
-                    </h3>
-
-                    {deliverables?.[key]?.supervisorGrade ? (
-                      <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
-                        <div
-                          className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
-                          style={{
-                            width: `${deliverables[key].supervisorGrade}%`,
-                          }}
-                        >
-                          {deliverables[key].supervisorGrade}/100
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-sm">
-                        Yet to be published
-                      </p>
-                    )}
-
-                    <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
-                      <strong>Feedback: </strong>
-                      {deliverables?.[key]?.supervisorFeedback ? (
-                        deliverables[key].supervisorFeedback
-                      ) : (
-                        <span className="text-gray-500">
-                          Yet to be published
-                        </span>
-                      )}
-                    </p>
-
                     {key == "finalReport" && (
                       <div className="mt-4">
                         <p>{}</p>
@@ -585,14 +627,6 @@ export default function DeliverablesPage() {
                           >
                             Submit
                           </button>
-                          <button
-                            className="bg-cyan-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-cyan-700 transition duration-200 ease-in-out"
-                            onClick={() =>
-                              openModal(key as unknown as Deliverable)
-                            }
-                          >
-                            Publish
-                          </button>
                         </div>
                       </div>
                     )}
@@ -624,7 +658,7 @@ export default function DeliverablesPage() {
                           </p>
                         )}
 
-                        <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
+                        {/* <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
                           <strong>Feedback: </strong>
                           {deliverables?.[key]?.secondReaderFeedback ? (
                             deliverables[key].secondReaderFeedback
@@ -633,7 +667,7 @@ export default function DeliverablesPage() {
                               Yet to be published
                             </span>
                           )}
-                        </p>
+                        </p> */}
                       </div>
                     )}
                     <label className="block text-sm text-gray-700">
@@ -686,7 +720,7 @@ export default function DeliverablesPage() {
                   className={`flex items-center gap-2 mt-2 px-4 py-2 rounded-lg transition w-full text-center ${
                     !file
                       ? "bg-gray-400 text-gray-700 cursor-not-allowed "
-                      : "bg-teal-700 text-white hover:bg-teal-800"
+                      : "bg-lime-700 text-white hover:bg-lime-800"
                   }`}
                   onClick={() => handleDownload(file)}
                 >
@@ -719,7 +753,7 @@ export default function DeliverablesPage() {
                   onClick={() =>
                     handlePublishGrade(deliverablesId?.toString()!)
                   }
-                  className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition duration-200 ease-in-out"
+                  className="bg-lime-500 text-white px-6 py-2 rounded-lg hover:bg-lime-600 transition duration-200 ease-in-out"
                 >
                   Confirm Publish
                 </button>
