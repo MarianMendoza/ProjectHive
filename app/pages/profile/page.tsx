@@ -1,41 +1,65 @@
 "use client";
+
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { Tag } from "@/types/tag";
+import { useRouter } from "next/navigation";
 import PageNotFound from "@/components/PageNotFound";
 
 export default function Profile() {
   const { data: session } = useSession();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [name, setName] = useState("");
+  const [courses, setCourses] = useState<string[]>([]); // State to store course names
+  const [tag, setTags] = useState<string>(""); // State to store selected course
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [description, setDescription] = useState("");
 
-  // Fetch the user's profile image when the component mounts
-  const fetchProfileImage = async () => {
+  const router = useRouter();
+
+  // Fetch user data
+  const fetchProfileData = async () => {
+
     if (session?.user?.id) {
       try {
         const response = await fetch(`/api/users/${session.user.id}`);
-        if (!response.ok) throw new Error("Failed to fetch profile image");
+        if (!response.ok) throw new Error("Failed to fetch user data");
 
         const data = await response.json();
-
-        if (data.user.pfpurl) {
-          setProfileImage(data.user.pfpurl);
-        } else {
-          console.log("No profile image URL found");
-        }
+        setProfileImage(data.user.pfpurl || null);
+        setName(data.user.name || "");
+        setRole(data.user.role || "");
+        setEmail(data.user.email || "");
+        setTags(data.user.tag || "");
+        setDescription(data.user.description || "");
       } catch (error) {
-        console.error("Error fetching profile image:", error);
+        console.error("Error fetching profile data:", error);
       }
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch("/api/tags");
+      const data = await res.json();
+      const tagName = data.map((tag: { name: string }) => tag.name);
+      setCourses(tagName);
+    } catch (error) {
+      console.error("Error fetching users:", error);
     }
   };
 
   useEffect(() => {
     if (session) {
-      fetchProfileImage();
+      fetchCourses();
+      fetchProfileData();
     }
   }, [session]);
 
-  // Handle image upload
   const handleImageChange = async (
+    
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
@@ -46,20 +70,12 @@ export default function Profile() {
 
       try {
         setUploading(true);
-
         const response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
         });
-
-        if (!response.ok) {
-          throw new Error("Upload failed");
-        }
-
-        // const data = await response.json();
-        // setProfileImage(data.pfpUrl);
-
-        await fetchProfileImage();
+        if (!response.ok) throw new Error("Upload failed");
+        await fetchProfileData();
       } catch (error) {
         console.error("Error uploading image:", error);
       } finally {
@@ -68,46 +84,107 @@ export default function Profile() {
     }
   };
 
+  const handleUpdateProfile = async () => {
+    try {
+      const response = await fetch(`/api/users/${session?.user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, tag, description }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update profile");
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+  
+      
+  const handlePasswordReset = async () => {
+    router.push("forgot-password")
+  };
+
   if (!session) {
     return <PageNotFound />;
   }
-
   return (
-    <div className="p-6 max-w-md mx-auto mt-8 shadow-lg rounded-md">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Profile</h2>
-
+    <div className="p-6 max-w-lg mx-auto mt-8 m-10 shadow-lg rounded-md bg-white">
+      <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">
+        Your Profile
+      </h2>
       <div className="flex flex-col items-center">
+        {/* Profile Image */}
         <div className="relative w-40 h-40 mb-4">
           <img
-            src={profileImage || "/placeholder-profile.png"} // Use uploaded image or placeholder
+            src={profileImage || "/placeholder-profile.png"}
             alt="Profile"
-            className="w-full h-full object-cover rounded-full shadow-md "
+            className="w-full h-full object-cover rounded-full shadow-md"
           />
-
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
             className="absolute inset-0 opacity-0 cursor-pointer"
-            title="Upload Profile Picture"
             disabled={uploading}
           />
         </div>
 
-        <div className="text-center">
-          <p className="text-xl font-bold text-gray-700 mb-1">
-            {session.user.name}
-          </p>
-          <p className="text-xl text-gray-700 mb-1">{session.user.role}</p>
+        {/* Editable Fields */}
+        <div className="w-full px-4">
+          <label className="block text-gray-700 font-medium mb-1">Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="border rounded-md p-2 w-full mb-3"
+            placeholder="Enter your name"
+          />
+          <label className="block text-gray-700 font-medium mb-1">Email</label>
+          <input
+            type="text"
+            value={email}
+            onChange={(e) => setName(e.target.value)}
+            className="border rounded-md p-2 w-full mb-3"
+            placeholder="Enter your name"
+          />
+          <label className="block text-gray-700 font-medium mb-1">Role</label>
+          <p className="border rounded-md p-2 w-full mb-3"> {role}</p>
+          <label className="block text-gray-700 font-medium mb-1">Course</label>
+          <select
+            value={tag}
+            onChange={(e) => setTags(e.target.value)}
+            className="border rounded-md p-2 w-full mb-3"
+          >
+            <option value="">Select a course</option>
+            {courses.map((c, index) => (
+              <option key={index} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
 
-          <p className="text-gray-600 mb-2">
-            <strong>Course:</strong>{" "}
-            {session.user.course || "No course specified"}
-          </p>
-          <p className="text-gray-600">
-            <strong>Description:</strong>{" "}
-            {session.user.description || "No description provided"}
-          </p>
+          <label className="block text-gray-700 font-medium mb-1">
+            Description
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="border rounded-md p-2 w-full h-24"
+            placeholder="Tell us about yourself"
+          ></textarea>
+
+          <button
+            onClick={handleUpdateProfile}
+            className="mt-4 bg-lime-700 text-white py-2 px-4 rounded w-full hover:bg-lime-800"
+          >
+            Save Changes
+          </button>
+          <button
+            onClick={handlePasswordReset}
+            className="mt-4 bg-orange-500 text-white py-2 px-4 rounded w-full hover:bg-orange-600"
+          >
+            Reset Password
+          </button>
         </div>
       </div>
     </div>

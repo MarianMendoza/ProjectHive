@@ -6,7 +6,7 @@ export interface IUser extends Document {
   imageUrl: string;
   name: string;
   email: string;
-  tags: mongoose.Types.ObjectId[];
+  tag: string;
   description: string;
   password: string;
   role: "Student" | "Lecturer" | "Admin"; // Use a union type for better type safety
@@ -21,7 +21,7 @@ const UserSchema: Schema = new Schema({
   imageUrl: {type:String, required: false},
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  tags: {type: Schema.Types.ObjectId, ref:Tag},
+  tag: {type: String},
   description:{type:String, required:false},
   password: { type: String, required: true },
   role: { type: String, enum: ["Student", "Lecturer", "Admin"], default: "Student" },
