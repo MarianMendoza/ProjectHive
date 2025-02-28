@@ -163,17 +163,16 @@ export async function PUT(req: Request) {
     }
 }
 
-//POST: Add an applicant id into project with the session.user.id
+// POST: Add or Withdraw from a project
 export async function POST(req: Request) {
     await connectMongo();
     const url = new URL(req.url);
     const id = url.pathname.split("/").pop() as string;
-    console.log(id)
 
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "Student") {
-        return NextResponse.json({ message: "Unauthorized. Only students can apply for projects." }, { status: 403 });
+    if (!session) {
+        return NextResponse.json({ message: "Unauthorized. Please log in." }, { status: 403 });
     }
 
     if (!id) {
@@ -182,34 +181,112 @@ export async function POST(req: Request) {
 
     try {
         const project = await Projects.findById(id);
+        // console.log(project)
 
         if (!project) {
             return NextResponse.json({ message: "Project not found" }, { status: 404 });
         }
 
-        const alreadyApplied = project.applicants.some(
-            (applicant: { studentId: mongoose.Types.ObjectId | null; applicationStatus: "Pending" | "Assigned" | "Rejected" }) =>
-                applicant.studentId?.id.toString() === session.user.id
-        );
+        const userId = session.user.id;
 
-        const existingProject = await Projects.findOne({ "projectAssignedTo": session.user.id });
+        if (session.user.role === "Student") {
+            // Ensure applicants and projectAssignedTo.studentsId are initialized and are arrays
+            const applicants = project.applicants || [];
+            const assignedStudents = project.projectAssignedTo?.studentsId || [];
+            console.log("Project Assigned Students", assignedStudents);
+        
+            // Check if the student is in the applicants list
+            const isInApplicants = applicants.some(
+                (applicant) => applicant.studentId?.toString() === userId
+            );
+        
+            // Check if the student is in the assigned students list
+            const isAssigned = assignedStudents.some(
+                (id) => id.toString() === userId
+            );
+        
+            if (!isInApplicants && !isAssigned) {
+                // If the student is neither in applicants nor assigned, add them to applicants
+                project.applicants.push({ studentId: userId });
+                await project.save();
+                return NextResponse.json({ message: "You have successfully applied to the project." }, { status: 200 });
+            }
+        
+            if (isInApplicants && isAssigned) {
+                // If the student is both in applicants and assigned, remove them from assigned list but keep in applicants
+                project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId.filter(
+                    (id) => id.toString() !== userId
+                );
+                await project.save();
+                return NextResponse.json({ message: "You have successfully withdrawn from the project as an assigned student, but remain in applicants." }, { status: 200 });
+            }
+        
+            if (isInApplicants && !isAssigned) {
+                // If the student is in applicants but not assigned, and presses withdraw, remove them from applicants
+                project.applicants = project.applicants.filter(
+                    (applicant) => applicant.studentId?.toString() !== userId
+                );
+                await project.save();
+                return NextResponse.json({ message: "You have successfully withdrawn from the project." }, { status: 200 });
+            }
+        
+            // If the student is in applicants but not assigned, assign them to the project
+            if (isInApplicants && !isAssigned) {
+                // Remove from applicants
+                project.applicants = project.applicants.filter(
+                    (applicant) => applicant.studentId?.toString() !== userId
+                );
+        
+                // Add the student to the assigned students list
+                project.projectAssignedTo.studentsId.push(userId);
+        
+                await project.save();
+                return NextResponse.json({ message: "You have successfully been assigned to the project." }, { status: 200 });
+            }
+        }
+        
+        
+        
+        
 
-        if (existingProject) {
-            return NextResponse.json({ message: "You are already assigned to another project." }, { status: 400 });
+        if (session.user.role === "Lecturer") {
+            // If the user is a supervisor or second reader, handle both adding and withdrawing
+            const isSupervisor = project.projectAssignedTo.supervisorId?.toString() === userId;
+            const isSecondReader = project.projectAssignedTo.secondReaderId?.toString() === userId;
+
+            if (!isSupervisor && !isSecondReader) {
+                // If not a supervisor or second reader, add them
+                const { role } = await req.json(); // Role should be either 'supervisor' or 'secondReader'
+
+                if (role === "supervisor") {
+                    project.projectAssignedTo.supervisorId = userId;
+                } else if (role === "secondReader") {
+                    project.projectAssignedTo.secondReaderId = userId;
+                }
+
+                await project.save();
+                return NextResponse.json({ message: `${role} added to the project successfully.` }, { status: 200 });
+            }
+
+            // If the user is already assigned, remove them (withdraw)
+            if (isSupervisor) {
+                project.projectAssignedTo.supervisorId = null;
+            }
+
+            if (isSecondReader) {
+                project.projectAssignedTo.secondReaderId = null;
+            }
+
+            await project.save();
+            return NextResponse.json({ message: "You have successfully withdrawn from the project." }, { status: 200 });
         }
 
-        if (alreadyApplied) {
-            return NextResponse.json({ message: "You have already applied for this project." }, { status: 400 });
-        }
-
-        project.applicants.push({ studentId: session.user.id, applicationStatus: "Pending" });
-
-        await project.save();
-
-        return NextResponse.json({ message: "Application successful", project }, { status: 200 });
+        return NextResponse.json({ message: "Unauthorized action." }, { status: 403 });
     } catch (error) {
-        console.error("Error applying for project:", error);
-        return NextResponse.json({ message: "Error applying for project" }, { status: 500 });
+        console.error("Error processing request:", error);
+        return NextResponse.json({ message: "Error processing the request" }, { status: 500 });
     }
 }
+
+
 

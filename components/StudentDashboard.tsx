@@ -4,6 +4,7 @@ import { Project } from "@/types/projects";
 import { useSession } from "next-auth/react";
 import Notifications from "./Notifications";
 import Link from "next/link";
+import WithdrawButton from "./WithdrawButton";
 
 export default function StudentDashboard() {
   const { data: session } = useSession();
@@ -67,7 +68,7 @@ export default function StudentDashboard() {
         />
       </div>
       <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+        <div className="md:col-span-4">
           {assignedProject ? (
             <div className="bg-white">
               <h3 className="text-xl font-bold text-gray-800 mb-6">
@@ -134,9 +135,8 @@ export default function StudentDashboard() {
                 >
                   📝 View Deliverables
                 </Link>
-                <button className="bg-orange-500 mr-3 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
-                  Withdraw
-                </button>
+                <WithdrawButton projectId={assignedProject._id} />
+
               </div>
             </div>
           ) : (
@@ -175,11 +175,6 @@ export default function StudentDashboard() {
             </div>
           )}
         </div>
-
-        {/* Notifications Section */}
-        {/* <div className="md:col-span-1">
-          <Notifications />
-        </div> */}
       </div>
     </>
   );
