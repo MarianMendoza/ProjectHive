@@ -198,7 +198,7 @@ const Notifications = () => {
                 <div className="flex flex-col space-y-2 w-full">
                   {!notification.isRead && (
                     <button
-                      className="px-2 py-2 bg-lime-500 text-sm text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                      className="px-2 py-2 w-full bg-lime-500 text-sm text-white rounded-lg hover:bg-lime-600 transition duration-200"
                       onClick={() => markAsRead(notification._id)}
                     >
                       Mark as Read
@@ -209,13 +209,13 @@ const Notifications = () => {
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
-                          className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                          className=" text-sm px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
                           onClick={() => acceptInvitation(notification)}
                         >
                           Accept
                         </button>
                         <button
-                          className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
+                          className=" text-sm px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
                           onClick={() => declineInvitation(notification)}
                         >
                           Decline
@@ -226,13 +226,13 @@ const Notifications = () => {
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
-                          className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                          className=" px-4 py-2 text-sm bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
                           onClick={() => acceptInvitation(notification)}
                         >
                           Accept
                         </button>
                         <button
-                          className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
+                          className=" px-4 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
                           onClick={() => declineInvitation(notification)}
                         >
                           Decline
@@ -243,13 +243,13 @@ const Notifications = () => {
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
-                          className="flex-grow px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                          className=" text-sm px-4 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200"
                           onClick={() => acceptInvitation(notification)}
                         >
                           Accept
                         </button>
                         <button
-                          className="flex-grow px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
+                          className=" px-4 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200"
                           onClick={() => declineInvitation(notification)}
                         >
                           Decline

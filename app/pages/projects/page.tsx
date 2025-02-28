@@ -120,10 +120,8 @@ const ProjectsPage = () => {
     setAppliedStudents((prev) => {
       const updated = { ...prev };
       if (updated[selectedProject?._id]) {
-        // If the project already has applicants, add the student to the list
         updated[selectedProject?._id].push(session?.user.id);
       } else {
-        // Otherwise, create a new entry for the project with the studentId
         updated[selectedProject?._id] = [session?.user.id];
       }
       return updated;
@@ -131,12 +129,9 @@ const ProjectsPage = () => {
 
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "POST" });
-      // console.log(session?.user.id);
-      // console.log(id);
 
       if (res.ok) {
-        const updatedProject = await res.json(); // Get the updated project from the response
-        // console.log(updatedProject);
+        const updatedProject = await res.json(); 
         const userId = session?.user.id;
         const receiversId = [
           updatedProject.project.projectAssignedTo.supervisorId,

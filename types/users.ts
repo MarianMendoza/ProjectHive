@@ -3,7 +3,7 @@ export interface User {
     imageUrl: string;
     name: string;
     email: string;
-    course: string;
+    tag: string;
     description: string;
     role: string;
     approved: boolean;

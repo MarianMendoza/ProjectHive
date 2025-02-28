@@ -202,24 +202,37 @@ export async function POST(req: Request) {
         
             // Check if the student is in the assigned students list
             const isAssigned = assignedStudents.some(
-                (id) => id.toString() === userId
+                (id) => id === userId
             );
+
+            console.log(isAssigned)
         
             if (!isInApplicants && !isAssigned) {
-                // If the student is neither in applicants nor assigned, add them to applicants
                 project.applicants.push({ studentId: userId });
                 await project.save();
                 return NextResponse.json({ message: "You have successfully applied to the project." }, { status: 200 });
             }
         
             if (isInApplicants && isAssigned) {
-                // If the student is both in applicants and assigned, remove them from assigned list but keep in applicants
+                console.log(userId);
+            
+                project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId || [];
+                if (!userId) {
+                    return NextResponse.json({ message: "Invalid user ID." }, { status: 400 });
+                }
                 project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId.filter(
-                    (id) => id.toString() !== userId
+                    (id) => id !== userId
                 );
+            
+                if (project.projectAssignedTo.studentsId.length === 0) {
+                    console.log("No students are assigned to this project anymore.");
+                }
+            
                 await project.save();
+            
                 return NextResponse.json({ message: "You have successfully withdrawn from the project as an assigned student, but remain in applicants." }, { status: 200 });
             }
+            
         
             if (isInApplicants && !isAssigned) {
                 // If the student is in applicants but not assigned, and presses withdraw, remove them from applicants
