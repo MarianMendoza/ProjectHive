@@ -83,11 +83,17 @@ export default function PastProjects() {
                 key={project._id}
                 className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300"
               >
-                <h3 className="text-xl font-semibold text-gray-900">
+                <h3 className="text-xl mt-5 font-semibold text-lime-600">
                   {project.title}
                 </h3>
+
+                <p className="text-black mt-2">
+                        <strong>Supervised By:</strong>{" "}
+                        {project.projectAssignedTo.supervisorId?.name ||
+                          "Not Assigned"}
+                      </p>
              
-                <p className="text-sm text-gray-600">
+                <p className="text-sm mt-2 text-gray-600">
                   Created:{" "}
                   {new Date(project.createdAt).toLocaleDateString("en-GB", {
                     year: "numeric",

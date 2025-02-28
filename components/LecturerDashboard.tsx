@@ -3,8 +3,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Project } from "@/types/projects";
-import Notification from "./Notifications";
 import Deadline from "@/app/models/Deadlines";
+import WithdrawButton from "./WithdrawButton";
 
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
@@ -191,7 +191,7 @@ export default function LecturerDashboard() {
             {/* Notifications and Project Progress Section - Positioned at the top */}
             <div className="flex justify-between mb-6 col-span-3">
               {/* Project Progress Section (65%) */}
-              <div className="w-2/3 bg-white p-6">
+              <div className="w-full bg-white p-6">
                 <div className="col-span-3 flex justify-between items-center ">
                   <h3 className="text-xl font-bold text-gray-800">
                     Your Projects
@@ -286,9 +286,8 @@ export default function LecturerDashboard() {
                             </Link>
 
                             <div className="flex gap-3 right justify-end">
-                              <button className="bg-yellow-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
-                                Withdraw
-                              </button>
+                            <WithdrawButton projectId={project._id} />
+
                               <Link
                                 href={`/pages/update-project/${project._id}`}
                                 className="bg-lime-600 text-white p-2 w-[100px] text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
@@ -312,10 +311,6 @@ export default function LecturerDashboard() {
                 </div>
               </div>
 
-              {/* Notifications Section */}
-              {/* <div className="w-1/3 max-h-max">
-                <Notification></Notification>
-              </div> */}
             </div>
 
             {/* Second Reader Projects Section */}
@@ -352,10 +347,10 @@ export default function LecturerDashboard() {
                       >
                         📝 Manage Deliverables
                       </Link>
+                      <WithdrawButton projectId={project._id} />
 
-                      <button className="bg-orange-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
-                        Withdraw
-                      </button>
+
+                      
                     </div>
                   </div>
                 ))
@@ -399,9 +394,8 @@ export default function LecturerDashboard() {
                         📝 Manage Deliverables
                       </Link>
 
-                      <button className="bg-orange-500 p-2 justify-start text-white text-center rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out">
-                        Withdraw
-                      </button>
+                      <WithdrawButton projectId={project._id} />
+
                     </div>
                   </div>
                 ))

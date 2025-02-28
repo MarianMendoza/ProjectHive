@@ -18,11 +18,16 @@ export default function AdminDashboard() {
         const res = await fetch("/api/deadlines");
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          const formatDate = (isoString: string) => isoString ? isoString.split("T")[0] : "";
+          const formatDate = (isoString: string) =>
+            isoString ? isoString.split("T")[0] : "";
 
           setDeadlines({
-            outlineDocumentDeadline: formatDate(data[0].outlineDocumentDeadline),
-            extendedAbstractDeadline: formatDate(data[0].extendedAbstractDeadline),
+            outlineDocumentDeadline: formatDate(
+              data[0].outlineDocumentDeadline
+            ),
+            extendedAbstractDeadline: formatDate(
+              data[0].extendedAbstractDeadline
+            ),
             finalReportDeadline: formatDate(data[0].finalReportDeadline),
             openDayDate: formatDate(data[0].openDayDate),
             pastProjectDate: formatDate(data[0].pastProjectDate),
@@ -30,7 +35,6 @@ export default function AdminDashboard() {
         } else {
           console.error("No deadlines found in API response");
         }
-
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -38,9 +42,9 @@ export default function AdminDashboard() {
     fetchDeadlines();
   }, []);
 
-  const handleChange = (e: { target: { name: any; value: any; }; }) => {
-    setDeadlines({...deadlines, [e.target.name]: e.target.value})
-  }
+  const handleChange = (e: { target: { name: any; value: any } }) => {
+    setDeadlines({ ...deadlines, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,9 +55,8 @@ export default function AdminDashboard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(deadlines),
-      
       });
-      console.log(deadlines)
+      console.log(deadlines);
 
       if (res.ok) {
         console.log("Success");
@@ -80,18 +83,6 @@ export default function AdminDashboard() {
           <h3 className="text-xl font-semibold text-gray-900">Admin Console</h3>
 
           {/* Navigation buttons */}
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <Link 
-            href = {"/pages/admin-users"}
-            className="w-full bg-lime-800 text-white py-4 rounded-lg hover:bg-lime-900 transition duration-300 text-center flex items-center justify-center space-x-3">
-              🐝 Manage Users
-            </Link>
-            <Link 
-            href = {"/pages/admin-projects"}
-            className="w-full bg-lime-800 text-white py-4 rounded-lg hover:bg-lime-900 transition duration-300 text-center flex items-center justify-center space-x-3">
-              📁 Manage Projects
-            </Link>
-          </div>
 
           {/* Deadline Fields */}
           <div className="space-y-4 mt-6">
@@ -107,9 +98,13 @@ export default function AdminDashboard() {
                     {key
                       .replace(/([A-Z])/g, " $1")
                       .replace("Date", " Deadline")
-                      .split(' ') 
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                      .join(' ')}
+                      .split(" ")
+                      .map(
+                        (word) =>
+                          word.charAt(0).toUpperCase() +
+                          word.slice(1).toLowerCase()
+                      )
+                      .join(" ")}
                   </label>
                   <input
                     type="date"
@@ -130,13 +125,28 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Notifications Section 
-           <div className="w-1/3 mt-10">
-          <Notification />
+        <div className="w-1/3 mt-20 p-3">
+          <div className="mt-4 grid gap-4">
+            <Link
+              href={"/pages/admin-users"}
+              className="w-full bg-teal-800 text-white py-4 rounded-lg hover:bg-teal-900 transition duration-300 text-center flex items-center justify-center space-x-3"
+            >
+              🐝 Manage Users
+            </Link>
+            <Link
+              href={"/pages/admin-projects"}
+              className="w-full bg-teal-800 text-white py-4 rounded-lg hover:bg-teal-900 transition duration-300 text-center flex items-center justify-center space-x-3"
+            >
+              📁 Manage Projects
+            </Link>
+            <Link
+              href={"/pages/admin-projects"}
+              className="w-full bg-teal-800 text-white py-4 rounded-lg hover:bg-teal-900 transition duration-300 text-center flex items-center justify-center space-x-3"
+            >
+               Manage Deliverables
+            </Link>
+          </div>
         </div>
-      
-        */}
-     
       </div>
     </>
   );

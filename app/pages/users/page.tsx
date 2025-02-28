@@ -134,7 +134,6 @@ const UsersPage = () => {
             <option value="All">All Roles</option>
             <option value="student">Student</option>
             <option value="lecturer">Lecturer</option>
-            <option value="admin">Admin</option>
           </select>
         </div>
 
