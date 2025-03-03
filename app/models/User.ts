@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { Tag } from "./Tags";
 
 export interface IUser extends Document {
   _id: string;

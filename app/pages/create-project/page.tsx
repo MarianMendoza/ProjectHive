@@ -1,19 +1,44 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 import Link from "next/link";
 
-const CreateProjectPage = () => {
+export default function CreateProjectPage() {
+  const { data: session } = useSession();
+
   const router = useRouter();
+  const [programme, setProgrammes] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     status: false,
+    programme: "",
     visibility: "Private",
     abstract: "",
     description: "",
     files: "",
   });
   const [error, setError] = useState<string | null>(null);
+
+  const fetchProgrammes = async () => {
+    try {
+      const res = await fetch("/api/programmes");
+      const data = await res.json();
+      console.log(data);
+        const programmeName = data.map((programme: { name: string }) => programme.name);
+        setProgrammes(programmeName);
+  
+    } catch (error) {
+      console.error("Error fetching tags", error);
+    }
+  };
+
+  useEffect(() => {
+    if (session) {
+      fetchProgrammes();
+    }
+  }, [session]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -31,7 +56,7 @@ const CreateProjectPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("../../api/projects", {
+      const response = await fetch("/api/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +99,7 @@ const CreateProjectPage = () => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
               required
             />
           </div>
@@ -91,11 +116,35 @@ const CreateProjectPage = () => {
               name="status"
               value={formData.status.toString()}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
               required
             >
               <option value="true">Available</option>
               <option value="false">Unavailable</option>
+            </select>
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="programme"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Programme
+            </label>
+            <select
+              id="programme"
+              name="programme"
+              value={formData.programme.toString()}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              required
+            >
+              <option value="">Select a course</option>
+              {programme.map((c, index) => (
+                <option key={index} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -111,7 +160,7 @@ const CreateProjectPage = () => {
               name="visibility"
               value={formData.visibility}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
               required
             >
               <option value="Private">Private</option>
@@ -129,9 +178,10 @@ const CreateProjectPage = () => {
             <textarea
               id="abstract"
               name="abstract"
+              maxLength={500}
               value={formData.abstract}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
               rows={4}
               required
             />
@@ -146,10 +196,11 @@ const CreateProjectPage = () => {
             </label>
             <textarea
               id="description"
+              maxLength={1000}
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
               rows={4}
               required
             />
@@ -157,7 +208,6 @@ const CreateProjectPage = () => {
               {formData.description.length}/1000 characters
             </div>
           </div>
-
 
           <div className="flex justify-end">
             <Link
@@ -179,4 +229,3 @@ const CreateProjectPage = () => {
   );
 };
 
-export default CreateProjectPage;

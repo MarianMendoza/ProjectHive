@@ -146,7 +146,6 @@ const ProjectsPage = () => {
         const type = "ApplicationStudent";
         const messageUser = message;
 
-
         if (socket) {
           socket.emit("sendNotification", {
             userId,
@@ -238,7 +237,7 @@ const ProjectsPage = () => {
         <div className="flex gap-8">
           {/* Project List */}
           <div className="w-1/3 overflow-y-auto h-screen">
-            <div className="grid grid-cols-1 gap-y-8 my-9">
+            <div className="grid grid-cols-1 p-2 gap-y-8 my-9">
               {!loading &&
                 projects.map((project) => (
                   <div
@@ -247,6 +246,11 @@ const ProjectsPage = () => {
                     onClick={() => handleCardClick(project)}
                   >
                     <div>
+                      <div className="flex items-center text-sm space-x-2">
+                        <span className="px-4 py-1 text-sm rounded-full bg-orange-100 text-orange-600">
+                          {project.programme ? project.programme : "N/A"}
+                        </span>
+                      </div>
                       <h2 className="text-xl font-semibold text-lime-600">
                         {project.title}
                       </h2>
@@ -259,7 +263,8 @@ const ProjectsPage = () => {
 
                       <p className="text-black">
                         <strong>Abstract:</strong>
-                        {project.abstract || ""}
+                        {`${project.abstract.slice(0, 200)} ... ` ||
+                          "No Description"}
                       </p>
                     </div>
 
@@ -328,62 +333,65 @@ const ProjectsPage = () => {
                 </div>
 
                 <div className="flex gap-2 mt-2">
-                {session?.user.role == "Student" &&
-                  session?.user.id !==
-                    selectedProject.projectAssignedTo.authorId._id &&
-                  selectedProject.status == true &&
-                  selectedProject.visibility !== "Private" && (
-                    <button
-                      onClick={() => handleApply(selectedProject?._id)}
-                      className={`px-4 py-2 rounded-lg ${
-                        selectedProject.applicants.some(
+                  {session?.user.role == "Student" &&
+                    session?.user.id !==
+                      selectedProject.projectAssignedTo.authorId._id &&
+                    selectedProject.status == true &&
+                    selectedProject.visibility !== "Private" && (
+                      <button
+                        onClick={() => handleApply(selectedProject?._id)}
+                        className={`px-4 py-2 rounded-lg ${
+                          selectedProject.applicants.some(
+                            (applicant) =>
+                              applicant.studentId?._id === session.user.id
+                          ) ||
+                          appliedStudents[selectedProject._id]?.includes(
+                            session.user.id
+                          )
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-lime-600 text-white hover:bg-lime-700"
+                        }`}
+                        disabled={
+                          selectedProject.applicants.some(
+                            (applicant) =>
+                              applicant.studentId?._id === session.user.id
+                          ) ||
+                          appliedStudents[selectedProject._id]?.includes(
+                            session.user.id
+                          )
+                        }
+                      >
+                        {selectedProject.applicants.some(
                           (applicant) =>
                             applicant.studentId?._id === session.user.id
                         ) ||
                         appliedStudents[selectedProject._id]?.includes(
                           session.user.id
                         )
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-lime-600 text-white hover:bg-lime-700"
-                      }`}
-                      disabled={
-                        selectedProject.applicants.some(
-                          (applicant) =>
-                            applicant.studentId?._id === session.user.id
-                        ) ||
-                        appliedStudents[selectedProject._id]?.includes(
-                          session.user.id
-                        )
-                      }
+                          ? "Applied"
+                          : "Apply"}
+                      </button>
+                    )}
+
+                  {selectedProject.projectAssignedTo.studentsId.some(
+                    (student) => student._id === session?.user.id
+                  ) && (
+                    <Link
+                      href={`/pages/deliverables?projectId=${selectedProject._id}`}
+                      className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
                     >
-                      {selectedProject.applicants.some(
-                        (applicant) =>
-                          applicant.studentId?._id === session.user.id
-                      ) ||
-                      appliedStudents[selectedProject._id]?.includes(
-                        session.user.id
-                      )
-                        ? "Applied"
-                        : "Apply"}
-                    </button>
+                      📝 Manage Deliverables
+                    </Link>
                   )}
-
-                {selectedProject.projectAssignedTo.studentsId.some(
-                  (student) => student._id === session?.user.id
-                ) && (
-                  <Link
-                    href={`/pages/deliverables?projectId=${selectedProject._id}`}
-                    className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
-                  >
-                    📝 Manage Deliverables
-                  </Link>
-                )}
                 </div>
-
-                
 
                 <p>
                   <strong>Visibility:</strong> {selectedProject.visibility}
+                </p>
+
+                <p>
+                  <strong>Programme:</strong>
+                  {selectedProject.programme}
                 </p>
 
                 <p>
@@ -410,7 +418,7 @@ const ProjectsPage = () => {
                         </Link>
                         <button
                           onClick={() => confirmDelete(selectedProject._id)}
-                          className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition duration-200 ease-in-out"
+                          className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
                         >
                           🗑️ Delete
                         </button>
