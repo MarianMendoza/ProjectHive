@@ -30,7 +30,6 @@ export async function POST(req: Request){
     }
 }
 
-// Fetch Programmes
 export async function GET(req:Request){
     await connectMongo();
     try {

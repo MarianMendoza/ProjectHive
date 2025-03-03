@@ -2,7 +2,6 @@
 
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { Tag } from "@/types/tag";
 import { useRouter } from "next/navigation";
 import PageNotFound from "@/components/PageNotFound";
 
@@ -11,7 +10,7 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [name, setName] = useState("");
-  const [courses, setCourses] = useState<string[]>([]); // State to store course names
+  const [courses, setCourses] = useState<string[]>([]);
   const [tag, setTags] = useState<string>(""); // State to store selected course
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
@@ -47,7 +46,7 @@ export default function Profile() {
       const tagName = data.map((tag: { name: string }) => tag.name);
       setCourses(tagName);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching courses:", error);
     }
   };
 

@@ -13,20 +13,28 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
   const { data: session } = useSession();
   const [project, setProject] = useState<IProjects | null>(null);
+  const [programme, setProgrammes] = useState<string[]>([]);
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
     title: "",
     status: false,
+    programme: "",
     visibility: "Private",
     abstract: "",
     description: "",
+    supervisor: "",
     secondReader: "",
     applicants: [],
     files: "",
   });
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>(
+    []
+  );
+  
+  const [selectedSupervisor, setSelectedSupervisor] = useState<string[]>(
     []
   );
   const [unassignedSecondReader, setUnassignedSecondReader] = useState<
@@ -48,7 +56,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       try {
         const projectRes = await fetch(`/api/projects/${id}`);
         const projectData = await projectRes.json();
-        console.log(projectRes.json);
+        console.log(projectData);
 
         const lecturersRes = await fetch("/api/users");
         const lecturersData = await lecturersRes.json();
@@ -58,9 +66,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           setFormData({
             title: projectData.project.title,
             status: projectData.project.status,
+            programme: projectData.project.programme || "",
             visibility: projectData.project.visibility,
-            abstract: projectData.project.abstract|| "",
+            abstract: projectData.project.abstract || "",
             description: projectData.project.description || "",
+            supervisor: projectData.project.supervisor || "",
             secondReader: projectData.project.secondReader || "",
             applicants: projectData.project.applicants || [],
             files: projectData.project.files || "",
@@ -72,15 +82,27 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           );
           setLecturers(filteredLecturers);
 
+          const assignedSupervisor = 
+          projectData.project.projectAssignedTo?.supervisorId._id;
+          const matchedSupervisor = filteredLecturers.find(
+            (lecturer: User ) => lecturer._id === assignedSupervisor
+          );
+
+          setSelectedSupervisor(matchedSupervisor?._id || null);
+          
           const assignedStudent =
             projectData.project.projectAssignedTo?.studentsId || [];
           setSelectedStudents(assignedStudent);
+          
+          
           const assignedSecondReader =
             projectData.project.projectAssignedTo?.secondReaderId._id;
-          const matchedLecturer = filteredLecturers.find(
+          const matchedSecondReader = filteredLecturers.find(
             (lecturer: User) => lecturer._id === assignedSecondReader
           );
-          setSelectedSecondReader(matchedLecturer?._id || null); // Set to null if no match
+
+
+          setSelectedSecondReader(matchedSecondReader?._id || null); // Set to null if no match
 
           // Need to make it so that if the the secondReader is unassigned then, update this.
           setIsGroupProject(assignedStudent.length > 1);
@@ -93,6 +115,22 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         setLoading(false);
       }
     };
+
+    const fetchProgrammes = async () => {
+      try {
+        const res = await fetch("/api/programmes");
+        const data = await res.json();
+        console.log(data);
+        const programmeName = data.map(
+          (programme: { name: string }) => programme.name
+        );
+        setProgrammes(programmeName);
+      } catch (error) {
+        console.error("Error fetching tags", error);
+      }
+    };
+
+    fetchProgrammes();
     fetchData();
   }, [id]);
 
@@ -139,6 +177,32 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     }
 
     // setSelectedSecondReader(secondReader);
+  };
+
+  
+  const handleSupervisorChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedId = e.target.value;
+    console.log(selectedId);
+
+    const receiverId = project?.projectAssignedTo.supervisorId?._id;
+
+    if (selectedId === "invite") {
+      setShowInviteModal(true);
+      return;
+    }
+
+    let Supervisor;
+
+    if (selectedId === "") {
+      console.log("This is empty.");
+      Supervisor = "";
+    } else {
+      Supervisor = project?.projectAssignedTo.supervisorId;
+      console.log(project?.projectAssignedTo.supervisorId);
+    }
+
   };
 
   const handleInviteClick = async (lecturer: User) => {
@@ -329,6 +393,57 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
             <div>
               <label
+                htmlFor="programme"
+                className="block text-gray-700 font-medium mb-2"
+              >
+                Programme
+              </label>
+              <select
+                id="programme"
+                name="programme"
+                value={formData.programme.toString()}
+                onChange={handleChange}
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+
+                required
+              >
+                <option value="">Select a course</option>
+                {programme.map((c, index) => (
+                  <option key={index} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="supervisor"
+                className="block text-lg text-gray-700 mb-2"
+              >
+                Supervisor
+              </label>
+              <select
+                id="supervisor"
+                name="supervisor"
+                key={selectedSupervisor}
+                value={selectedSupervisor || ""}
+                onChange={handleSupervisorChange}
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+              >
+                <option value="invite">Invite...</option>
+                <option value={selectedSupervisor}>
+                  Assigned:{" "}
+                  {lecturers.find(
+                    (lecturers) => lecturers._id === selectedSupervisor
+                  )?.name || "No one has been assigned"}
+                </option>
+                {selectedSupervisor && <option value="">Unassign...</option>}
+              </select>
+            </div>
+
+            <div>
+              <label
                 htmlFor="students"
                 className="block text-lg text-gray-700 mb-2"
               >
@@ -496,7 +611,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           </div>
 
           <div className="col-span-2">
-          <label
+            <label
               htmlFor="abstract"
               className="block text-lg text-gray-700 mb-2"
             >
@@ -509,7 +624,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               onChange={handleChange}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
               rows={4}
-              maxLength={1000}
+              maxLength={500}
             />
             <div className="text-right text-sm text-gray-500 mt-2">
               {formData.abstract?.length}/500 characters
@@ -533,8 +648,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               {formData.description?.length}/1000 characters
             </div>
           </div>
-
-          
 
           <div className="mt-6 flex gap-2 justify-end">
             <Link

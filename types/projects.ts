@@ -5,6 +5,7 @@ export interface Project {
     _id: string;  
     title: string;
     status: boolean;
+    programme: string;
     visibility: 'Private' | 'Public' | 'Archived';
     projectAssignedTo: {
       supervisorId: User ; 

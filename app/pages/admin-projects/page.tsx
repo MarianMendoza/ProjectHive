@@ -37,7 +37,7 @@ export default function ProjectDashboard() {
 
     const fetchProgramme = async () => {
       try {
-        const res = await fetch("/api/programme");
+        const res = await fetch("/api/programmes");
         const data = await res.json();
         setProgramme(data);
       } catch (error) {
@@ -61,7 +61,7 @@ export default function ProjectDashboard() {
 
   const handleAddProgrammes = async () => {
     try {
-      const res = await fetch("/api/programme", {
+      const res = await fetch("/api/programmes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newProgramme }),
@@ -91,7 +91,7 @@ export default function ProjectDashboard() {
       return;
     }
     try {
-      const res = await fetch(`/api/programme/${id}`, {
+      const res = await fetch(`/api/programmes/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {

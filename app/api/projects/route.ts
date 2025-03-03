@@ -12,7 +12,7 @@ import { Project } from "@/types/projects";
 export async function POST(req: Request) {
     await connectMongo();
 
-    const { title, status, visibility, description,abstract, files } = await req.json();
+    const { title, status, programme, visibility, description,abstract, files } = await req.json();
 
     try {
         const session = await getServerSession(authOptions);
@@ -39,6 +39,7 @@ export async function POST(req: Request) {
         const newProject = new Projects({
             title,
             status,
+            programme,
             visibility,
             abstract,
             description,
