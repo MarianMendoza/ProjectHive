@@ -7,6 +7,7 @@ import { User } from "@/types/users";
 import PageNotFound from "@/components/PageNotFound";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { Programme } from "@/types/programme";
 import autoTable from "jspdf-autotable";
 import Papa from "papaparse";
 
@@ -18,6 +19,9 @@ export default function ProjectDashboard() {
   const [students, setStudents] = useState<User[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [editedProject, setEditedProject] = useState<Project | null>(null);
+
+  const [newProgramme, setNewProgramme] = useState("");
+  const [programme, setProgramme] = useState<Programme[]>([]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -31,6 +35,16 @@ export default function ProjectDashboard() {
       }
     };
 
+    const fetchProgramme = async () => {
+      try {
+        const res = await fetch("/api/programme");
+        const data = await res.json();
+        setProgramme(data);
+      } catch (error) {
+        console.error("Error fetching programmes:", error);
+      }
+    };
+
     const fetchUsers = async () => {
       try {
         const res = await fetch("/api/users");
@@ -40,30 +54,86 @@ export default function ProjectDashboard() {
         console.error("Error fetching Users:", error);
       }
     };
-
+    fetchProgramme();
     fetchProjects();
     fetchUsers();
   }, []);
 
+  const handleAddProgrammes = async () => {
+    try {
+      const res = await fetch("/api/programme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newProgramme }),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        alert(result.message || "Programme added successfully.");
+        setProgramme((prevProgrammes) => [
+          ...prevProgrammes,
+          { name: newProgramme },
+        ]);
+        setNewProgramme("");
+      } else {
+        alert("Failed to add programme");
+      }
+    } catch (error) {
+      console.error("Error adding tag:", error);
+      alert("An error occurred while adding the tag.");
+    }
+  };
+
+  const handleRemoveProgrammes = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this programmes?")) return;
+    if (!id) {
+      console.error("Programme ID is missing");
+      return;
+    }
+    try {
+      const res = await fetch(`/api/programme/${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setProgramme(programme.filter((currentProgramme) => currentProgramme._id !== id));
+        alert("Programme deleted successfully");
+      } else {
+        alert("Failed to delete tag");
+      }
+    } catch (error) {
+      console.error("Error deleting tag:", error);
+    }
+  };
+
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-    const columns = ["Project Title", "Supervisor", "Second-Reader", "Student(s)", "OutlineDocument", "Extended Abstract", "FinalReport"];
-  
+    const columns = [
+      "Project Title",
+      "Supervisor",
+      "Second-Reader",
+      "Student(s)",
+      "OutlineDocument",
+      "Extended Abstract",
+      "FinalReport",
+    ];
+
     const rows = projects.map((project) => [
-      project.title, 
-      project.projectAssignedTo.supervisorId?.name || "Not Assigned",  
-      project.projectAssignedTo.secondReaderId?.name || "Not Assigned", 
-      project.projectAssignedTo.studentsId?.map(student => student.name).join(", ") || "No Students",
-      project.deliverables.outlineDocument?.file ?  "Uploaded" : "N/A",
-      project.deliverables.extendedAbstract?.file ?  "Uploaded" : "N/A",
-      project.deliverables.finalReport?.file ?  "Uploaded" : "N/A",
+      project.title,
+      project.projectAssignedTo.supervisorId?.name || "Not Assigned",
+      project.projectAssignedTo.secondReaderId?.name || "Not Assigned",
+      project.projectAssignedTo.studentsId
+        ?.map((student) => student.name)
+        .join(", ") || "No Students",
+      project.deliverables.outlineDocument?.file ? "Uploaded" : "N/A",
+      project.deliverables.extendedAbstract?.file ? "Uploaded" : "N/A",
+      project.deliverables.finalReport?.file ? "Uploaded" : "N/A",
     ]);
-  
+
     autoTable(doc, {
-      head: [columns], 
-      body: rows,  
+      head: [columns],
+      body: rows,
     });
-  
+
     doc.save("project-list.pdf");
   };
 
@@ -72,9 +142,12 @@ export default function ProjectDashboard() {
       title,
       supervisor: projectAssignedTo.supervisorId?.name || "Not Assigned",
       secondReader: projectAssignedTo.secondReaderId?.name || "Not Assigned",
-      students: projectAssignedTo.studentsId?.map(student => student.name).join(", ") || "No Students"
+      students:
+        projectAssignedTo.studentsId
+          ?.map((student) => student.name)
+          .join(", ") || "No Students",
     }));
-  
+
     const csv = Papa.unparse(filteredProjects); // Convert to CSV format
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
@@ -82,31 +155,35 @@ export default function ProjectDashboard() {
     link.download = "projects_data.csv";
     link.click();
   };
-  
-  
-
 
   const handlePrint = () => {
     const doc = new jsPDF();
-    const columns = ["Project Title", "Supervisor", "Second-Reader", "Student(s)", "Deliverables"];
-  
+    const columns = [
+      "Project Title",
+      "Supervisor",
+      "Second-Reader",
+      "Student(s)",
+      "Deliverables",
+    ];
+
     const rows = projects.map((project) => [
-      project.title, 
-      project.projectAssignedTo.supervisorId?.name || "Not Assigned",  // Ensure we get the name, fallback if null
+      project.title,
+      project.projectAssignedTo.supervisorId?.name || "Not Assigned", // Ensure we get the name, fallback if null
       project.projectAssignedTo.secondReaderId?.name || "Not Assigned", // Same for second reader
-      project.projectAssignedTo.studentsId?.map(student => student.name).join(", ") || "No Students", // Join student names
-      ""  // Placeholder for Deliverables
+      project.projectAssignedTo.studentsId
+        ?.map((student) => student.name)
+        .join(", ") || "No Students", // Join student names
+      "", // Placeholder for Deliverables
     ]);
-  
+
     autoTable(doc, {
       head: [columns],
-      body: rows,  
+      body: rows,
     });
-  
+
     const pdfUrl = doc.output("bloburl");
     window.open(pdfUrl, "_blank"); // Open in a new tab
   };
-  
 
   const handleEdit = (project: Project) => {
     setSelectedProject(project);
@@ -115,7 +192,6 @@ export default function ProjectDashboard() {
     setStudents(students);
     setEditedProject({ ...project });
     setIsModalOpen(true);
-    fetchDeliverables(project._id);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -197,68 +273,78 @@ export default function ProjectDashboard() {
 
   const downloadDeliverables = async (projectId: string) => {
     try {
-      const response = await fetch(`/api/get-deliverables?projectId=${projectId}`);
+      const response = await fetch(
+        `/api/get-deliverables?projectId=${projectId}`
+      );
       const data = await response.json();
-  
+
       if (!response.ok || !data.fileUrls) {
         throw new Error(data.error || "Failed to fetch deliverables");
       }
-  
+
       const { outlineDocument, extendedAbstract, finalReport } = data.fileUrls;
-      const deliverablesToDownload = [outlineDocument, extendedAbstract, finalReport].filter(Boolean);
-  
+      const deliverablesToDownload = [
+        outlineDocument,
+        extendedAbstract,
+        finalReport,
+      ].filter(Boolean);
+
       if (deliverablesToDownload.length === 0) {
         alert("No deliverables available for download.");
         return;
       }
-  
+
       deliverablesToDownload.forEach((fileUrl) => {
         const link = document.createElement("a");
         link.href = fileUrl;
-        link.setAttribute("download", fileUrl.split("/").pop() || "deliverable");
+        link.setAttribute(
+          "download",
+          fileUrl.split("/").pop() || "deliverable"
+        );
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       });
-  
+
       alert("Deliverables downloaded successfully!");
     } catch (error) {
       console.error("Download error:", error);
       alert("Failed to download deliverables.");
     }
   };
-  
-  
-  
 
   const columns = [
     {
       name: "Project Title",
       selector: (row: Project) => row.title,
       sortable: true,
+      width: "180px",
     },
     {
       name: "Supervisor",
       selector: (row: Project) =>
         row.projectAssignedTo?.supervisorId?.name || "Not Assigned",
+      width: "170px",
     },
     {
       name: "Second Reader",
       selector: (row: Project) =>
         row.projectAssignedTo?.secondReaderId?.name || "Not Assigned",
+      width: "170px",
     },
     {
       name: "Students",
       selector: (row: Project) =>
         row.projectAssignedTo?.studentsId?.map((s) => s.name).join(", ") ||
         "No Students",
+      width: "170px",
     },
     {
       name: "Outline Document",
       selector: (row: Project) =>
         row.deliverables.outlineDocument?.file ? "✅" : "❌",
       cell: (row: any) => (
-        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%"}}>
+        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%" }}>
           {row.deliverables.outlineDocument?.file ? "✅" : "❌"}
         </div>
       ),
@@ -270,24 +356,24 @@ export default function ProjectDashboard() {
       selector: (row: Project) =>
         row.deliverables.extendedAbstract?.file ? "✅" : "❌",
       cell: (row: any) => (
-        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%"}}>
+        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%" }}>
           {row.deliverables.extendedAbstract?.file ? "✅" : "❌"}
         </div>
       ),
       center: true,
-      width: "90px", 
+      width: "90px",
     },
     {
       name: "Final Report",
       selector: (row: Project) =>
         row.deliverables.finalReport?.file ? "✅" : "❌",
       cell: (row: any) => (
-        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%"}}>
+        <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%" }}>
           {row.deliverables.finalReport?.file ? "✅" : "❌"}
         </div>
       ),
       center: true,
-      width: "90px", 
+      width: "90px",
     },
     {
       name: "Actions",
@@ -295,7 +381,7 @@ export default function ProjectDashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => downloadDeliverables(row._id)}
-            className="bg-teal-500 text-white px-3 py-1 rounded hover:bg-teal-600"
+            className="bg-lime-800 text-white px-3 py-1 rounded hover:bg-lime-900"
           >
             Download
           </button>
@@ -307,7 +393,7 @@ export default function ProjectDashboard() {
           </button>
           <button
             onClick={() => handleDelete(row._id)}
-            className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
+            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
           >
             Delete
           </button>
@@ -321,19 +407,18 @@ export default function ProjectDashboard() {
   }
 
   return (
-    <div className="p-6 h-max">
-      <div className="bg-white h-full p-4 rounded-lg">
+    <div className="p-6 flex gap-4">
+      <div className="bg-white h-full w-3/4 p-4 rounded-lg">
         <DataTable
-          className="h-full"
+          className="h-full overflow-auto w-3/4"
           title="Project Management"
           columns={columns}
           data={projects}
           pagination
           highlightOnHover
         />
-      </div>
-       {/* Save PDF,CSV */}
-       <div className="flex mt-6 gap-4">
+
+        <div className="flex mt-6 gap-4">
           <button
             onClick={handleDownloadPDF}
             className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
@@ -355,6 +440,45 @@ export default function ProjectDashboard() {
             Print
           </button>
         </div>
+      </div>
+      {/* Save PDF,CSV */}
+
+      <div className="bg-white h-full mb-4 p-4 w-1/4">
+        <h2 className="text-lg mb-4 mt-8 text-gray-800">Add Programmes</h2>
+
+        <div className="flex justify-between gap-3 mb-6">
+          <input
+            type="text"
+            placeholder="Enter Programmes e.g. BSc"
+            value={newProgramme}
+            onChange={(e) => setNewProgramme(e.target.value)}
+            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-300"
+          />
+          <button
+            onClick={handleAddProgrammes}
+            className="bg-lime-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500 transition duration-300"
+          >
+            Add
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          {programme.map((programme, index) => (
+            <div
+              key={index}
+              className="flex items-center bg-lime-500 text-lime-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300"
+            >
+              <span>{programme.name}</span>
+              <button
+                onClick={() => handleRemoveProgrammes(programme._id)}
+                className="ml-2 text-white hover:text-red-500 transition duration-300"
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {isModalOpen && editedProject && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
 import { User } from "@/types/users";
+import { createNotification } from "@/app/utils/notificationUtils";
 
 const ProjectsPage = () => {
   const { data: session } = useSession();
@@ -120,8 +121,10 @@ const ProjectsPage = () => {
     setAppliedStudents((prev) => {
       const updated = { ...prev };
       if (updated[selectedProject?._id]) {
+        // If the project already has applicants, add the student to the list
         updated[selectedProject?._id].push(session?.user.id);
       } else {
+        // Otherwise, create a new entry for the project with the studentId
         updated[selectedProject?._id] = [session?.user.id];
       }
       return updated;
@@ -129,9 +132,12 @@ const ProjectsPage = () => {
 
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "POST" });
+      // console.log(session?.user.id);
+      // console.log(id);
 
       if (res.ok) {
-        const updatedProject = await res.json(); 
+        const updatedProject = await res.json(); // Get the updated project from the response
+        // console.log(updatedProject);
         const userId = session?.user.id;
         const receiversId = [
           updatedProject.project.projectAssignedTo.supervisorId,
@@ -139,6 +145,7 @@ const ProjectsPage = () => {
         const projectId = updatedProject.project._id;
         const type = "ApplicationStudent";
         const messageUser = message;
+
 
         if (socket) {
           socket.emit("sendNotification", {
@@ -265,7 +272,7 @@ const ProjectsPage = () => {
                             : "bg-yellow-100 text-yellow-600"
                         }`}
                       >
-                        {project.status ? " Open" : " Closed"}
+                        {project.status ? "Open" : "Closed"}
                       </span>
                     </div>
                   </div>
@@ -380,7 +387,7 @@ const ProjectsPage = () => {
                 </p>
 
                 <p>
-                  <strong>Status: </strong>
+                  <strong>Status:</strong>
                   {(() => {
                     if (selectedProject.status === false) {
                       return "Closed";

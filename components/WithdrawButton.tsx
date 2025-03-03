@@ -5,9 +5,13 @@ import { Project } from "@/types/projects"; // Adjust the path to your types
 
 interface WithdrawButtonProps {
   projectId: string;
+  className: string;
 }
 
-const WithdrawButton: React.FC<WithdrawButtonProps> = ({ projectId }) => {
+const WithdrawButton: React.FC<WithdrawButtonProps> = ({
+  projectId,
+  className,
+}) => {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [project, setProject] = useState<Project | null>(null);
@@ -22,7 +26,7 @@ const WithdrawButton: React.FC<WithdrawButtonProps> = ({ projectId }) => {
         if (res.ok) {
           const data = await res.json();
           setProject(data);
-        //   console.log(data)
+          //   console.log(data)
         } else {
           console.error("Failed to fetch project");
         }
@@ -33,16 +37,17 @@ const WithdrawButton: React.FC<WithdrawButtonProps> = ({ projectId }) => {
       }
     };
     fetchProject();
-
   }, [projectId]);
-
 
   // Check if the user can withdraw
   const canWithdraw =
-    project?.projectAssignedTo && project &&
+    project?.projectAssignedTo &&
+    project &&
     (userId === project.projectAssignedTo.supervisorId._id ||
       userId === project.projectAssignedTo.secondReaderId._id ||
-      project.projectAssignedTo.studentsId?.some(student => student._id === userId));  // Use .some to check if any student has the matching _id
+      project.projectAssignedTo.studentsId?.some(
+        (student) => student._id === userId
+      )); // Use .some to check if any student has the matching _id
 
   // Handle withdrawal
   const handleWithdraw = async () => {
@@ -54,7 +59,7 @@ const WithdrawButton: React.FC<WithdrawButtonProps> = ({ projectId }) => {
         body: JSON.stringify({ userId }),
         headers: { "Content-Type": "application/json" },
       });
-      setIsModalOpen(false)
+      setIsModalOpen(false);
 
       if (res.ok) {
         alert("Successfully withdrew from the project");
@@ -67,17 +72,15 @@ const WithdrawButton: React.FC<WithdrawButtonProps> = ({ projectId }) => {
     }
   };
 
-  if (loading) {
-    return <p>Loading project...</p>;
-  }
-
   return (
     <div>
-      <div className="flex gap-3 right justify-end">
+      <div>
         <button
-          className="bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600 transition duration-200"
+          title="Withdraw"
+          // className="bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600 transition duration-200"
+          className={className}
           onClick={() => setIsModalOpen(true)}
-        //   disabled={!canWithdraw} // Disable if the user is not eligible to withdraw
+          //   disabled={!canWithdraw} // Disable if the user is not eligible to withdraw
         >
           Withdraw
         </button>

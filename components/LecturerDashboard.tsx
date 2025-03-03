@@ -1,14 +1,18 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import Link from "next/link";
 import { Project } from "@/types/projects";
 import Deadline from "@/app/models/Deadlines";
 import WithdrawButton from "./WithdrawButton";
+import DataTable from "react-data-table-component";
 
 export default function LecturerDashboard() {
   const { data: session, status } = useSession(); // Get session data
   const [isApproved, setIsApproved] = useState<boolean | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const [showSecondReader, setShowSecondReader] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjects, setActiveProjects] = useState<Project[]>([]);
   const [secondReaderProjects, setSecondReaderProjects] = useState<Project[]>(
@@ -41,6 +45,9 @@ export default function LecturerDashboard() {
     };
     fetchApprovalStatus();
   }, [session, status]);
+
+
+
   const fetchProjects = async () => {
     if (status === "authenticated" && session?.user.id) {
       try {
@@ -48,7 +55,6 @@ export default function LecturerDashboard() {
 
         if (res.ok) {
           const data = await res.json();
-
 
           const filteredProjects = data.filter((project: Project) => {
             return (
@@ -63,6 +69,8 @@ export default function LecturerDashboard() {
               session.user.id
             );
           });
+
+
           setSecondReaderProjects(secondReaderFiltered);
           setProjects(filteredProjects);
         } else {
@@ -75,20 +83,26 @@ export default function LecturerDashboard() {
     setLoadingProjects(false);
   };
 
+  const handleSearchChange = (e: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setSearchQuery(e.target.value);
+    fetchProjects();
+  };
+
   const fetchDeadlines = async () => {
     try {
       const deadlineres = await fetch("/api/deadlines");
       const deadlinedata = await deadlineres.json();
 
-      
       if (deadlinedata && deadlinedata.length > 0) {
         // Ensure both dates are correctly parsed as Date objects
-        const pastProjectDate = new Date(deadlinedata[0].pastProjectDate); 
-        console.log("Deadline:" ,pastProjectDate);
+        const pastProjectDate = new Date(deadlinedata[0].pastProjectDate);
+        console.log("Deadline:", pastProjectDate);
 
         const archived = projects.filter((project: Project) => {
           const projectDate = new Date(project.createdAt);
-          console.log("ProjectDate",projectDate)
+          console.log("ProjectDate", projectDate);
           return projectDate < pastProjectDate;
         });
 
@@ -106,11 +120,8 @@ export default function LecturerDashboard() {
     }
   };
 
-
   useEffect(() => {
-
     fetchProjects();
-
   }, [session, status]);
 
   useEffect(() => {
@@ -173,6 +184,105 @@ export default function LecturerDashboard() {
     );
   }
 
+  const filteredProjects = showArchived
+    ? archivedProjects
+    : showSecondReader
+    ? secondReaderProjects
+    : projects;
+
+  const columns = [
+    {
+      name: "Project Title",
+      selector: (row) => row.title,
+      sortable: true,
+      minWidth: "180px",
+      cell: (row) => (
+        <span className="font-medium text-gray-800">{row.title}</span>
+      ),
+    },
+    {
+      name: "Created At",
+      selector: (row) =>
+        new Date(row.createdAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+      sortable: true,
+      minWidth: "140px",
+    },
+    {
+      name: "Supervisor",
+      selector: (row) =>
+        row.projectAssignedTo.supervisorId?.name || "Not Assigned",
+      sortable: true,
+      minWidth: "140px",
+    },
+    {
+      name: "Second Reader",
+      selector: (row) =>
+        row.projectAssignedTo.secondReaderId?.name || "Not Assigned",
+      sortable: true,
+      minWidth: "140px",
+    },
+    {
+      name: "Students",
+      selector: (row) => (
+        <div className="text-sm">
+          {row.projectAssignedTo.studentsId.length > 0 ? (
+            row.projectAssignedTo.studentsId.map((student) => (
+              <p key={student._id} className="text-gray-700">
+                {student.name}
+              </p>
+            ))
+          ) : (
+            <p className="text-gray-500">No Students Assigned</p>
+          )}
+        </div>
+      ),
+      minWidth: "250px",
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex items-center space-x-2">
+          {/* View Deliverables */}
+          <Link
+            href={`/pages/deliverables?projectId=${row._id}`}
+            title="View Deliverables"
+            className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 text-xs flex items-center justify-center w-[90px]"
+          >
+            📝 View
+          </Link>
+
+          {/* Edit */}
+          <Link
+            href={`/pages/update-project/${row._id}`}
+            title="Edit Project"
+            className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 text-xs flex justify-center w-[90px]"
+          >
+            ✏️ Edit
+          </Link>
+
+          <WithdrawButton
+            projectId={row._id}
+            className="bg-amber-500  text-white px-3 py-2 flex rounded-md hover:bg-amber-600 text-xs items-center justify-center w-[90px]"
+          />
+
+          {/* Delete */}
+          <button
+            onClick={() => confirmDelete(row._id)}
+            title="Delete Project"
+            className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 text-xs flex items-center justify-center w-[90px]"
+          >
+            🗑️ Delete
+          </button>
+        </div>
+      ),
+      minWidth: "400px",
+    },
+  ];
+
   return (
     <>
       <div className="mb-6">
@@ -183,225 +293,75 @@ export default function LecturerDashboard() {
         />
       </div>
       <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <h2 className="text-3xl font-bold leading-9 tracking-tight text-gray-900 col-span-3">
-          Welcome to Your Dashboard!
-        </h2>
         {isApproved ? (
           <>
             {/* Notifications and Project Progress Section - Positioned at the top */}
             <div className="flex justify-between mb-6 col-span-3">
-              {/* Project Progress Section (65%) */}
               <div className="w-full bg-white p-6">
                 <div className="col-span-3 flex justify-between items-center ">
-                  <h3 className="text-xl font-bold text-gray-800">
-                    Your Projects
-                  </h3>
-                  <Link
-                    href="/pages/create-project"
-                    className="bg-lime-600 text-white px-6 py-3 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                  >
-                    Create New Project
-                  </Link>
+                  <div className="flex justify-between gap-3">
+                    <button className="bg-lime-600 text-sm text-white px-2 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out">
+                      <Link href="/pages/create-project">
+                        Create New Project
+                      </Link>
+                    </button>
+                    <button className="bg-lime-800 text-sm text-white px-2 py-2 rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out">
+                      <Link href="/pages/create-project">
+                        Manage Deliverables
+                      </Link>
+                    </button>
+                  </div>
                 </div>
-
                 {/* Your Projects Section */}
-                <div className="bg-white w-auto mt-2 rounded-lg col-span-3">
-                  {loadingProjects ? (
-                    <p>Loading projects...</p>
-                  ) : activeProjects.length > 0 ? (
-                    <div className="space-y-4">
-                      {activeProjects.map((project) => (
-                        <div
-                          key={project._id}
-                          className="p-4 rounded-lg shadow hover:shadow-md transition cursor-pointer"
-                          onClick={() => handleProjectSelect(project)}
-                        >
-                          {/* Top Row: Title and Action Buttons */}
-                          <div className="flex justify-between items-center">
-                            <h4 className="text-lg font-semibold text-lime-600">
-                              {project.title}
-                            </h4>
-                          </div>
+                <div className="bg-white shadow-lg p-2 w-auto mt-2 col-span-3">
+                  <h3 className="text-lg font-bold text-center text-gray-800">
+                    {showArchived
+                      ? "Archived Projects"
+                      : showSecondReader
+                      ? "Second Reader Projects"
+                      : "Your Projects"}
+                  </h3>
+                  <div className="mb-4 mt-4 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setShowArchived(!showArchived);
+                        setShowSecondReader(false); // Ensure only one toggle is active
+                      }}
+                      className={`px-1 py-2 rounded-lg text-sm transition duration-200 ${
+                        showArchived
+                          ? "bg-lime-700 text-white"
+                          : "bg-gray-200 text-black"
+                      }`}
+                    >
+                      {showArchived ? "All Projects" : "Archived Projects"}
+                    </button>
 
-                          <div className="flex justify-between">
-                            <p className="text-sm text-gray-600">
-                              {new Date(project.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
-                            </p>
-                          </div>
-
-                          <div className="flex justify-between">
-                            <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-3 gap-4">
-                              <div className="flex items-center gap-x-2">
-                                <p className="text-md font-semibold text-gray-800">
-                                  Supervisor:
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {project.projectAssignedTo.supervisorId
-                                    ?.name || "Not Assigned"}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-x-2">
-                                <p className="text-md font-semibold text-gray-800">
-                                  Second Reader:
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {project.projectAssignedTo.secondReaderId
-                                    ?.name || "Not Assigned"}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-x-2">
-                                <p className="text-md font-semibold text-gray-800">
-                                  Student(s):
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {project.projectAssignedTo.studentsId.length >
-                                  0 ? (
-                                    project.projectAssignedTo.studentsId.map(
-                                      (student) => (
-                                        <p key={student._id}>{student.name}</p>
-                                      )
-                                    )
-                                  ) : (
-                                    <p>No Students Assigned</p>
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Deliverables Button */}
-                          <div className="mt-4 flex gap-3 justify-between ">
-                            <Link
-                              href={`/pages/deliverables?projectId=${project._id}`}
-                              className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
-                            >
-                              📝 View Deliverables
-                            </Link>
-
-                            <div className="flex gap-3 right justify-end">
-                            <WithdrawButton projectId={project._id} />
-
-                              <Link
-                                href={`/pages/update-project/${project._id}`}
-                                className="bg-lime-600 text-white p-2 w-[100px] text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                              >
-                                ✏️ Edit
-                              </Link>
-                              <button
-                                onClick={() => confirmDelete(project._id)}
-                                className="bg-red-500 text-white p-2 w-[100px] text-center rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
-                              >
-                                🗑️ Delete
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p>No projects found.</p>
-                  )}
+                    <button
+                      onClick={() => {
+                        setShowSecondReader(!showSecondReader);
+                        setShowArchived(false); // Ensure only one toggle is active
+                      }}
+                      className={`px-1 py-2 rounded-lg text-sm transition duration-200 ${
+                        showSecondReader
+                          ? "bg-lime-700 text-white"
+                          : "bg-gray-200 text-black"
+                      }`}
+                    >
+                      {showSecondReader
+                        ? "All Projects"
+                        : "Second Reader Projects"}
+                    </button>
+                  </div>
+                  <DataTable
+                    columns={columns}
+                    data={filteredProjects}
+                    pagination
+                    highlightOnHover
+                    pointerOnHover
+                    responsive
+                  />
                 </div>
               </div>
-
-            </div>
-
-            {/* Second Reader Projects Section */}
-            <div className="w-full bg-white p-6 mt-6 rounded-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">
-                Projects You Are a Second Reader For
-              </h3>
-              {loadingProjects ? (
-                <p>Loading second reader projects...</p>
-              ) : secondReaderProjects.length > 0 ? (
-                secondReaderProjects.map((project) => (
-                  <div key={project._id} className="p-4 shadow rounded-lg mb-4">
-                    <h4 className="text-lg font-semibold">{project.title}</h4>
-                    <div className="flex justify-between">
-                            <p className="text-sm text-gray-600">
-                              {new Date(project.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
-                            </p>
-                          </div>
-
-                    <p className="text-gray-600">
-                      Assigned by: {project.projectAssignedTo.authorId.name}
-                    </p>
-                    <div className="mt-4 flex gap-3 ">
-                      <Link
-                        href={`/pages/deliverables?projectId=${project._id}`}
-                        className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
-                      >
-                        📝 View Deliverables
-                      </Link>
-                      <WithdrawButton projectId={project._id} />
-
-
-                      
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>You are not assigned as a second reader for any projects.</p>
-              )}
-            </div>
-
-            {/* Archived Projects Section */}
-            <div className="w-full bg-white p-6 mt-6 rounded-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">
-                Projects Archived
-              </h3>
-              {loadingProjects ? (
-                <p>Loading Archived projects...</p>
-              ) : archivedProjects.length > 0 ? (
-                archivedProjects.map((project) => (
-                  <div key={project._id} className="p-4 shadow rounded-lg mb-4">
-                    <h4 className="text-lg font-semibold">{project.title}</h4>
-                    <div className="flex justify-between">
-                            <p className="text-sm text-gray-600">
-                              {new Date(project.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
-                            </p>
-                          </div>
-
-                    <p className="text-gray-600">
-                      Assigned by: {project.projectAssignedTo.authorId.name}
-                    </p>
-                    <div className="mt-4 flex gap-3 ">
-                      <Link
-                        href={`/pages/deliverables?projectId=${project._id}`}
-                        className="bg-lime-800 p-2 justify-start text-white text-center rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
-                      >
-                        📝 Manage Deliverables
-                      </Link>
-
-                      <WithdrawButton projectId={project._id} />
-
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>No projects archived.</p>
-              )}
             </div>
           </>
         ) : (
