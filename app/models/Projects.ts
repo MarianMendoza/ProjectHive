@@ -5,6 +5,7 @@ export interface IProjects extends Document {
   title: string;
   status: boolean;
   visibility: "Private" | "Public";
+  programme: mongoose.Types.ObjectId | null;
   projectAssignedTo: {
     supervisorId: mongoose.Types.ObjectId | null;
     secondReaderId: mongoose.Types.ObjectId | null;
@@ -14,7 +15,6 @@ export interface IProjects extends Document {
   applicants: { 
     studentId: mongoose.Types.ObjectId, 
   }[];
-  //Queue FIFO, lecturer dashboard
   abstract: string;
   description: string;
   createdAt: Date;
@@ -24,6 +24,7 @@ export interface IProjects extends Document {
 const ProjectsSchema: Schema = new Schema({
   title: { type: String, required: true },
   status: { type: Boolean, required:true},
+  programme: { type: mongoose.Types.ObjectId, ref: "Programme"},
   visibility: { type: String, enum: ["Private", "Public"], default: "Private" },
   projectAssignedTo: {
     supervisorId:{ type: mongoose.Types.ObjectId, ref: "User" },

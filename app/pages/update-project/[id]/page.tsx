@@ -536,17 +536,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
           
 
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex gap-2 justify-end">
             <Link
               href="/pages/projects"
-              className="bg-red-500 text-white px-8 py-3 rounded-xl mx-10 hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-600"
+              className="bg-red-500 text-white px-4 py-3 rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-lime-600"
             >
               Cancel
             </Link>
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-lime-600 text-white px-8 py-3 rounded-xl hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-600"
+              className="bg-lime-600 text-white px-4 py-3 rounded-xl hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-600"
             >
               Update Project
             </button>

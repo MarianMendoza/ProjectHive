@@ -9,7 +9,6 @@ import { useSocket } from "@/app/provider";
 import React from "react";
 
 export default function DeliverablesPage() {
- 
   const [dragging, setDragging] = useState(false);
   const [deadlines, setDeadlines] = useState({
     outlineDocumentDeadline: "",
@@ -21,7 +20,6 @@ export default function DeliverablesPage() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
   const [deliverablesId, setDeliverablesId] = useState<string | null>(null);
-  const [showModalPublish, setShowModalPublish] = useState<boolean>(false);
   const userId = session?.user.id;
   const socket = useSocket();
   const [DeliverableType, setDeliverableType] = useState<string | null>(null);
@@ -61,8 +59,6 @@ export default function DeliverablesPage() {
   });
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [supervisorId, setSupervisorId] = useState<string | null>(null);
-  const [secondReaderId, setSecondReaderId] = useState<string | null>(null);
   const [studentsId, setStudentsId] = useState<string[]>([]);
 
   useEffect(() => {
@@ -76,13 +72,6 @@ export default function DeliverablesPage() {
 
           setStudentsId(
             data.deliverables.projectId.projectAssignedTo.studentsId
-          );
-          setSupervisorId(
-            data.deliverables.projectId.projectAssignedTo.supervisorId?._id
-          );
-
-          setSecondReaderId(
-            data.deliverables.projectId.projectAssignedTo.secondReaderId?._id
           );
 
           const allowedKeys = [
@@ -148,152 +137,6 @@ export default function DeliverablesPage() {
     fetchDeadlines();
   }, [projectId]);
 
-  const closeModal = () => {
-    setShowModalPublish(false);
-  };
-
-  const openModal = async (deliverableType: Deliverable) => {
-    setShowModalPublish(true);
-    setDeliverableType(deliverableType.toString());
-  };
-
-  const handleSubmitGrade = async (
-    id: String,
-    deliverableType: Deliverable
-  ): Promise<void> => {
-    const gradeInput = document.getElementById(
-      `grade-${deliverableType}`
-    ) as HTMLInputElement;
-    const feedbackInput = document.getElementById(
-      `feedback-${deliverableType}`
-    ) as HTMLTextAreaElement;
-
-    if (!gradeInput || !feedbackInput) {
-      console.error("Grade or feedback input is not found.");
-      return;
-    }
-
-    const grade = gradeInput ? Number(gradeInput.value) : 0;
-    const feedback = feedbackInput ? feedbackInput.value : "";
-
-    if (grade < 0 || grade > 100) {
-      alert("Must mark grade in range (0-100)!");
-      return;
-    }
-
-    let receiversId;
-    let type;
-
-    let updateData = {};
-
-    if (userId == supervisorId) {
-      receiversId = [secondReaderId];
-      type = "SubmitSupervisor";
-      updateData = {
-        [`${deliverableType}.supervisorGrade`]: grade,
-        [`${deliverableType}.supervisorFeedback`]: feedback,
-      };
-    }
-    if (userId == secondReaderId) {
-      receiversId = [supervisorId];
-      type = "SubmitSecondReader";
-      updateData = {
-        [`${deliverableType}.secondReaderGrade`]: grade,
-        [`${deliverableType}.secondReaderFeedback`]: feedback,
-      };
-    }
-
-    try {
-      const res = await fetch(`/api/deliverables/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
-      if (res.ok) {
-        console.log(updateData);
-
-        alert("Grade submitted successfully.");
-
-        if (userId == supervisorId) {
-          setDeliverables((prev) => ({
-            ...prev,
-            [deliverableType]: {
-              ...prev[deliverableType],
-              supervisorGrade: grade,
-              supervisorFeedback: feedback,
-            },
-          }));
-        }
-        if (userId == secondReaderId) {
-          setDeliverables((prev) => ({
-            ...prev,
-            [deliverableType]: {
-              ...prev[deliverableType],
-              secondReaderGrade: grade,
-              secondReaderFeedback: feedback,
-            },
-          }));
-        }
-
-        if (socket) {
-          socket.emit("sendNotification", {
-            userId,
-            receiversId,
-            projectId,
-            type,
-          });
-        } else {
-          console.error("Socket is not initialized");
-        }
-      } else {
-        alert("Failed to submit grade.");
-      }
-    } catch (error) {
-      console.error("Error submitting grade:", error);
-    }
-  };
-
-  const handlePublishGrade = async (id: String): Promise<void> => {
-    const updateData = {
-      [`${DeliverableType}.isPublished`]: true,
-    };
-
-    const userId = session?.user.id;
-    const receiversId = studentsId;
-    const type = "GradesPublished";
-
-    if (socket) {
-      socket.emit("sendNotification", {
-        userId,
-        receiversId,
-        projectId,
-        type,
-      });
-    } else {
-      console.error("Socket is not initialized");
-    }
-    try {
-      const res = await fetch(`/api/deliverables/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
-
-      if (res.ok) {
-        setShowModalPublish(false);
-      } else {
-        alert("Failed to submit grade.");
-      }
-      return;
-    } catch (error) {
-      console.error("Error submitting grade:", error);
-    }
-  };
-
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     deliverableType: string
@@ -326,7 +169,6 @@ export default function DeliverablesPage() {
         const data = await res.json();
         console.log(data);
 
-        // Update deliverables with the new file URL
         setDeliverables((prevDeliverables) => ({
           ...prevDeliverables,
           [deliverableType]: {
@@ -422,14 +264,8 @@ export default function DeliverablesPage() {
     document.body.removeChild(link);
   };
 
-  // const canSubmitGrade = session?.user?.id === supervisorId;
   const isStudent = session?.user?.role === "Student";
-  const isSupervisor = session?.user?.id === supervisorId;
-  const isSecondReader = session?.user?.id === secondReaderId;
 
-  // if ( userId != secondReaderId || userId != supervisorId) {
-  //   return <PageNotFound></PageNotFound>;
-  // }
   if (loading)
     return <p className="text-center text-lg text-gray-600">Loading...</p>;
 
@@ -444,7 +280,7 @@ export default function DeliverablesPage() {
       </div>
       <div className="flex flex-col items-center justify-center mt-10 bg-cover bg-center">
         <h3 className="text-2xl font-bold mb-2 text-center">
-          Manage Deliverables
+          View Deliverables
         </h3>
 
         <div className="w-full max-w-4xl p-6">
@@ -494,52 +330,29 @@ export default function DeliverablesPage() {
                       </p>
                     )}
 
-                    <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
-                      <strong>Feedback: </strong>
+                    <div className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
+                      <strong>Feedback:</strong>
                       {deliverables?.[key]?.supervisorFeedback ? (
-                        deliverables[key].supervisorFeedback
+                        <ul className="mt-2 space-y-2">
+                          {Object.entries(
+                            deliverables[key].supervisorFeedback
+                          ).map(([category, feedback]) => (
+                            <li key={category}>
+                              <strong>{category}:</strong>{" "}
+                              {feedback || (
+                                <span className="text-gray-500">
+                                  No feedback provided
+                                </span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
                       ) : (
                         <span className="text-gray-500">
                           Yet to be published
                         </span>
                       )}
-                    </p>
-
-                    {key == "finalReport" && (
-                      <div className="mt-4 mb-4">
-                        <h3 className="text-small font-semibold text-gray-800 mb-2">
-                          📋 Second Readers's Grade & Feedback
-                        </h3>
-
-                        {deliverables?.[key]?.secondReaderGrade ? (
-                          <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
-                            <div
-                              className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
-                              style={{
-                                width: `${deliverables[key].secondReaderGrade}%`,
-                              }}
-                            >
-                              {deliverables[key].secondReaderGrade}/100
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-gray-500 text-sm">
-                            Yet to be published
-                          </p>
-                        )}
-
-                        <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
-                          <strong>Feedback: </strong>
-                          {deliverables?.[key]?.secondReaderFeedback ? (
-                            deliverables[key].secondReaderFeedback
-                          ) : (
-                            <span className="text-gray-500">
-                              Yet to be published
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                    )}
+                    </div>
                   </div>
                 )}
 
@@ -578,142 +391,9 @@ export default function DeliverablesPage() {
                         className="hidden"
                         onChange={(e) => handleFileChange(e, key)}
                       />
-                      <div className="mt-4">
-                       
-                      </div>
+                      <div className="mt-4"></div>
                     </div>
                   )}
-
-                {isSecondReader && (
-                  <div className="mt-4 mb-4">
-                    {key == "finalReport" && (
-                      <div className="mt-4">
-                        <p>{}</p>
-                        <label className="block text-sm text-gray-700">
-                          Grade Out Of 100
-                        </label>
-
-                        <input
-                          id={`grade-${key}`}
-                          type="number"
-                          min="0"
-                          max="100"
-                          className="w-full p-2 border border-gray-300 rounded-md mt-2"
-                          placeholder="Enter grade"
-                          defaultValue={
-                            deliverables?.[key]?.secondReaderGrade || ""
-                          }
-                        />
-                        <label className="block text-sm text-gray-700 mt-4">
-                          Feedback
-                        </label>
-                        <textarea
-                          id={`feedback-${key}`}
-                          className="w-full p-2 border border-gray-300 rounded-md mt-2"
-                          placeholder="Enter feedback"
-                          defaultValue={
-                            deliverables?.[key]?.secondReaderFeedback || ""
-                          }
-                        ></textarea>
-                        <div className="flex  gap-3">
-                          <button
-                            className="bg-lime-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                            onClick={() =>
-                              handleSubmitGrade(
-                                deliverablesId?.toString()!,
-                                key as unknown as Deliverable
-                              )
-                            }
-                          >
-                            Submit
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {isSupervisor && (
-                  <div className="mt-4">
-                    {key == "finalReport" && (
-                      <div className="mt-4 mb-4">
-                        <h3 className="text-small font-semibold text-gray-800 mb-2">
-                          📋 Second Reader's Grade & Feedback
-                        </h3>
-
-                        {deliverables?.[key]?.secondReaderGrade ? (
-                          <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
-                            <div
-                              className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
-                              style={{
-                                width: `${deliverables[key].secondReaderGrade}%`,
-                              }}
-                            >
-                              {deliverables[key].secondReaderGrade}/100
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-gray-500 text-sm">
-                            Yet to be published
-                          </p>
-                        )}
-
-                        {/* <p className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
-                          <strong>Feedback: </strong>
-                          {deliverables?.[key]?.secondReaderFeedback ? (
-                            deliverables[key].secondReaderFeedback
-                          ) : (
-                            <span className="text-gray-500">
-                              Yet to be published
-                            </span>
-                          )}
-                        </p> */}
-                      </div>
-                    )}
-                    <label className="block text-sm text-gray-700">
-                      Grade Out Of 100
-                    </label>
-                    <input
-                      id={`grade-${key}`}
-                      type="number"
-                      min="0"
-                      max="100"
-                      className="w-full p-2 border border-gray-300 rounded-md mt-2"
-                      placeholder="Enter grade"
-                      defaultValue={deliverables?.[key]?.supervisorGrade || ""}
-                    />
-                    <label className="block text-sm text-gray-700 mt-4">
-                      Feedback
-                    </label>
-                    <textarea
-                      id={`feedback-${key}`}
-                      className="w-full p-2 border border-gray-300 rounded-md mt-2"
-                      placeholder="Enter feedback"
-                      defaultValue={
-                        deliverables?.[key]?.supervisorFeedback || ""
-                      }
-                    ></textarea>
-                    <div className="flex  gap-3">
-                      <button
-                        className="bg-lime-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
-                        onClick={() =>
-                          handleSubmitGrade(
-                            deliverablesId?.toString()!,
-                            key as unknown as Deliverable
-                          )
-                        }
-                      >
-                        Submit
-                      </button>
-                      <button
-                        className="bg-cyan-600 px-4  py-2 justify-start text-white text-center rounded-lg hover:bg-cyan-700 transition duration-200 ease-in-out"
-                        onClick={() => openModal(key as unknown as Deliverable)}
-                      >
-                        Publish
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 <button
                   disabled={!file}
@@ -731,36 +411,6 @@ export default function DeliverablesPage() {
             )
           )}
         </div>
-
-        {showModalPublish && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-              <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
-                Confirm Publish Grades
-              </h2>
-              <p className="text-center text-gray-700 mb-6">
-                Confirming this action will show the assigned student(s) the
-                grade saved for this document.
-              </p>
-              <div className="flex justify-between">
-                <button
-                  onClick={closeModal}
-                  className="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition duration-200 ease-in-out"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() =>
-                    handlePublishGrade(deliverablesId?.toString()!)
-                  }
-                  className="bg-lime-500 text-white px-6 py-2 rounded-lg hover:bg-lime-600 transition duration-200 ease-in-out"
-                >
-                  Confirm Publish
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );
