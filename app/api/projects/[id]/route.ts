@@ -92,6 +92,8 @@ export async function PUT(req: Request) {
             updatedAt: new Date(),
         };
 
+    
+
         // Need to handle what happens if something
         if (projectAssignedTo) {
             updatedProjectData.projectAssignedTo = { 
@@ -105,6 +107,7 @@ export async function PUT(req: Request) {
                     mongoose.Types.ObjectId.isValid(projectAssignedTo.studentId) 
                         ? new mongoose.Types.ObjectId(projectAssignedTo.studentId) 
                         : null;
+
             }
         
             // Update supervisorId only if a new value is provided
