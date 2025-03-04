@@ -10,7 +10,11 @@ import { createNotification } from "@/app/utils/notificationUtils";
 const ProjectsPage = () => {
   const { data: session } = useSession();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [programmeFilter, setProgrammeFilter] = useState<string>("All");
+  const [programme, setProgrammes] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showFilters, setShowFilters] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -26,6 +30,20 @@ const ProjectsPage = () => {
   const socket = useSocket();
 
   useEffect(() => {
+    const fetchProgrammes = async () => {
+      try {
+        const res = await fetch("/api/programmes");
+        const data = await res.json();
+        console.log(data);
+        const programmeName = data.map(
+          (programme: { name: string }) => programme.name
+        );
+        setProgrammes(programmeName);
+      } catch (error) {
+        console.error("Error fetching tags", error);
+      }
+    };
+
     const fetchProjects = async () => {
       try {
         const res = await fetch("/api/projects");
@@ -58,7 +76,13 @@ const ProjectsPage = () => {
               (statusFilter === "Open" && project.status) ||
               (statusFilter === "Closed" && !project.status);
 
-            return matchesSearchQuery && matchesStatusFilter;
+            const matchesProgramme =
+              programmeFilter === "All" ||
+              project.programme === programmeFilter;
+
+            return (
+              matchesSearchQuery && matchesStatusFilter && matchesProgramme
+            );
           });
 
           setProjects(filteredProjects);
@@ -71,8 +95,9 @@ const ProjectsPage = () => {
         setLoading(false);
       }
     };
+    fetchProgrammes();
     fetchProjects();
-  }, [session, searchQuery, statusFilter]); // Dependency array to re-run effect on searchQuery or statusFilter change
+  }, [session, searchQuery, statusFilter, programmeFilter]); // Dependency array to re-run effect on searchQuery or statusFilter change
 
   const handleDelete = async (id: string) => {
     try {
@@ -199,37 +224,93 @@ const ProjectsPage = () => {
         />
       </div>
       <div className="container mx-auto p-4">
-        <div className="flex items-center mb-6 justify-between space-x-4">
+        <div className="flex justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-6 p-6 bg-white rounded-lg shadow-md">
           {/* Left side: Search Bar */}
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search Projects..."
-            className="w-96 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
-          />
+          <div className="w-full md:w-1/3">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Projects..."
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
+            />
+          </div>
 
-          {/* Right side: Filter and Create Project Button */}
-          <div className="flex space-x-4">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
-            >
-              <option value="All">All Projects</option>
-              <option value="Open">Open Projects</option>
-              <option value="Closed">Closed Projects</option>
-            </select>
-
-            {session && (
-              <Link
-                href={`/pages/create-project`}
-                className="bg-lime-800 text-white px-6 py-3 rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out"
+          {/* Right side: Filters and Create Project Button */}
+          <div className="flex space-x-4 w-full md:w-auto">
+            {/* Status Filter */}
+            <div className="w-full md:w-48">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out w-full"
               >
-                Create New Project
-              </Link>
+                <option value="All">All Projects</option>
+                <option value="Open">Open Projects</option>
+                <option value="Closed">Closed Projects</option>
+              </select>
+            </div>
+
+            <div className="flex space-x-4 w-full md:w-auto">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="bg-teal-600 text-white px-3.5 rounded-lg hover:bg-teal-700 transition duration-200 ease-in-out w-full text-center"
+              >
+                 More Filters
+              </button>
+            </div>
+
+            {/* Create New Project Button */}
+            {session && (
+              <button>
+                <Link
+                  href={`/pages/create-project`}
+                  className="bg-lime-800 text-white p-3.5 rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out w-full md:w-auto text-center"
+                >
+                  Create New Project
+                </Link>
+              </button>
             )}
           </div>
+        </div>
+
+        <div className="w-full mt-3 bg-white mb-5 ">
+          {/* More Filters Button */}
+
+          {showFilters && (
+            <div className="p-2 flex gap-3 justify-between w-full ">
+              <h3 className="text-lg font-semibold mb-2">Select Programme</h3>
+              <div className="flex gap-4">
+                <label className="inline-flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="programmeFilter"
+                    value="All"
+                    checked={programmeFilter === "All"}
+                    onChange={(e) => setProgrammeFilter(e.target.value)}
+                    className="form-radio text-lime-600"
+                  />
+                  <span>All Programmes</span>
+                </label>
+                {programme.map((c, index) => (
+                  <label
+                    key={index}
+                    className="inline-flex items-center space-x-2"
+                  >
+                    <input
+                      type="radio"
+                      name="programmeFilter"
+                      value={c}
+                      checked={programmeFilter === c}
+                      onChange={(e) => setProgrammeFilter(e.target.value)}
+                      className="form-radio text-lime-600"
+                    />
+                    <span>{c}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {loading && <p>Loading...</p>}
@@ -391,16 +472,19 @@ const ProjectsPage = () => {
 
                 <p>
                   <strong>Programme:</strong>
-                  {selectedProject.programme}
+
+                  {selectedProject.programme
+                    ? selectedProject.programme
+                    : " N/A"}
                 </p>
 
                 <p>
                   <strong>Status:</strong>
                   {(() => {
                     if (selectedProject.status === false) {
-                      return "Closed";
+                      return " Closed";
                     } else {
-                      return "Open";
+                      return " Open";
                     }
                   })()}
                 </p>
