@@ -46,8 +46,6 @@ export default function LecturerDashboard() {
     fetchApprovalStatus();
   }, [session, status]);
 
-
-
   const fetchProjects = async () => {
     if (status === "authenticated" && session?.user.id) {
       try {
@@ -55,13 +53,20 @@ export default function LecturerDashboard() {
 
         if (res.ok) {
           const data = await res.json();
-
           const filteredProjects = data.filter((project: Project) => {
-            return (
-              project.projectAssignedTo.supervisorId?._id.toString() ===
-              session.user.id
-            );
+            const isSupervisor =
+              project.projectAssignedTo.supervisorId?._id.toString() === session.user.id;
+          
+            const matchesSearchQuery =
+              searchQuery === "" ||
+              project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              project.projectAssignedTo?.authorId?.name
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase());
+          
+            return isSupervisor && matchesSearchQuery;
           });
+          
 
           const secondReaderFiltered = data.filter((project: Project) => {
             return (
@@ -69,7 +74,6 @@ export default function LecturerDashboard() {
               session.user.id
             );
           });
-
 
           setSecondReaderProjects(secondReaderFiltered);
           setProjects(filteredProjects);
@@ -122,7 +126,7 @@ export default function LecturerDashboard() {
 
   useEffect(() => {
     fetchProjects();
-  }, [session, status]);
+  }, [session, status,searchQuery]);
 
   useEffect(() => {
     if (projects.length > 0) {
@@ -306,7 +310,7 @@ export default function LecturerDashboard() {
                       </Link>
                     </button>
                     <button className="bg-lime-800 text-sm text-white px-2 py-2 rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out">
-                      <Link href="/pages/create-project">
+                      <Link href="/pages/manage-deliverables">
                         Manage Deliverables
                       </Link>
                     </button>
@@ -321,36 +325,44 @@ export default function LecturerDashboard() {
                       ? "Second Reader Projects"
                       : "Your Projects"}
                   </h3>
-                  <div className="mb-4 mt-4 flex gap-2">
-                    <button
-                      onClick={() => {
-                        setShowArchived(!showArchived);
-                        setShowSecondReader(false); // Ensure only one toggle is active
-                      }}
-                      className={`px-1 py-2 rounded-lg text-sm transition duration-200 ${
-                        showArchived
-                          ? "bg-lime-700 text-white"
-                          : "bg-gray-200 text-black"
-                      }`}
-                    >
-                      {showArchived ? "All Projects" : "Archived Projects"}
-                    </button>
+                  <div className=" justify-between flex ">
+                    <div className="flex justify-between px-1 py-1 gap-2">
+                      <button
+                        onClick={() => {
+                          setShowArchived(!showArchived);
+                          setShowSecondReader(false); // Ensure only one toggle is active
+                        }}
+                        className={`px-1 py-1 rounded-lg text-sm transition duration-200 ${
+                          showArchived
+                            ? "bg-lime-700 text-white"
+                            : "bg-gray-200 text-black"
+                        }`}
+                      >
+                       Archived Projects
+                      </button>
 
-                    <button
-                      onClick={() => {
-                        setShowSecondReader(!showSecondReader);
-                        setShowArchived(false); // Ensure only one toggle is active
-                      }}
-                      className={`px-1 py-2 rounded-lg text-sm transition duration-200 ${
-                        showSecondReader
-                          ? "bg-lime-700 text-white"
-                          : "bg-gray-200 text-black"
-                      }`}
-                    >
-                      {showSecondReader
-                        ? "All Projects"
-                        : "Second Reader Projects"}
-                    </button>
+                      <button
+                        onClick={() => {
+                          setShowSecondReader(!showSecondReader);
+                          setShowArchived(false); // Ensure only one toggle is active
+                        }}
+                        className={`px-1 py-2 rounded-lg text-sm transition duration-200 ${
+                          showSecondReader
+                            ? "bg-lime-700 text-white"
+                            : "bg-gray-200 text-black"
+                        }`}
+                      >
+                       Second Reader Projects
+                      </button>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search Projects..."
+                      className="w-1/3 px-1 py-0.5 mt-1 mb-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
+                    />
                   </div>
                   <DataTable
                     columns={columns}
