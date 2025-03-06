@@ -1,20 +1,33 @@
+import mongoose, { Document } from 'mongoose';
+
 export interface Deliverable {
-  file: string;
-  uploadedAt: string;
-  description?: string;
-  supervisorGrade?: number;
-  supervisorFeedback?: string;
-  secondReaderGrade?: number;
-  secondReaderFeedback?: string;
+  file: string | null;
+  uploadedAt: Date | null; 
+  supervisorGrade?: number | null;
+  supervisorFeedback?: Map<string, string>;
   isPublished?: boolean;
 }
 
-export interface IDeliverables {
-  id: string;
-  projectId: string;
+export interface FinalReport {
+  deadlineId: string | null;
+  uploadedAt: Date | null;
+  supervisorInitialGrade?: number | null;
+  supervisorInitialFeedback?: Map<string, string>;
+  secondReaderInitialGrade?: number | null;
+  secondReaderInitialFeedback?: Map<string, string>;
+  supervisorGrade?: number | null;
+  supervisorFeedback?: Map<string, string>;
+  supervisorInitialSubmit?: boolean;
+  secondReaderInitialSubmit?: boolean;
+  isPublished?: boolean;
+}
+
+export interface IDeliverables extends Document {
+  projectId: mongoose.Types.ObjectId;
   outlineDocument: Deliverable;
   extendedAbstract: Deliverable;
-  finalReport: Deliverable;
-  createdAt: string;  
-  updatedAt: string;  
+  finalReport: FinalReport;
+  deadlineId: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }

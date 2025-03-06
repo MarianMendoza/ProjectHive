@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Project } from "../../../types/projects";
+import { Project } from "@/types/projects";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
@@ -224,7 +224,7 @@ const ProjectsPage = () => {
         />
       </div>
       <div className="container mx-auto p-4">
-        <div className="flex justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-6 p-6 bg-white rounded-lg shadow-md">
+        <div className="flex justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-6 bg-white ">
           {/* Left side: Search Bar */}
           <div className="w-full md:w-1/3">
             <input
@@ -254,9 +254,9 @@ const ProjectsPage = () => {
             <div className="flex space-x-4 w-full md:w-auto">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="bg-teal-600 text-white px-3.5 rounded-lg hover:bg-teal-700 transition duration-200 ease-in-out w-full text-center"
+                className="bg-lime-600 text-white px-3.5 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out w-full text-center"
               >
-                 More Filters
+                {showFilters ? "Hide Filters" : "More Filters"}
               </button>
             </div>
 
@@ -278,8 +278,8 @@ const ProjectsPage = () => {
           {/* More Filters Button */}
 
           {showFilters && (
-            <div className="p-2 flex gap-3 justify-between w-full ">
-              <h3 className="text-lg font-semibold mb-2">Select Programme</h3>
+            <div className="p-2 flex gap-3 justify-end w-full ">
+              <h3 className="text-lg font-semibold">Select Programme</h3>
               <div className="flex gap-4">
                 <label className="inline-flex items-center space-x-2">
                   <input
@@ -327,9 +327,19 @@ const ProjectsPage = () => {
                     onClick={() => handleCardClick(project)}
                   >
                     <div>
-                      <div className="flex items-center text-sm space-x-2">
-                        <span className="px-4 py-1 text-sm rounded-full bg-orange-100 text-orange-600">
+                      <div className="flex items-center justify-between mb-2 text-sm space-x-2">
+                        <span className="px-4 py-1 text-sm rounded-full bg-lime-100 text-lime-600">
                           {project.programme ? project.programme : "N/A"}
+                        </span>
+
+                        <span
+                          className={`px-3 py-1 text-sm rounded-full ${
+                            project.status
+                              ? "bg-green-100 text-green-600"
+                              : "bg-yellow-100 text-yellow-600"
+                          }`}
+                        >
+                          {project.status ? "Open" : "Closed"}
                         </span>
                       </div>
                       <h2 className="text-xl font-semibold text-lime-600">
@@ -341,26 +351,14 @@ const ProjectsPage = () => {
                         {project.projectAssignedTo.supervisorId?.name ||
                           "Not Assigned"}
                       </p>
-
+                      
                       <p className="text-black">
                         <strong>Abstract:</strong>
-                        {`${project.abstract.slice(0, 200)} ... ` ||
+                        {` ${project.abstract.slice(0, 200)} ... ` ||
                           "No Description"}
                       </p>
                     </div>
 
-                    {/* Badge section */}
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`px-3 py-1 text-sm rounded-full ${
-                          project.status
-                            ? "bg-green-100 text-green-600"
-                            : "bg-yellow-100 text-yellow-600"
-                        }`}
-                      >
-                        {project.status ? "Open" : "Closed"}
-                      </span>
-                    </div>
                   </div>
                 ))}
             </div>

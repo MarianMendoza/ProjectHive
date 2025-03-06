@@ -88,6 +88,7 @@ const finalReportSchema = new Schema({
 })
 
 export interface IDeliverables extends Document {
+  _id: String;
   projectId: mongoose.Types.ObjectId;
   outlineDocument: typeof DeliverableSchema;
   extendedAbstract: typeof DeliverableSchema;
