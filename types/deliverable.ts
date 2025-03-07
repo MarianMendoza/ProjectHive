@@ -2,14 +2,13 @@ import mongoose, { Document } from 'mongoose';
 
 export interface Deliverable {
   file: string | null;
-  uploadedAt: Date | null; 
+  uploadedAt: Date | null;
   supervisorGrade?: number | null;
   supervisorFeedback?: Map<string, string>;
   isPublished?: boolean;
 }
 
 export interface FinalReport {
-  deadlineId: string | null;
   uploadedAt: Date | null;
   supervisorInitialGrade?: number | null;
   supervisorInitialFeedback?: Map<string, string>;
@@ -27,7 +26,6 @@ export interface IDeliverables extends Document {
   outlineDocument: Deliverable;
   extendedAbstract: Deliverable;
   finalReport: FinalReport;
-  deadlineId: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }

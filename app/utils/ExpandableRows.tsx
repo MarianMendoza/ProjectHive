@@ -17,34 +17,50 @@ export const handleRowExpand = (
 };
 
 export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
-  console.log("Row", row);
+  // console.log("Row", row.data.finalReport.supervisorFeedback.Analysis);
+  // console.log("Row", row.data.finalReport.supervisorInitialFeedback.Analysis);
+console.log(row)
   const [supervisorFeedback, setSupervisorFeedback] = useState({
     outlineDocument: {
-      Analysis: row.data.outlineDocument.supervisorFeedback?.Analysis || "",
-      Design: row.data.outlineDocument.supervisorFeedback?.Design || "",
-      Implementation: row.data.outlineDocument.supervisorFeedback?.Implementation|| "",
-      Writing: row.data.outlineDocument.supervisorFeedback?.Writing|| "",
-      Evaluation: row.data.outlineDocument.supervisorFeedback?.Evaluation|| "",
-      OverallAchievement:
-        row.data.supervisorFeedback?.outlineDocument?.OverallAchievement || "",
+      "Analysis": row.data.outlineDocument.supervisorFeedback?.Analysis ,
+      "Design": row.data.outlineDocument.supervisorFeedback?.Design ,
+      "Implementation":
+        row.data.outlineDocument.supervisorFeedback?.Implementation ,
+      "Writing": row.data.outlineDocument.supervisorFeedback?.Writing ,
+      "Evaluation": row.data.outlineDocument.supervisorFeedback?.Evaluation ,
+      "Overall Achievement":
+        row.data.outlineDocument.supervisorFeedback?.OverallAchievement ,
     },
     extendedAbstract: {
-      Analysis: row.data.supervisorFeedback?.extendedAbstract?.Analysis,
-      Design: row.data.supervisorFeedback?.extendedAbstract?.Design,
-      Implementation: row.data.supervisorFeedback?.extendedAbstract?.Implementation,
-      Writing: row.data.supervisorFeedback?.extendedAbstract?.Writing,
-      Evaluation: row.data.supervisorFeedback?.extendedAbstract?.Evaluation,
-      OverallAchievement:
+      "Analysis": row.data.supervisorFeedback?.extendedAbstract?.Analysis,
+      "Design": row.data.supervisorFeedback?.extendedAbstract?.Design,
+      "Implementation":
+        row.data.supervisorFeedback?.extendedAbstract?.Implementation,
+      "Writing": row.data.supervisorFeedback?.extendedAbstract?.Writing,
+      "Evaluation": row.data.supervisorFeedback?.extendedAbstract?.Evaluation,
+      "Overall Achievement":
         row.data.supervisorFeedback?.extendedAbstract?.OverallAchievement,
     },
     finalReport: {
-      Analysis: row.supervisorFeedback?.finalReport?.Analysis,
-      Design: row.supervisorFeedback?.finalReport?.Design,
-      Implementation: row.supervisorFeedback?.finalReport?.Implementation,
-      Writing: row.supervisorFeedback?.finalReport?.Writing,
-      Evaluation: row.supervisorFeedback?.finalReport?.Evaluation,
-      OverallAchievement:
-        row.supervisorFeedback?.finalReport?.OverallAchievement,
+      supervisorInitialFeedback: {
+        "Analysis": row.data.finalReport?.supervisorInitialFeedback.Analysis,
+        "Design": row.data.finalReport?.supervisorInitialFeedback.Design,
+        "Implementation":
+          row.data.finalReport?.supervisorInitialFeedback.Implementation,
+        "Writing": row.data.finalReport?.supervisorInitialFeedback.Writing,
+        "Evaluation": row.data.finalReport?.supervisorInitialFeedback.Evaluation,
+        "Overall Achievement":
+          row.data.finalReport?.supervisorInitialFeedback.OverallAchievement,
+      },
+      supervisorFeedback: {
+        "Analysis": row.data.finalReport?.supervisorFeedback.Analysis,
+        "Design": row.data.finalReport?.supervisorFeedback.Design,
+        "Implementation": row.data.finalReport?.supervisorFeedback.Implementation,
+        "Writing": row.data.finalReport?.supervisorFeedback.Writing,
+        "Evaluation": row.data.finalReport?.supervisorFeedback.Evaluation,
+        "Overall Achievement":
+          row.data.finalReport?.supervisorFeedback.OverallAchievement,
+      },
     },
   });
 
@@ -67,39 +83,61 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
   const [isInitialReportOpen, setInitialReportOpen] = useState(false);
   const [isSubmitReportOpen, setSubmitReportOpen] = useState(false);
 
-  console.log(supervisorFeedback);
-
-
-  let feedbackText;
-
   const handleFeedbackChange = (
     documentType: string,
+    feedbackCategory: string | undefined, // feedbackCategory could be undefined
     key: string,
     value: string
   ) => {
     setSupervisorFeedback((prev) => ({
       ...prev,
       [documentType]: {
-        ...prev[documentType],
-        [key]: value, // Update the specific field under the correct document type
+        ...prev[documentType], // Preserve the existing document (e.g., outlineDocument, finalReport, etc.)
+        // If there's no feedbackCategory, just update the field directly
+        ...(feedbackCategory
+          ? {
+              [feedbackCategory]: {
+                ...prev[documentType]?.[feedbackCategory], // Preserve existing feedback
+                [key]: value, // Update the specific field
+              },
+            }
+          : {
+              [key]: value, // If there's no feedbackCategory, just update the key directly
+            }),
       },
     }));
   };
+  
 
-  const handleSubmitFeedback = async (deliverableType: string) => {
-    let feedbackText = "";
+
+  const viewDeliverableInitial = async (deliverableId: string) => {
+    alert(deliverableId);
+    return;
+  };
+
+  const handleSubmitFeedback = async (
+    deliverableType: string,
+    feedbackType?: string,// Specify type
+  ) => {
     const rowId = row.data._id;
-
-    // Get the feedback for the specified deliverable type
-    const feedbackForDeliverable = supervisorFeedback[deliverableType];
-
-    const updateData = {
-      [deliverableType]: {
-        supervisorFeedback: feedbackForDeliverable,
-      },
-    };
+    let feedback = {};
+    let updateData = {}
 
     try {
+      if (deliverableType === "finalReport") {
+        feedback = supervisorFeedback?.[deliverableType]?.[feedbackType] || {};
+
+        updateData = {
+          [`${deliverableType}.${feedbackType}`]: feedback, // Update only the specific field
+        };
+      } else {
+        feedback = supervisorFeedback?.[deliverableType] ;
+        updateData = {
+          [`${deliverableType}`]: feedback, // Update only the specific field
+        };
+      }
+      console.log("Update Data", updateData);
+
       const res = await fetch(`/api/deliverables/${rowId}`, {
         method: "PUT",
         headers: {
@@ -109,35 +147,23 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
       });
 
       if (!res.ok) {
-        throw new Error("Failed too update deliverables.");
+        throw new Error("Failed to update deliverables.");
       }
 
       const result = await res.json();
-      alert(`Feedback submitted successfully for ${deliverableType}.`);
-      console.log("Update  deliverables:", result);
+
+      console.log("Updated deliverables:", result);
     } catch (error) {
       console.error("Error submitting feedback:", error);
       alert("An error occurred while submitting feedback.");
     }
-
-    // Check if the deliverable type exists in the supervisorFeedback state
-    if (feedbackForDeliverable) {
-      for (const [key, value] of Object.entries(feedbackForDeliverable)) {
-        feedbackText += `${key}: ${value}\n\n`; // Concatenate feedback for each key
-      }
-    } else {
-      feedbackText = "Invalid deliverable type!";
-    }
-
-    // Show the feedback in an alert
-    // alert(`Submitted Feedback for ${deliverableType}:\n\n${feedbackText}`);
   };
 
   return (
     <div>
       {/* Outline Document Section */}
       <div className="border-b-2 p-2 border-gray-200 ">
-        <div className="flex  items-center justify-between">
+        <div className="flex items-center justify-between">
           <button
             onClick={() => setOutlineOpen((prev) => !prev)}
             className="gap-2 text-left flex text-black font-semibold text-sm"
@@ -154,7 +180,7 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
 
           <button
             onClick={() => handleSubmitFeedback("outlineDocument")}
-            className="p-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500"
+            className="p-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-900 "
           >
             Submit Feedback
           </button>
@@ -167,14 +193,17 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                 <label className="block">{key}:</label>
                 <textarea
                   value={
-                    supervisorFeedback.outlineDocument[key] ??
-                    "Write feedback in here.."
+                    supervisorFeedback.outlineDocument[key] || ""
                   }
-                  placeholder="Write feedback in here...."
                   onChange={(e) =>
-                    handleFeedbackChange("outlineDocument", key, e.target.value)
+                    handleFeedbackChange(
+                      "outlineDocument",
+                      undefined,
+                      key,
+                      e.target.value
+                    )
                   }
-                  className="p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-lime-500"
+                  className="p-2 w-full border rounded-md focus:outline-none focus:ring-lime-500"
                   rows={4}
                 ></textarea>
               </div>
@@ -217,11 +246,12 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                   value={
                     supervisorFeedback.extendedAbstract[
                       key as keyof typeof supervisorFeedback.extendedAbstract
-                    ]
+                    ] || ""
                   }
                   onChange={(e) =>
                     handleFeedbackChange(
                       "extendedAbstract",
+                      undefined,
                       key,
                       e.target.value
                     )
@@ -237,10 +267,10 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
 
       {/* Final Section */}
       <div className="border-b-2 p-2 border-gray-200 ">
-        <div className="flex  items-center justify-between">
+        <div className="flex my-2 items-center justify-between">
           <button
             onClick={() => setReportOpen((prev) => !prev)}
-            className="gap-2 text-left flex text-black font-semibold text-sm"
+            className="gap-2 text-left flex mb- text-black font-semibold text-sm"
           >
             <span className="ml-2">
               {isReportOpen ? (
@@ -250,13 +280,6 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
               )}
             </span>{" "}
             <span>Final Report</span>
-          </button>
-
-          <button
-            onClick={() => handleSubmitFeedback("finalReport")}
-            className="p-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500"
-          >
-            Submit Feedback
           </button>
         </div>
 
@@ -277,29 +300,51 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                 <span>Provisional Report Grades</span>
               </button>
 
-              <button
-                onClick={() => handleSubmitFeedback("finalReport")}
-                className="p-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500"
-              >
-                Submit Feedback
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => viewDeliverableInitial("")}
+                  className="p-2 text-sm bg-lime-700 text-white rounded-lg hover:bg-lime-800 "
+                >
+                  View Feedback
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleSubmitFeedback(
+                      "finalReport",
+                      "supervisorInitialFeedback"
+                    )
+                  }
+                  className="p-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-900 "
+                >
+                  Submit Feedback
+                </button>
+              </div>
             </div>
 
             {isInitialReportOpen && (
               <div className="max-h-96 overflow-y-auto space-y-4">
-                {Object.keys(supervisorFeedback.finalReport).map((key) => (
+                {Object.keys(
+                  supervisorFeedback.finalReport.supervisorInitialFeedback
+                ).map((key) => (
                   <div key={key} className="my-2">
                     <label className="block font-medium">{key}:</label>
                     <textarea
                       value={
-                        supervisorFeedback.finalReport[
-                          key as keyof typeof supervisorFeedback.finalReport
+                        supervisorFeedback.finalReport
+                          .supervisorInitialFeedback[
+                          key as keyof typeof supervisorFeedback.finalReport.supervisorInitialFeedback
                         ]
                       }
                       onChange={(e) =>
-                        handleFeedbackChange("finalReport", key, e.target.value)
+                        handleFeedbackChange(
+                          "finalReport",
+                          "supervisorInitialFeedback",
+                          key,
+                          e.target.value
+                        )
                       }
-                      className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-lime-500"
+                      className="w-full p-2 border rounded-md "
                       rows={4}
                     />
                   </div>
@@ -320,10 +365,13 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                 </span>{" "}
                 <span>Final Report Grades</span>
               </button>
+              <div></div>
 
               <button
-                onClick={() => handleSubmitFeedback("finalReport")}
-                className="p-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500"
+                onClick={() =>
+                  handleSubmitFeedback("finalReport", "supervisorFeedback")
+                }
+                className="p-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-900 "
               >
                 Submit Feedback
               </button>
@@ -333,23 +381,30 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
 
         {isSubmitReportOpen && (
           <div className="max-h-96 overflow-y-auto space-y-4">
-            {Object.keys(supervisorFeedback.finalReport).map((key) => (
-              <div key={key} className="my-2">
-                <label className="block font-medium">{key}:</label>
-                <textarea
-                  value={
-                    supervisorFeedback.finalReport[
-                      key as keyof typeof supervisorFeedback.finalReport
-                    ]
-                  }
-                  onChange={(e) =>
-                    handleFeedbackChange("finalReport", key, e.target.value)
-                  }
-                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-lime-500"
-                  rows={4}
-                />
-              </div>
-            ))}
+            {Object.keys(supervisorFeedback.finalReport.supervisorFeedback).map(
+              (key) => (
+                <div key={key} className="my-2">
+                  <label className="block font-medium">{key}:</label>
+                  <textarea
+                    value={
+                      supervisorFeedback.finalReport.supervisorFeedback[
+                        key as keyof typeof supervisorFeedback.finalReport.supervisorFeedback
+                      ]
+                    }
+                    onChange={(e) =>
+                      handleFeedbackChange(
+                        "finalReport",
+                        "supervisorFeedback",
+                        key,
+                        e.target.value
+                      )
+                    }
+                    className="w-full p-2 border rounded-md "
+                    rows={4}
+                  />
+                </div>
+              )
+            )}
           </div>
         )}
       </div>
