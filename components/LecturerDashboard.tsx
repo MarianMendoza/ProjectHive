@@ -102,11 +102,11 @@ export default function LecturerDashboard() {
       if (deadlinedata && deadlinedata.length > 0) {
         // Ensure both dates are correctly parsed as Date objects
         const pastProjectDate = new Date(deadlinedata[0].pastProjectDate);
-        console.log("Deadline:", pastProjectDate);
+        // console.log("Deadline:", pastProjectDate);
 
         const archived = projects.filter((project: Project) => {
           const projectDate = new Date(project.createdAt);
-          console.log("ProjectDate", projectDate);
+          // console.log("ProjectDate", projectDate);
           return projectDate < pastProjectDate;
         });
 

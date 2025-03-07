@@ -2,7 +2,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 // Deliverable schema definition for the outline document and the extended document.
 const DeliverableSchema = new Schema({
-  deadlineId: { type: String, default: null },
   file: { type: String, default: null },
   uploadedAt: { type: Date, default: null },
   supervisorGrade: { type: Number, default: null },
@@ -55,20 +54,6 @@ const finalReportSchema = new Schema({
   },
   supervisorGrade: { type: Number, default: null },
   supervisorFeedback: {
-    type: Map,
-    of: String,
-    default:
-    {
-      "Analysis": "",
-      "Design": "",
-      "Implementation": "",
-      "Writing": "",
-      "Evaluation": "",
-      "Overall Achievement": "",
-    }
-  },
-  secondReaderGrade: { type: Number, default: null },
-  secondReaderFeedback: {
     type: Map,
     of: String,
     default:
