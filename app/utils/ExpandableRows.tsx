@@ -19,45 +19,45 @@ export const handleRowExpand = (
 export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
   // console.log("Row", row.data.finalReport.supervisorFeedback.Analysis);
   // console.log("Row", row.data.finalReport.supervisorInitialFeedback.Analysis);
-console.log(row)
+  console.log(row);
   const [supervisorFeedback, setSupervisorFeedback] = useState({
     outlineDocument: {
-      "Analysis": row.data.outlineDocument.supervisorFeedback?.Analysis ,
-      "Design": row.data.outlineDocument.supervisorFeedback?.Design ,
-      "Implementation":
-        row.data.outlineDocument.supervisorFeedback?.Implementation ,
-      "Writing": row.data.outlineDocument.supervisorFeedback?.Writing ,
-      "Evaluation": row.data.outlineDocument.supervisorFeedback?.Evaluation ,
+      Analysis: row.data.outlineDocument.supervisorFeedback?.Analysis,
+      Design: row.data.outlineDocument.supervisorFeedback?.Design,
+      Implementation:
+        row.data.outlineDocument.supervisorFeedback?.Implementation,
+      Writing: row.data.outlineDocument.supervisorFeedback?.Writing,
+      Evaluation: row.data.outlineDocument.supervisorFeedback?.Evaluation,
       "Overall Achievement":
-        row.data.outlineDocument.supervisorFeedback?.OverallAchievement ,
+        row.data.outlineDocument.supervisorFeedback?.OverallAchievement,
     },
     extendedAbstract: {
-      "Analysis": row.data.supervisorFeedback?.extendedAbstract?.Analysis,
-      "Design": row.data.supervisorFeedback?.extendedAbstract?.Design,
-      "Implementation":
-        row.data.supervisorFeedback?.extendedAbstract?.Implementation,
-      "Writing": row.data.supervisorFeedback?.extendedAbstract?.Writing,
-      "Evaluation": row.data.supervisorFeedback?.extendedAbstract?.Evaluation,
+      Analysis: row.data.extendedAbstract.supervisorFeedback.Analysis,
+      Design: row.data.extendedAbstract.supervisorFeedback.Design,
+      Implementation:
+        row.data.extendedAbstract.supervisorFeedback.Implementation,
+      Writing: row.data.extendedAbstract.supervisorFeedback.Writing,
+      Evaluation: row.data.extendedAbstract.supervisorFeedback.Evaluation,
       "Overall Achievement":
-        row.data.supervisorFeedback?.extendedAbstract?.OverallAchievement,
+        row.data.extendedAbstract.supervisorFeedback.OverallAchievement,
     },
     finalReport: {
       supervisorInitialFeedback: {
-        "Analysis": row.data.finalReport?.supervisorInitialFeedback.Analysis,
-        "Design": row.data.finalReport?.supervisorInitialFeedback.Design,
-        "Implementation":
+        Analysis: row.data.finalReport?.supervisorInitialFeedback.Analysis,
+        Design: row.data.finalReport?.supervisorInitialFeedback.Design,
+        Implementation:
           row.data.finalReport?.supervisorInitialFeedback.Implementation,
-        "Writing": row.data.finalReport?.supervisorInitialFeedback.Writing,
-        "Evaluation": row.data.finalReport?.supervisorInitialFeedback.Evaluation,
+        Writing: row.data.finalReport?.supervisorInitialFeedback.Writing,
+        Evaluation: row.data.finalReport?.supervisorInitialFeedback.Evaluation,
         "Overall Achievement":
           row.data.finalReport?.supervisorInitialFeedback.OverallAchievement,
       },
       supervisorFeedback: {
-        "Analysis": row.data.finalReport?.supervisorFeedback.Analysis,
-        "Design": row.data.finalReport?.supervisorFeedback.Design,
-        "Implementation": row.data.finalReport?.supervisorFeedback.Implementation,
-        "Writing": row.data.finalReport?.supervisorFeedback.Writing,
-        "Evaluation": row.data.finalReport?.supervisorFeedback.Evaluation,
+        Analysis: row.data.finalReport?.supervisorFeedback.Analysis,
+        Design: row.data.finalReport?.supervisorFeedback.Design,
+        Implementation: row.data.finalReport?.supervisorFeedback.Implementation,
+        Writing: row.data.finalReport?.supervisorFeedback.Writing,
+        Evaluation: row.data.finalReport?.supervisorFeedback.Evaluation,
         "Overall Achievement":
           row.data.finalReport?.supervisorFeedback.OverallAchievement,
       },
@@ -107,8 +107,6 @@ console.log(row)
       },
     }));
   };
-  
-
 
   const viewDeliverableInitial = async (deliverableId: string) => {
     alert(deliverableId);
@@ -117,11 +115,11 @@ console.log(row)
 
   const handleSubmitFeedback = async (
     deliverableType: string,
-    feedbackType?: string,// Specify type
+    feedbackType?: string // Specify type
   ) => {
     const rowId = row.data._id;
     let feedback = {};
-    let updateData = {}
+    let updateData = {};
 
     try {
       if (deliverableType === "finalReport") {
@@ -130,10 +128,13 @@ console.log(row)
         updateData = {
           [`${deliverableType}.${feedbackType}`]: feedback, // Update only the specific field
         };
+        console.log(feedback);
       } else {
-        feedback = supervisorFeedback?.[deliverableType] ;
+        feedback = supervisorFeedback?.[deliverableType] || {};
         updateData = {
-          [`${deliverableType}`]: feedback, // Update only the specific field
+          [`${deliverableType}.supervisorFeedback`]: {
+            ...feedback,
+          },
         };
       }
       console.log("Update Data", updateData);
@@ -154,7 +155,6 @@ console.log(row)
 
       console.log("Updated deliverables:", result);
     } catch (error) {
-      console.error("Error submitting feedback:", error);
       alert("An error occurred while submitting feedback.");
     }
   };
@@ -192,8 +192,11 @@ console.log(row)
               <div key={key}>
                 <label className="block">{key}:</label>
                 <textarea
+                  placeholder="Write feedback in here..."
                   value={
-                    supervisorFeedback.outlineDocument[key] || ""
+                    supervisorFeedback.outlineDocument[
+                      key as keyof typeof supervisorFeedback.outlineDocument
+                    ] || ""
                   }
                   onChange={(e) =>
                     handleFeedbackChange(
@@ -243,6 +246,7 @@ console.log(row)
               <div key={key} className="my-2">
                 <label className="block font-medium">{key}:</label>
                 <textarea
+                  placeholder="Write feedback in here..."
                   value={
                     supervisorFeedback.extendedAbstract[
                       key as keyof typeof supervisorFeedback.extendedAbstract
@@ -330,6 +334,7 @@ console.log(row)
                   <div key={key} className="my-2">
                     <label className="block font-medium">{key}:</label>
                     <textarea
+                      placeholder="Write feedback in here..."
                       value={
                         supervisorFeedback.finalReport
                           .supervisorInitialFeedback[
@@ -386,6 +391,7 @@ console.log(row)
                 <div key={key} className="my-2">
                   <label className="block font-medium">{key}:</label>
                   <textarea
+                    placeholder="Write feedback in here..."
                     value={
                       supervisorFeedback.finalReport.supervisorFeedback[
                         key as keyof typeof supervisorFeedback.finalReport.supervisorFeedback
