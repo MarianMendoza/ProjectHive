@@ -17,9 +17,6 @@ export const handleRowExpand = (
 };
 
 export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
-  // console.log("Row", row.data.finalReport.supervisorFeedback.Analysis);
-  // console.log("Row", row.data.finalReport.supervisorInitialFeedback.Analysis);
-  console.log(row);
   const [supervisorFeedback, setSupervisorFeedback] = useState({
     outlineDocument: {
       Analysis: row.data.outlineDocument.supervisorFeedback?.Analysis,
@@ -128,7 +125,7 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
         updateData = {
           [`${deliverableType}.${feedbackType}`]: feedback, // Update only the specific field
         };
-        console.log(feedback);
+        // console.log(feedback);
       } else {
         feedback = supervisorFeedback?.[deliverableType] || {};
         updateData = {
@@ -137,7 +134,7 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
           },
         };
       }
-      console.log("Update Data", updateData);
+      // console.log("Update Data", updateData);
 
       const res = await fetch(`/api/deliverables/${rowId}`, {
         method: "PUT",
@@ -206,9 +203,14 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                       e.target.value
                     )
                   }
-                  className="p-2 w-full border rounded-md focus:outline-none focus:ring-lime-500"
+                  className="p-2 w-full border rounded-md focus:outline-none"
                   rows={4}
+                  maxLength={1500}
                 ></textarea>
+                <div className="text-right text-sm text-gray-500 mt-2">
+                  {(supervisorFeedback.outlineDocument[key] || "").length}/1500
+                  characters
+                </div>
               </div>
             ))}
           </div>
@@ -260,9 +262,14 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                       e.target.value
                     )
                   }
-                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-lime-500"
+                  className="w-full p-2 border rounded-md focus:outline-none"
                   rows={4}
+                  maxLength={1500}
                 />
+                <div className="text-right text-sm text-gray-500 mt-2">
+                  {(supervisorFeedback.extendedAbstract[key] || "").length}/1500
+                  characters
+                </div>
               </div>
             ))}
           </div>
@@ -349,9 +356,19 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                           e.target.value
                         )
                       }
-                      className="w-full p-2 border rounded-md "
+                      className="w-full p-2 border rounded-md focus:outline-none"
                       rows={4}
+                      maxLength={1500}
                     />
+                    <div className="text-right text-sm text-gray-500 mt-2">
+                      {
+                        (
+                          supervisorFeedback.finalReport
+                            .supervisorInitialFeedback[key] || ""
+                        ).length
+                      }
+                      /1500 characters
+                    </div>
                   </div>
                 ))}
               </div>
@@ -405,10 +422,21 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
                         e.target.value
                       )
                     }
-                    className="w-full p-2 border rounded-md "
+                    className="w-full p-2 border rounded-md focus:outline-none"
                     rows={4}
+                    maxLength={1500}
                   />
+                      <div className="text-right text-sm text-gray-500 mt-2">
+                      {
+                        (
+                          supervisorFeedback.finalReport
+                            .supervisorFeedback[key] || ""
+                        ).length
+                      }
+                      /1500 characters
+                    </div>
                 </div>
+                
               )
             )}
           </div>
