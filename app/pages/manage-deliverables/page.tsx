@@ -24,6 +24,7 @@ export default function ManageDeliverable() {
       try {
         const res = await fetch("/api/deliverables");
         const data = await res.json();
+        console.log(data);
 
         const filteredDeliverables = data.filter(
           (deliverable: IDeliverables) => {
@@ -56,73 +57,110 @@ export default function ManageDeliverable() {
     }
   }, [session?.user.id]);
 
-  const [grades, setGrades] = useState({});
+  const [grades, setGrades] = useState<{ [key: string]: any }>({});
 
-  const handleGradeChange = (row, field, value) => {
-    // console.log("Row ID:", row._id);
-    // console.log("Field:", field);
-    // console.log("Value:", value);
+  const handleGradeChange = (
+    row: any,
+    field: string,
+    value: any,
+    type: string
+  ) => {
+    // Ensure the value being set is of the correct type (string or number)
+    const finalValue = typeof value === "string" ? value.trim() : value;
 
-    // Make sure we're updating the correct grade field
     setGrades((prevGrades) => {
       const updatedGrades = {
         ...prevGrades,
         [row._id]: {
-          ...(prevGrades[row._id] || {}), // Ensure row object exists
-          [field]: value, // Update only the specific field
+          ...(prevGrades[row._id] || {}),
+          [field]: {
+            ...(prevGrades[row._id]?.[field] || {}),
+            [type]: finalValue, // Update the specific field or type of feedback within the field
+          },
         },
       };
       return updatedGrades;
     });
+
+    console.log(grades); // Log the grades state for debugging
   };
 
+  // Update grade handler
   const handleUpdateGrade = (deliverableId: string) => {
-    alert(deliverableId);
-    return
+    console.log("Deliverable ID:", deliverableId);
+    console.log("Grades to be updated:", grades);
 
-  }
+    try {
+      const updatedGrade = {
+        outlineDocument: {
+          supervisorGrade: grades[deliverableId].supervisorGrade || null,
+        },
+        extendedAbstract: {
+          supervisorGrade: grades[deliverableId].supervisorGrade || null,
+        },
+        finalReport: {
+          supervisorInitialGrade:
+            grades[deliverableId].supervisorInitialGrade || null,
+          secondReaderInitialGrade:
+            grades[deliverableId].secondReaderInitialGrade || null,
+          supervisorGrade: grades[deliverableId].supervisorGrade || null,
+        },
+      };
 
+      console.log("Updated Grade Data:", updatedGrade);
+      // Further logic to update the grades in your system can go here
+    } catch (error) {
+      console.error("Error updating grade:", error);
+    }
+  };
+
+  // Define columns for the grades table
   const columns = [
     {
       name: "Deliverable Title",
-      selector: (row: IDeliverables) => row.projectId?.title,
+      selector: (row: any) => row.projectId?.title,
       sortable: true,
       width: "180px",
     },
     {
       name: "Supervisor",
-      selector: (row: IDeliverables) =>
+      selector: (row: any) =>
         row.projectId.projectAssignedTo?.supervisorId.name || "Not Assigned",
       width: "170px",
     },
     {
       name: "Second Reader",
-      selector: (row: IDeliverables) =>
+      selector: (row: any) =>
         row.projectId.projectAssignedTo?.secondReaderId?.name || "Not Assigned",
       width: "170px",
     },
     {
       name: "Students",
-      selector: (row: IDeliverables) =>
+      selector: (row: any) =>
         row.projectId.projectAssignedTo?.studentsId
-          ?.map((s) => s.name)
+          ?.map((s: any) => s.name)
           .join(", ") || "No Students",
       width: "170px",
     },
     {
       name: "Outline Document Grade",
-      selector: (row) => row.outlineDocument?.supervisorGrade || "",
+      selector: (row: any) => row.outlineDocument?.supervisorGrade || "",
       width: "120px",
-      cell: (row) => (
+      cell: (row: any) => (
         <textarea
           placeholder="N/A"
           value={
-            grades[row._id]?.outlineDocument ||
+            grades[row._id]?.outlineDocument?.supervisorGrade ||
             row.outlineDocument?.supervisorGrade ||
             ""
           }
           onChange={(e) =>
-            handleGradeChange(row, "outlineDocument", e.target.value)
+            handleGradeChange(
+              row,
+              "outlineDocument",
+              e.target.value,
+              "supervisorGrade"
+            )
           }
           className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
         />
@@ -130,18 +168,23 @@ export default function ManageDeliverable() {
     },
     {
       name: "Extended Abstract Grade",
-      selector: (row) => row.extendedAbstract?.supervisorGrade || "",
+      selector: (row: any) => row.extendedAbstract?.supervisorGrade || "",
       width: "120px",
-      cell: (row) => (
+      cell: (row: any) => (
         <textarea
           placeholder="N/A"
           value={
-            grades[row._id]?.extendedAbstract ||
+            grades[row._id]?.extendedAbstract?.supervisorGGrade ||
             row.extendedAbstract?.supervisorGrade ||
             ""
           }
           onChange={(e) =>
-            handleGradeChange(row, "extendedAbstract", e.target.value)
+            handleGradeChange(
+              row,
+              "extendedAbstract",
+              e.target.value,
+              "supervisorGrade"
+            )
           }
           className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
         />
@@ -149,18 +192,23 @@ export default function ManageDeliverable() {
     },
     {
       name: "Supervisor Initial Report Grade",
-      selector: (row) => row.finalReport?.supervisorInitialGrade || "",
+      selector: (row: any) => row.finalReport?.supervisorInitialGrade || "",
       width: "120px",
-      cell: (row) => (
+      cell: (row: any) => (
         <textarea
           placeholder="N/A"
           value={
-            grades[row._id]?.supervisorInitialReport ||
+            grades[row._id]?.finalReport?.supervisorInitialGrade ||
             row.finalReport?.supervisorInitialGrade ||
             ""
           }
           onChange={(e) =>
-            handleGradeChange(row, "supervisorInitialReport", e.target.value)
+            handleGradeChange(
+              row,
+              "finalReport",
+              e.target.value,
+              "supervisorInitialGrade"
+            )
           }
           className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
         />
@@ -168,18 +216,23 @@ export default function ManageDeliverable() {
     },
     {
       name: "Second Reader Initial Report Grade",
-      selector: (row) => row.finalReport?.secondReaderInitialGrade || "",
+      selector: (row: any) => row.finalReport?.secondReaderInitialGrade || "",
       width: "120px",
-      cell: (row) => (
+      cell: (row: any) => (
         <textarea
           placeholder="N/A"
           value={
-            grades[row._id]?.secondReaderInitialReport ||
+            grades[row._id]?.finalReport?.secondReaderInitialGrade ||
             row.finalReport?.secondReaderInitialGrade ||
             ""
           }
           onChange={(e) =>
-            handleGradeChange(row, "secondReaderInitialReport", e.target.value)
+            handleGradeChange(
+              row,
+              "finalReport",
+              e.target.value,
+              "secondReaderInitialGrade"
+            )
           }
           className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
         />
@@ -187,28 +240,34 @@ export default function ManageDeliverable() {
     },
     {
       name: "Final Report Grade",
-      selector: (row) => row.finalReport?.supervisorGrade || "",
+      selector: (row: any) => row.finalReport?.supervisorGrade || "",
       width: "120px",
-      cell: (row) => (
+      cell: (row: any) => (
         <textarea
           placeholder="N/A"
           value={
-            grades[row._id]?.finalReport ||
+            grades[row._id]?.finalReport?.supervisorGrade ||
             row.finalReport?.supervisorGrade ||
             ""
           }
           onChange={(e) =>
-            handleGradeChange(row, "finalReport", e.target.value)
+            handleGradeChange(
+              row,
+              "finalReport",
+              e.target.value,
+              "supervisorGrade"
+            )
           }
           className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
         />
       ),
     },
+
     {
       name: "Actions",
-      cell: (row) => (
+      cell: (row: any) => (
         <button
-          className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 text- flex items-center justify-center"
+          className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 flex items-center justify-center"
           onClick={() => handleUpdateGrade(row._id)}
         >
           Update
