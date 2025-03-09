@@ -29,34 +29,34 @@ export const expandedRowContent = ({ row }: { row: IDeliverables }) => {
         row.data.outlineDocument.supervisorFeedback?.OverallAchievement,
     },
     extendedAbstract: {
-      Analysis: row.data.extendedAbstract.supervisorFeedback.Analysis,
-      Design: row.data.extendedAbstract.supervisorFeedback.Design,
+      Analysis: row.data.extendedAbstract.supervisorFeedback?.Analysis,
+      Design: row.data.extendedAbstract.supervisorFeedback?.Design,
       Implementation:
-        row.data.extendedAbstract.supervisorFeedback.Implementation,
-      Writing: row.data.extendedAbstract.supervisorFeedback.Writing,
-      Evaluation: row.data.extendedAbstract.supervisorFeedback.Evaluation,
+        row.data.extendedAbstract.supervisorFeedback?.Implementation,
+      Writing: row.data.extendedAbstract.supervisorFeedback?.Writing,
+      Evaluation: row.data.extendedAbstract.supervisorFeedback?.Evaluation,
       "Overall Achievement":
-        row.data.extendedAbstract.supervisorFeedback.OverallAchievement,
+        row.data.extendedAbstract.supervisorFeedback?.OverallAchievement,
     },
     finalReport: {
       supervisorInitialFeedback: {
-        Analysis: row.data.finalReport?.supervisorInitialFeedback.Analysis,
-        Design: row.data.finalReport?.supervisorInitialFeedback.Design,
+        Analysis: row.data.finalReport?.supervisorInitialFeedback?.Analysis,
+        Design: row.data.finalReport?.supervisorInitialFeedback?.Design,
         Implementation:
-          row.data.finalReport?.supervisorInitialFeedback.Implementation,
-        Writing: row.data.finalReport?.supervisorInitialFeedback.Writing,
-        Evaluation: row.data.finalReport?.supervisorInitialFeedback.Evaluation,
+          row.data.finalReport?.supervisorInitialFeedback?.Implementation,
+        Writing: row.data.finalReport?.supervisorInitialFeedback?.Writing,
+        Evaluation: row.data.finalReport?.supervisorInitialFeedback?.Evaluation,
         "Overall Achievement":
-          row.data.finalReport?.supervisorInitialFeedback.OverallAchievement,
+          row.data.finalReport?.supervisorInitialFeedback?.OverallAchievement,
       },
       supervisorFeedback: {
-        Analysis: row.data.finalReport?.supervisorFeedback.Analysis,
-        Design: row.data.finalReport?.supervisorFeedback.Design,
-        Implementation: row.data.finalReport?.supervisorFeedback.Implementation,
-        Writing: row.data.finalReport?.supervisorFeedback.Writing,
-        Evaluation: row.data.finalReport?.supervisorFeedback.Evaluation,
+        Analysis: row.data.finalReport?.supervisorFeedback?.Analysis,
+        Design: row.data.finalReport?.supervisorFeedback?.Design,
+        Implementation: row.data.finalReport?.supervisorFeedback?.Implementation,
+        Writing: row.data.finalReport?.supervisorFeedback?.Writing,
+        Evaluation: row.data.finalReport?.supervisorFeedback?.Evaluation,
         "Overall Achievement":
-          row.data.finalReport?.supervisorFeedback.OverallAchievement,
+          row.data.finalReport?.supervisorFeedback?.OverallAchievement,
       },
     },
   });

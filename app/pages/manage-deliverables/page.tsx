@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { Project } from "@/types/projects";
 import { Row } from "jspdf-autotable";
+import Link from "next/link";
 
 export default function ManageDeliverable() {
   const { data: session } = useSession();
@@ -81,40 +82,31 @@ export default function ManageDeliverable() {
       };
       return updatedGrades;
     });
-
-    console.log(grades); // Log the grades state for debugging
   };
 
   // Update grade handler
-  const handleUpdateGrade = (deliverableId: string) => {
-    console.log("Deliverable ID:", deliverableId);
-    console.log("Grades to be updated:", grades);
-
+  const handleUpdateGrade = async (deliverableId: string, updateData: any) => {
     try {
-      const updatedGrade = {
-        outlineDocument: {
-          supervisorGrade: grades[deliverableId].supervisorGrade || null,
+      const res = await fetch(`/api/deliverables/${deliverableId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
         },
-        extendedAbstract: {
-          supervisorGrade: grades[deliverableId].supervisorGrade || null,
-        },
-        finalReport: {
-          supervisorInitialGrade:
-            grades[deliverableId].supervisorInitialGrade || null,
-          secondReaderInitialGrade:
-            grades[deliverableId].secondReaderInitialGrade || null,
-          supervisorGrade: grades[deliverableId].supervisorGrade || null,
-        },
-      };
+        body: JSON.stringify(updateData),
+      });
 
-      console.log("Updated Grade Data:", updatedGrade);
-      // Further logic to update the grades in your system can go here
+      if (!res.ok) {
+        throw new Error(`Failed to update grades: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      console.log("Update successful:", data);
+      return data;
     } catch (error) {
-      console.error("Error updating grade:", error);
+      console.error("Error updating grades", error);
     }
   };
 
-  // Define columns for the grades table
   const columns = [
     {
       name: "Deliverable Title",
@@ -174,7 +166,7 @@ export default function ManageDeliverable() {
         <textarea
           placeholder="N/A"
           value={
-            grades[row._id]?.extendedAbstract?.supervisorGGrade ||
+            grades[row._id]?.extendedAbstract?.supervisorGrade ||
             row.extendedAbstract?.supervisorGrade ||
             ""
           }
@@ -266,13 +258,25 @@ export default function ManageDeliverable() {
     {
       name: "Actions",
       cell: (row: any) => (
-        <button
-          className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 flex items-center justify-center"
-          onClick={() => handleUpdateGrade(row._id)}
-        >
-          Update
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 flex items-center justify-center"
+            onClick={() => handleUpdateGrade(row._id, grades[row._id])}
+          >
+            Update
+          </button>
+
+          <button className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 flex items-center justify-center">
+            <Link
+              href={`/pages/deliverables?projectId=${row._id}`}
+              title="View Deliverables"
+            >
+              View
+            </Link>
+          </button>
+        </div>
       ),
+      minWidth: "200px",
     },
   ];
 
@@ -302,15 +306,17 @@ export default function ManageDeliverable() {
         >
           Second Reader Deliverables
         </button>
-        <DataTable
-          columns={columns}
-          data={filteredDeliverables}
-          expandableRows
-          expandOnRowClicked
-          onRowClicked={handleRowExpandClick}
-          expandableRowsComponent={(row) => expandedRowContent({ row })}
-          expandableRowExpanded={(row) => expandedRows.includes(row._id)}
-        />
+        <div className="w-max">
+          <DataTable
+            columns={columns}
+            data={filteredDeliverables}
+            expandableRows
+            expandOnRowClicked
+            onRowClicked={handleRowExpandClick}
+            expandableRowsComponent={(row) => expandedRowContent({ row })}
+            expandableRowExpanded={(row) => expandedRows.includes(row._id)}
+          />
+        </div>
       </div>
     </div>
   );
