@@ -280,6 +280,135 @@ export default function ManageDeliverable() {
     },
   ];
 
+  const filteredColumns = showSecondReader 
+  ? [
+      {
+        name: "Deliverable Title",
+        selector: (row: any) => row.projectId?.title,
+        sortable: true,
+        width: "180px",
+      },
+      {
+        name: "Supervisor",
+        selector: (row: any) =>
+          row.projectId.projectAssignedTo?.supervisorId.name || "Not Assigned",
+        width: "170px",
+      },
+      {
+        name: "Second Reader",
+        selector: (row: any) =>
+          row.projectId.projectAssignedTo?.secondReaderId?.name || "Not Assigned",
+        width: "170px",
+      },
+      {
+        name: "Students",
+        selector: (row: any) =>
+          row.projectId.projectAssignedTo?.studentsId
+            ?.map((s: any) => s.name)
+            .join(", ") || "No Students",
+        width: "170px",
+      },
+      {
+        name: "Supervisor Initial Report Grade",
+        selector: (row: any) => row.finalReport?.supervisorInitialGrade || "",
+        width: "120px",
+        cell: (row: any) => (
+          <textarea
+            placeholder="N/A"
+            disabled
+            value={
+              grades[row._id]?.finalReport?.supervisorInitialGrade ||
+              row.finalReport?.supervisorInitialGrade ||
+              ""
+            }
+            onChange={(e) =>
+              handleGradeChange(
+                row,
+                "finalReport",
+                e.target.value,
+                "supervisorInitialGrade"
+              )
+            }
+            className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
+          />
+        ),
+      },
+      {
+        name: "Second Reader Initial Report Grade",
+        selector: (row: any) => row.finalReport?.secondReaderInitialGrade || "",
+        width: "120px",
+        cell: (row: any) => (
+          <textarea
+            placeholder="N/A"
+            value={
+              grades[row._id]?.finalReport?.secondReaderInitialGrade ||
+              row.finalReport?.secondReaderInitialGrade ||
+              ""
+            }
+            onChange={(e) =>
+              handleGradeChange(
+                row,
+                "finalReport",
+                e.target.value,
+                "secondReaderInitialGrade"
+              )
+            }
+            className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
+          />
+        ),
+      },
+      {
+        name: "Final Report Grade",
+        selector: (row: any) => row.finalReport?.supervisorGrade || "",
+        width: "120px",
+        cell: (row: any) => (
+          <textarea
+            placeholder="N/A"
+            disabled  
+            value={
+              grades[row._id]?.finalReport?.supervisorGrade ||
+              row.finalReport?.supervisorGrade ||
+              ""
+            }
+            onChange={(e) =>
+              handleGradeChange(
+                row,
+                "finalReport",
+                e.target.value,
+                "supervisorGrade"
+              )
+            }
+            className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
+          />
+        ),
+      },
+      {
+        name: "Actions",
+        cell: (row: any) => (
+          <div className="flex items-center space-x-2">
+            <button
+              className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 flex items-center justify-center"
+              onClick={() => handleUpdateGrade(row._id, grades[row._id])}
+            >
+              Update
+            </button>
+
+            <button className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 flex items-center justify-center">
+              <Link
+                href={`/pages/deliverables?projectId=${row._id}`}
+                title="View Deliverables"
+              >
+                View
+              </Link>
+            </button>
+          </div>
+        ),
+        minWidth: "200px",
+      },
+    ]
+  : columns; // Default full columns for other cases (non-Second Reader or if showSecondReader is false)
+
+
   const handleRowExpandClick = (row: IDeliverables) => {
     handleRowExpand(row, expandedRows, setExpandedRows);
   };
@@ -306,9 +435,9 @@ export default function ManageDeliverable() {
         >
           Second Reader Deliverables
         </button>
-        <div className="w-max">
+        <div className="w-max mx-auto">
           <DataTable
-            columns={columns}
+            columns={filteredColumns}
             data={filteredDeliverables}
             expandableRows
             expandOnRowClicked

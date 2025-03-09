@@ -73,6 +73,7 @@ export default function DeliverablesPage() {
           setStudentsId(
             data.deliverables.projectId.projectAssignedTo.studentsId
           );
+          
 
           const allowedKeys = [
             "outlineDocument",
@@ -95,6 +96,7 @@ export default function DeliverablesPage() {
           );
 
           setDeliverables(updatedData);
+          console.log(updatedData);
           setDeliverablesId(data.deliverables._id);
         } else {
           console.log("No deliverables found.");
@@ -282,7 +284,7 @@ export default function DeliverablesPage() {
         <h3 className="text-2xl font-bold mb-2 text-center">
           View Deliverables
         </h3>
-
+    
         <div className="w-full max-w-4xl p-6">
           <p className="text-gray-600 text-center mb-6">
             Upload and manage the necessary documents for your project. Ensure
