@@ -1,6 +1,8 @@
+
 import { Deliverable } from "@/types/deliverable";
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight} from "lucide-react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { IDeliverables } from "../models/Deliverables";
 
@@ -199,11 +201,6 @@ export const expandedRowContent = ({
     }));
   };
 
-  const viewDeliverableInitial = async (deliverableId: string) => {
-    alert(row.finalReport?.supervisorInitialSubmit);
-    return;
-  };
-
   const handleSubmitFeedback = async (
     deliverableType: string,
     feedbackType?: string // Specify type
@@ -260,7 +257,7 @@ export const expandedRowContent = ({
     const rowId = row.data._id;
 
     const updateData = {
-      [`${deliverableType}.isPublished`]:true,
+      [`${deliverableType}.isPublished`]: true,
     };
 
     try {
@@ -270,14 +267,13 @@ export const expandedRowContent = ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(updateData),
-      })
+      });
 
-      if (!res.ok){
+      if (!res.ok) {
         throw new Error("Failed to update deliverables.");
       }
 
-      alert("This is now published.")
-
+      alert("This is now published.");
     } catch (error) {
       alert("An error occurred while submitting feedback.");
     }
@@ -523,7 +519,6 @@ export const expandedRowContent = ({
                     Submit Feedback
                   </button>
                   <button
-                    onClick={() => viewDeliverableInitial(row._id)}
                     disabled={
                       row.finalReport?.supervisorInitialSubmit ||
                       row.finalReport?.secondReaderInitialSubmit
@@ -535,7 +530,11 @@ export const expandedRowContent = ({
                         : "bg-gray-400 text-gray-600 cursor-not-allowed"
                     }`}
                   >
-                    View
+                    <Link
+                      href={`/pages/view-deliverables/${row.data.projectId._id}`}
+                    >
+                      View
+                    </Link>
                   </button>
                 </div>
               </div>
@@ -706,7 +705,6 @@ export const expandedRowContent = ({
                       Submit Feedback
                     </button>
                     <button
-                      onClick={() => viewDeliverableInitial(row._id)}
                       disabled={
                         row.finalReport?.supervisorInitialSubmit ||
                         row.finalReport?.secondReaderInitialSubmit
@@ -718,7 +716,11 @@ export const expandedRowContent = ({
                           : "bg-gray-400 text-gray-600 cursor-not-allowed"
                       }`}
                     >
-                      View Feedback
+                      <Link
+                        href={`/pages/view-deliverables/${row.data.projectId._id}`}
+                      >
+                        View
+                      </Link>
                     </button>
                   </div>
                 </div>
@@ -770,17 +772,7 @@ export const expandedRowContent = ({
                     Final Report Grades
                   </p>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => viewDeliverableInitial("")}
-                      disabled={!row.finalReport?.supervisorSubmit}
-                      className={`p-2 text-sm rounded-lg transition-all duration-200 ${
-                        !row.finalReport?.supervisorSubmit
-                          ? "bg-gray-400 text-gray-600 cursor-not-allowed" // Styles for disabled button
-                          : "bg-lime-700 hover:bg-lime-800 text-white cursor-pointer" // Styles for enabled button
-                      }`}
-                    >
-                      View Feedback
-                    </button>
+      
                     <button
                       disabled={row.finalReport?.supervisorSubmit}
                       onClick={() => handleOpenModal("secondReader")}
@@ -791,6 +783,21 @@ export const expandedRowContent = ({
                       }`}
                     >
                       Sign
+                    </button>
+
+                    <button
+                      disabled={!row.finalReport?.supervisorSubmit}
+                      className={`p-2 text-sm rounded-lg transition-all duration-200 ${
+                        !row.finalReport?.supervisorSubmit
+                          ? "bg-gray-400 text-gray-600 cursor-not-allowed" // Styles for disabled button
+                          : "bg-lime-700 hover:bg-lime-800 text-white cursor-pointer" // Styles for enabled button
+                      }`}
+                    >
+                      <Link
+                        href={`/pages/view-deliverables/${row.data.projectId._id}`}
+                      >
+                        View
+                      </Link>
                     </button>
                   </div>
                 </div>
