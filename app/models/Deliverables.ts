@@ -68,8 +68,10 @@ const finalReportSchema = new Schema({
   },
   supervisorInitialSubmit: { type: Boolean, default: false },
   secondReaderInitialSubmit: { type: Boolean, default: false },
+  secondReaderSigned: {type: Boolean, default: false},
+  supervisorSigned: {type: Boolean, default: false},
+  supervisorSubmit: {type:Boolean, default: false},
   isPublished: { type: Boolean, default: false },
-
 })
 
 export interface IDeliverables extends Document {

@@ -18,6 +18,10 @@ export interface FinalReport {
   supervisorFeedback?: Map<string, string>;
   supervisorInitialSubmit?: boolean;
   secondReaderInitialSubmit?: boolean;
+  secondReaderSigned?: boolean;
+  supervisorSigned?: boolean;
+  supervisorSubmit?: boolean;
+  
   isPublished?: boolean;
 }
 
