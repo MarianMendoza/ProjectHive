@@ -64,6 +64,7 @@ export default function DeliverablesPage() {
   useEffect(() => {
     const fetchDeliverables = async () => {
       if (!projectId) return;
+      console.log(projectId)
 
       try {
         const res = await fetch(`/api/deliverables?projectId=${projectId}`);
@@ -71,7 +72,7 @@ export default function DeliverablesPage() {
           const data = await res.json();
 
           setStudentsId(
-            data.deliverables.projectId.projectAssignedTo.studentsId
+            data.deliverables.projectId?.projectAssignedTo.studentsId
           );
           
 
