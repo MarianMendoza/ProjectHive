@@ -531,7 +531,7 @@ export const expandedRowContent = ({
                     }`}
                   >
                     <Link
-                      href={`/pages/view-deliverables/${row.data.projectId._id}`}
+                      href={`/pages/view-deliverables/${row.data._id}`}
                     >
                       View
                     </Link>
@@ -717,7 +717,7 @@ export const expandedRowContent = ({
                       }`}
                     >
                       <Link
-                        href={`/pages/view-deliverables/${row.data.projectId._id}`}
+                        href={`/pages/view-deliverables/${row.data._id}`}
                       >
                         View
                       </Link>
@@ -794,7 +794,7 @@ export const expandedRowContent = ({
                       }`}
                     >
                       <Link
-                        href={`/pages/view-deliverables/${row.data.projectId._id}`}
+                        href={`/pages/view-deliverables/${row.data._id}`}
                       >
                         View
                       </Link>

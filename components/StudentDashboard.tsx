@@ -39,9 +39,6 @@ export default function StudentDashboard() {
             )
           );
           setAssignedProject(assigned);
-          
-          // console.log(assignedProject);
-          // console.log(session.user.id)
 
         } else {
           console.error("Failed to fetch projects.");
@@ -130,12 +127,12 @@ export default function StudentDashboard() {
 
               <div className="mt-6 flex gap-3">
                 <Link
-                  href={`/pages/deliverables?projectId=${assignedProject._id}`}
+                  href={`/pages/deliverables/${assignedProject.deliverables._id}`}
                   className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
                 >
                   📝 View Deliverables
                 </Link>
-                <WithdrawButton projectId={assignedProject._id} />
+                <WithdrawButton projectId={assignedProject._id} className={"bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition duration-200"} />
 
               </div>
             </div>

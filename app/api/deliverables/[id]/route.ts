@@ -5,16 +5,11 @@ import mongoose from "mongoose";
 
 export async function GET(req: Request) {
   await connectMongo();
-
   const url = new URL(req.url);
-  const projectId = url.searchParams.get("projectId");
-
-  if (!projectId) {
-      return NextResponse.json({ message: "Project ID is required" }, { status: 400 });
-  }
+  const id = url.pathname.split("/").pop();
 
   try {
-      const deliverables = await Deliverables.findOne({ projectId: new mongoose.Types.ObjectId(projectId) })
+      const deliverables = await Deliverables.findById(id)
           .populate({
               path: "projectId",
               select: "projectAssignedTo",
@@ -29,7 +24,7 @@ export async function GET(req: Request) {
                   }
               ]
 
-          }).populate('deadlineId', 'outlineDocumentDeadline extendedAbstractDeadline finalReportDeadline');
+          }).populate('deadlineId', 'outlineDocumentDeadline extendedAbstractDeadline finalReportDeadline').lean();
 
       
 

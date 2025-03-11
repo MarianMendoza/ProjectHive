@@ -315,7 +315,7 @@ export default function ManageDeliverable() {
 
           <button className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 flex items-center justify-center">
             <Link
-              href={`/pages/deliverables?projectId=${row._id}`}
+              href={`/pages/deliverables/${row._id}`}
               title="View Deliverables"
             >
               View

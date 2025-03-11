@@ -8,7 +8,8 @@ import PageNotFound from "@/components/PageNotFound";
 import { useSocket } from "@/app/provider";
 import React from "react";
 
-export default function DeliverablesPage() {
+export default function DeliverablesPage({params} : {params: {id:string}}) {
+  const {id} = params;
   const [dragging, setDragging] = useState(false);
   const [deadlines, setDeadlines] = useState({
     outlineDocumentDeadline: "",
@@ -17,8 +18,7 @@ export default function DeliverablesPage() {
   });
 
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
+
   const [deliverablesId, setDeliverablesId] = useState<string | null>(null);
   const userId = session?.user.id;
   const socket = useSocket();
@@ -63,16 +63,16 @@ export default function DeliverablesPage() {
 
   useEffect(() => {
     const fetchDeliverables = async () => {
-      if (!projectId) return;
-      console.log(projectId)
+      if (!id) return;
+      console.log(id)
 
       try {
-        const res = await fetch(`/api/deliverables?projectId=${projectId}`);
+        const res = await fetch(`/api/deliverables/${id}`);
         if (res.ok) {
           const data = await res.json();
-
+          console.log(data);
           setStudentsId(
-            data.deliverables.projectId?.projectAssignedTo.studentsId
+            data.deliverables.id?.projectAssignedTo.studentsId
           );
           
 
@@ -138,7 +138,7 @@ export default function DeliverablesPage() {
       }
     };
     fetchDeadlines();
-  }, [projectId]);
+  }, [id]);
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -149,8 +149,8 @@ export default function DeliverablesPage() {
 
     if (!e.target.files) return;
 
-    // Check if projectId and deliverablesId are defined
-    if (!projectId || !deliverablesId) {
+    // Check if id and deliverablesId are defined
+    if (!id || !deliverablesId) {
       alert("Missing project or deliverable ID");
       return;
     }
@@ -158,7 +158,7 @@ export default function DeliverablesPage() {
     file = e.target.files[0];
 
     formData.append("file", file);
-    formData.append("projectId", projectId);
+    formData.append("projectId", id);
     formData.append("deliverableType", deliverableType);
     formData.append("deliverablesId", deliverablesId);
 

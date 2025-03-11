@@ -21,7 +21,6 @@ export interface FinalReport {
   secondReaderSigned?: boolean;
   supervisorSigned?: boolean;
   supervisorSubmit?: boolean;
-  
   isPublished?: boolean;
 }
 
