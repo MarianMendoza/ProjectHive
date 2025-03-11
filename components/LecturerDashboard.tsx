@@ -84,6 +84,7 @@ export default function LecturerDashboard() {
         console.error("Error fetching projects");
       }
     }
+    console.log(projects);
     setLoadingProjects(false);
   };
 
@@ -252,7 +253,7 @@ export default function LecturerDashboard() {
         <div className="flex items-center space-x-2">
           {/* View Deliverables */}
           <Link
-            href={`/pages/deliverables?projectId=${row._id}`}
+            href={`/pages/deliverables/${row.deliverables._id}`}
             title="View Deliverables"
             className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 text-xs flex items-center justify-center w-[90px]"
           >
