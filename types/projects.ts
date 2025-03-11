@@ -1,6 +1,7 @@
 import { User } from "./users";
 
 export interface Project {
+    outlineDocument: any;
     deliverables: any;
     _id: string;  
     title: string;

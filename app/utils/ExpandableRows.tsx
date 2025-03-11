@@ -1,7 +1,6 @@
-
 import { Deliverable } from "@/types/deliverable";
 import { useState } from "react";
-import { ChevronDown, ChevronRight} from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { IDeliverables } from "../models/Deliverables";
@@ -520,20 +519,20 @@ export const expandedRowContent = ({
                   </button>
                   <button
                     disabled={
-                      row.finalReport?.supervisorInitialSubmit ||
-                      row.finalReport?.secondReaderInitialSubmit
+                      !row.finalReport?.supervisorInitialSubmit ||
+                      !row.finalReport?.secondReaderInitialSubmit
                     }
                     className={`p-2 text-sm rounded-lg transition-all duration-200 ${
                       !row.finalReport?.supervisorInitialSubmit &&
                       !row.finalReport?.secondReaderInitialSubmit
-                        ? "bg-lime-800 hover:bg-lime-900 text-white cursor-pointer"
+                        ? "bg-amber-500 hover:bg-amber-600 text-white cursor-pointer"
                         : "bg-gray-400 text-gray-600 cursor-not-allowed"
                     }`}
                   >
                     <Link
-                      href={`/pages/view-deliverables/${row.data._id}`}
+                      href={`/pages/view-feedback/${row.data._id}?feedbackType=secondReaderInitialFeedback`}
                     >
-                      View
+                      View Feedback
                     </Link>
                   </button>
                 </div>
@@ -706,20 +705,20 @@ export const expandedRowContent = ({
                     </button>
                     <button
                       disabled={
-                        row.finalReport?.supervisorInitialSubmit ||
-                        row.finalReport?.secondReaderInitialSubmit
-                      }
-                      className={`p-2 text-sm rounded-lg transition-all duration-200 ${
-                        !row.finalReport?.supervisorInitialSubmit &&
+                        !row.finalReport?.supervisorInitialSubmit ||
                         !row.finalReport?.secondReaderInitialSubmit
-                          ? "bg-lime-700 hover:bg-lime-800 text-white cursor-pointer"
-                          : "bg-gray-400 text-gray-600 cursor-not-allowed"
-                      }`}
+                      }
                     >
                       <Link
-                        href={`/pages/view-deliverables/${row.data._id}`}
+                        className={`p-2 text-sm rounded-lg transition-all duration-200 ${
+                          !row.finalReport?.supervisorInitialSubmit &&
+                          !row.finalReport?.secondReaderInitialSubmit
+                            ? "bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
+                            : "bg-gray-400 text-gray-600 cursor-not-allowed"
+                        }`}
+                        href={`/pages/view-feedback/${row.data._id}?feedbackType=supervisorInitialFeedback`}
                       >
-                        View
+                        View Feedback
                       </Link>
                     </button>
                   </div>
@@ -772,17 +771,16 @@ export const expandedRowContent = ({
                     Final Report Grades
                   </p>
                   <div className="flex gap-2">
-      
                     <button
-                      disabled={row.finalReport?.supervisorSubmit}
+                      disabled={!row.finalReport?.supervisorSubmit}
                       onClick={() => handleOpenModal("secondReader")}
                       className={`p-2 text-sm rounded-lg transition-all duration-200 ${
-                        row.finalReport?.supervisorSubmit
+                        !row.finalReport?.supervisorSubmit
                           ? "bg-gray-400 text-gray-600 cursor-not-allowed" // Styles for disabled button
-                          : "bg-teal-700 hover:bg-teal-800 text-white cursor-pointer" // Styles for enabled button
+                          : "bg-teal-500 hover:bg-teal-600 text-white cursor-pointer" // Styles for enabled button
                       }`}
                     >
-                      Sign
+                      Sign Off
                     </button>
 
                     <button
@@ -790,13 +788,13 @@ export const expandedRowContent = ({
                       className={`p-2 text-sm rounded-lg transition-all duration-200 ${
                         !row.finalReport?.supervisorSubmit
                           ? "bg-gray-400 text-gray-600 cursor-not-allowed" // Styles for disabled button
-                          : "bg-lime-700 hover:bg-lime-800 text-white cursor-pointer" // Styles for enabled button
+                          : "bg-orange-500 hover:bg-orange-600 text-white cursor-pointer" // Styles for enabled button
                       }`}
                     >
                       <Link
-                        href={`/pages/view-deliverables/${row.data._id}`}
+                        href={`/pages/view-feedback/${row.data._id}?feedbackType=supervisorFeedback`}
                       >
-                        View
+                        View Feedback
                       </Link>
                     </button>
                   </div>
