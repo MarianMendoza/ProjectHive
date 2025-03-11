@@ -140,7 +140,7 @@ export default function AdminDashboard() {
               📁 Manage Projects
             </Link>
             <Link
-              href={"/pages/admin-projects"}
+              href={"/pages/admin-deliverables"}
               className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3"
             >
               📝 Manage Deliverables

@@ -68,7 +68,7 @@ const UsersPage = () => {
       const projectId = selectedProject;
       const type = "InvitationSecondReader";
 
-      console.log(projectId)
+      console.log(projectId);
 
       if (socket) {
         socket.emit("sendNotification", {
@@ -81,7 +81,6 @@ const UsersPage = () => {
         console.error("Socket is not initialized");
       }
     } else {
-
       const userId = session?.user.id;
       const receiversId = [selectedLecturer?._id];
       const projectId = selectedProject;
@@ -97,8 +96,6 @@ const UsersPage = () => {
       } else {
         console.error("Socket is not initialized");
       }
-
-
     }
 
     setShowInviteModal(false);
@@ -172,6 +169,19 @@ const UsersPage = () => {
 
               <div className="flex space-x-2">
                 {user.role === "Lecturer" &&
+                  session?.user.role == "Lecturer" &&
+                  session !== null &&
+                  session?.user.id !== user._id && (
+                    <button
+                      onClick={() => handleInviteClick(user)}
+                      className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
+                    >
+                      Invite
+                    </button>
+                  )}
+
+                {user.role === "Lecturer" &&
+                  session?.user.role == "Student" &&
                   session !== null &&
                   session?.user.id !== user._id && (
                     <button
@@ -201,8 +211,11 @@ const UsersPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
             <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
-              Invite {selectedLecturer.name} to become a second-reader in your
-              Project
+              Invite {selectedLecturer.name} to become a{" "}
+              {session?.user?.role === "Student"
+                ? "supervisor"
+                : "second-reader"}{" "}
+              in your Project
             </h2>
             <div className="mb-4">
               <label htmlFor="project" className="block text-sm text-gray-700">
