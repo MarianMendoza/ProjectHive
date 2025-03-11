@@ -1,6 +1,7 @@
 import mongoose, { Document } from 'mongoose';
 
 export interface Deliverable {
+  projectAssignedTo: any;
   file: string | null;
   uploadedAt: Date | null;
   supervisorGrade?: number | null;

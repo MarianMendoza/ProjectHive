@@ -8,8 +8,12 @@ import PageNotFound from "@/components/PageNotFound";
 import { useSocket } from "@/app/provider";
 import React from "react";
 
-export default function DeliverablesPage({params} : {params: {id:string}}) {
-  const {id} = params;
+export default function DeliverablesPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const { id } = params;
   const [dragging, setDragging] = useState(false);
   const [deadlines, setDeadlines] = useState({
     outlineDocumentDeadline: "",
@@ -64,17 +68,14 @@ export default function DeliverablesPage({params} : {params: {id:string}}) {
   useEffect(() => {
     const fetchDeliverables = async () => {
       if (!id) return;
-      console.log(id)
+      console.log(id);
 
       try {
         const res = await fetch(`/api/deliverables/${id}`);
         if (res.ok) {
           const data = await res.json();
           console.log(data);
-          setStudentsId(
-            data.deliverables.id?.projectAssignedTo.studentsId
-          );
-          
+          setStudentsId(data.deliverables.id?.projectAssignedTo.studentsId);
 
           const allowedKeys = [
             "outlineDocument",
@@ -285,7 +286,7 @@ export default function DeliverablesPage({params} : {params: {id:string}}) {
         <h3 className="text-2xl font-bold mb-2 text-center">
           View Deliverables
         </h3>
-    
+
         <div className="w-full max-w-4xl p-6">
           <p className="text-gray-600 text-center mb-6">
             Upload and manage the necessary documents for your project. Ensure
@@ -333,27 +334,39 @@ export default function DeliverablesPage({params} : {params: {id:string}}) {
                       </p>
                     )}
 
-                    <div className="w-full p-2 border bg-gray-100 rounded-md mt-4 text-gray-700">
-                      <strong>Feedback:</strong>
+                    <div className="w-full p-4 border bg-white rounded-lg shadow-md mt-4 text-gray-800">
+                      <h3 className="text-lg font-bold text-lime-700 mb-2">
+                        📋 Supervisor Feedback
+                      </h3>
+
                       {deliverables?.[key]?.supervisorFeedback ? (
-                        <ul className="mt-2 space-y-2">
+                        <div className="mt-2 space-y-4">
                           {Object.entries(
                             deliverables[key].supervisorFeedback
                           ).map(([category, feedback]) => (
-                            <li key={category}>
-                              <strong>{category}:</strong>{" "}
-                              {feedback || (
-                                <span className="text-gray-500">
-                                  No feedback provided
-                                </span>
-                              )}
-                            </li>
+                            <div
+                              key={category}
+                              className="p-3 border rounded-md bg-gray-50"
+                            >
+                              <span className="text-sm font-semibold text-lime-600">
+                                {category}
+                              </span>
+                              <p
+                                className={`mt-1 text-sm ${
+                                  feedback
+                                    ? "text-gray-700"
+                                    : "text-gray-500 italic"
+                                }`}
+                              >
+                                {feedback || "No feedback provided."}
+                              </p>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       ) : (
-                        <span className="text-gray-500">
-                          Yet to be published
-                        </span>
+                        <p className="text-gray-500 text-sm italic text-center mt-2">
+                          Yet to be published.
+                        </p>
                       )}
                     </div>
                   </div>

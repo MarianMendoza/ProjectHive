@@ -153,8 +153,8 @@ export default function ManageDeliverable() {
               : row.outlineDocument?.supervisorGrade || ""
           }
           onChange={(e) => {
-            const inputValue = e.target.value.replace(/\D/g, ""); 
-            const clampedValue = Math.min(100, Math.max(0, Number(inputValue))); 
+            const inputValue = e.target.value.replace(/\D/g, "");
+            const clampedValue = Math.min(100, Math.max(0, Number(inputValue)));
 
             handleGradeChange(
               row,
@@ -186,8 +186,8 @@ export default function ManageDeliverable() {
               : row.extendedAbstract?.supervisorGrade || ""
           }
           onChange={(e) => {
-            const inputValue = e.target.value.replace(/\D/g, ""); 
-            const clampedValue = Math.min(100, Math.max(0, Number(inputValue))); 
+            const inputValue = e.target.value.replace(/\D/g, "");
+            const clampedValue = Math.min(100, Math.max(0, Number(inputValue)));
 
             handleGradeChange(
               row,
@@ -196,7 +196,6 @@ export default function ManageDeliverable() {
               "supervisorGrade"
             );
           }}
-        
           className="w-full h-9 p-2 text-center rounded-md border border-gray-300 focus:outline-none focus:border-lime-500 transition-all resize-none"
         />
       ),
@@ -220,8 +219,8 @@ export default function ManageDeliverable() {
               : row.finalReport?.supervisorInitialGrade || ""
           }
           onChange={(e) => {
-            const inputValue = e.target.value.replace(/\D/g, ""); 
-            const clampedValue = Math.min(100, Math.max(0, Number(inputValue))); 
+            const inputValue = e.target.value.replace(/\D/g, "");
+            const clampedValue = Math.min(100, Math.max(0, Number(inputValue)));
 
             handleGradeChange(
               row,
@@ -248,14 +247,16 @@ export default function ManageDeliverable() {
                   100,
                   Math.max(
                     0,
-                    Number(grades[row._id]?.finalReport?.secondReaderInitialGrade)
+                    Number(
+                      grades[row._id]?.finalReport?.secondReaderInitialGrade
+                    )
                   )
                 )
               : row.finalReport?.secondReaderInitialGrade || ""
           }
           onChange={(e) => {
-            const inputValue = e.target.value.replace(/\D/g, ""); 
-            const clampedValue = Math.min(100, Math.max(0, Number(inputValue))); 
+            const inputValue = e.target.value.replace(/\D/g, "");
+            const clampedValue = Math.min(100, Math.max(0, Number(inputValue)));
 
             handleGradeChange(
               row,
@@ -287,8 +288,8 @@ export default function ManageDeliverable() {
               : row.finalReport?.supervisorGrade || ""
           }
           onChange={(e) => {
-            const inputValue = e.target.value.replace(/\D/g, ""); 
-            const clampedValue = Math.min(100, Math.max(0, Number(inputValue))); 
+            const inputValue = e.target.value.replace(/\D/g, "");
+            const clampedValue = Math.min(100, Math.max(0, Number(inputValue)));
 
             handleGradeChange(
               row,
@@ -445,7 +446,7 @@ export default function ManageDeliverable() {
 
               <button className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 flex items-center justify-center">
                 <Link
-                  href={`/pages/deliverables?projectId=${row._id}`}
+                  href={`/pages/deliverables/${row._id}`}
                   title="View Deliverables"
                 >
                   View
@@ -485,7 +486,7 @@ export default function ManageDeliverable() {
           Second Reader Deliverables
         </button>
         <div className="flex justify-center ">
-        <DataTable
+          <DataTable
             columns={filteredColumns}
             data={filteredDeliverables}
             expandableRows
@@ -494,11 +495,9 @@ export default function ManageDeliverable() {
             expandableRowsComponent={(row) =>
               expandedRowContent({ row, showSecondReader })
             }
-            expandableRowExpanded={(row) => expandedRows.includes(row._id)}/>
-
+            expandableRowExpanded={(row) => expandedRows.includes(row._id)}
+          />
         </div>
-
-          
       </div>
     </div>
   );

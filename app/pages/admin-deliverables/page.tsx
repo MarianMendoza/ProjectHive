@@ -236,7 +236,7 @@ export default function DeliverableDashboard() {
       width: "170px",
     },
     {
-      name: "Student Email",
+      name: "Student Id",
       selector: (row: Project) =>
         row.projectId.projectAssignedTo?.studentsId
           ?.map((s) => {
