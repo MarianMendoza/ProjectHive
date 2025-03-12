@@ -212,7 +212,7 @@ export default function CreateProjectPage() {
           <div className="flex justify-end">
             <Link
               href="/pages/projects"
-              className="bg-lime-600 text-white px-6 py-2 rounded-lg mx-7 hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="bg-red-600 text-white px-6 py-2 rounded-lg mx-7 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
             >
               Cancel
             </Link>

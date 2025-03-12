@@ -19,7 +19,7 @@ const ProjectsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showMessageModal, setShowMessageModal] = useState<boolean>(false);
+  const [showConfirmModal, setshowConfirmModal] = useState<boolean>(false);
   const [message, setMessage] = useState("");
 
   const [appliedStudents, setAppliedStudents] = useState<{
@@ -137,40 +137,57 @@ const ProjectsPage = () => {
   };
 
   const handleApply = async (id: String) => {
-    setShowMessageModal(true);
+    setshowConfirmModal(true);
   };
 
-  const handleModalSubmit = async (id: String) => {
-    setShowMessageModal(false);
+  const handleConfirmModal = async (id: string) => {
+    setshowConfirmModal(false);
 
+    // Check if `selectedProject` exists and handle `session` safely
+    if (!session?.user?.id || !selectedProject?._id) {
+      console.error("Invalid session or selected project data.");
+      return;
+    }
+
+    // Update applied students state
     setAppliedStudents((prev) => {
       const updated = { ...prev };
-      if (updated[selectedProject?._id]) {
+      const projectId = selectedProject?._id;
+
+      if (projectId) {
         // If the project already has applicants, add the student to the list
-        updated[selectedProject?._id].push(session?.user.id);
-      } else {
-        // Otherwise, create a new entry for the project with the studentId
-        updated[selectedProject?._id] = [session?.user.id];
+        updated[projectId] = updated[projectId]
+          ? [...updated[projectId], session.user.id]
+          : [session.user.id];
       }
+
       return updated;
     });
 
     try {
+      // Make the API call to update the project
+      console.log("Hello World!");
       const res = await fetch(`/api/projects/${id}`, { method: "POST" });
-      // console.log(session?.user.id);
-      // console.log(id);
 
-      if (res.ok) {
-        const updatedProject = await res.json(); // Get the updated project from the response
-        // console.log(updatedProject);
-        const userId = session?.user.id;
-        const receiversId = [
-          updatedProject.project.projectAssignedTo.supervisorId,
-        ];
-        const projectId = updatedProject.project._id;
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.message || "Failed to apply for the project");
+        return;
+      } else {
+        const updatedProject = await res.json();
+        const userId = session.user.id;
+        console.log(selectedProject.projectAssignedTo.supervisorId._id)
+        const receiversId = 
+          [selectedProject.projectAssignedTo?.supervisorId._id]
+        ;
+        console.log(receiversId);
+        const projectId = selectedProject._id;
         const type = "ApplicationStudent";
-        const messageUser = message;
+        const messageUser = message; // Assuming `message` is defined elsewhere in your code
 
+        // Check if socket is available and emit the event
+        console.log(socket);
+        console.log("Hello");
         if (socket) {
           socket.emit("sendNotification", {
             userId,
@@ -182,28 +199,22 @@ const ProjectsPage = () => {
         } else {
           console.error("Socket is not initialized");
         }
+
+        // Update the projects and selected project state
         setProjects((prevProjects) => {
-          const updatedProjects = prevProjects.map((project) =>
+          return prevProjects.map((project) =>
             project._id === id
-              ? {
-                  ...project,
-                  applicants: updatedProject.project.applicants, // Update the applicants list
-                }
+              ? { ...project, applicants: selectedProject.applicants }
               : project
           );
-
-          return updatedProjects;
         });
 
-        if (selectedProject && selectedProject._id === id) {
+        if (selectedProject?._id === id) {
           setSelectedProject((prev) => ({
             ...prev!,
-            applicants: updatedProject.project.applicants, // Update the applicants in the selected project
+            applicants: selectedProject.applicants,
           }));
         }
-      } else {
-        const errorData = await res.json();
-        alert(errorData.message || "Failed to apply for the project");
       }
     } catch (error) {
       console.error("Error applying for project:", error);
@@ -351,14 +362,13 @@ const ProjectsPage = () => {
                         {project.projectAssignedTo.supervisorId?.name ||
                           "Not Assigned"}
                       </p>
-                      
+
                       <p className="text-black">
                         <strong>Abstract:</strong>
                         {` ${project.abstract.slice(0, 200)} ... ` ||
                           "No Description"}
                       </p>
                     </div>
-
                   </div>
                 ))}
             </div>
@@ -555,7 +565,7 @@ const ProjectsPage = () => {
           </div>
         )}
 
-        {showMessageModal && (
+        {showConfirmModal && (
           <div className="modal fixed w-full inset-0 flex justify-center items-center bg-black bg-opacity-50 ">
             <div className="modal-content bg-white p-8 rounded-2xl w-96 max-w-full shadow-lg">
               <h2 className="text-1xl font-semibold text-gray-800 mb-4">
@@ -570,16 +580,16 @@ const ProjectsPage = () => {
               />
               <div className="mt-6 flex justify-end space-x-4">
                 <button
-                  className="bg-lime-600 text-white px-6 py-3 rounded-md font-medium focus:bg-lime-500"
-                  onClick={() => handleModalSubmit(selectedProject?._id)}
-                >
-                  Submit
-                </button>
-                <button
                   className="bg-red-600 text-white px-6 py-3 rounded-md font-medium  focus:bg-red-500"
-                  onClick={() => setShowMessageModal(false)}
+                  onClick={() => setshowConfirmModal(false)}
                 >
                   Cancel
+                </button>
+                <button
+                  className="bg-lime-600 text-white px-6 py-3 rounded-md font-medium focus:bg-lime-500"
+                  onClick={() => handleConfirmModal(selectedProject?._id)}
+                >
+                  Submit
                 </button>
               </div>
             </div>
