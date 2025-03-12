@@ -11,7 +11,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm, message }) =>
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center z-50 justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-xl mb-4">{message}</h2>
         <div className="flex justify-end gap-2">

@@ -24,7 +24,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     visibility: "Private",
     abstract: "",
     description: "",
-    supervisor: "",
     secondReader: "",
     applicants: [],
     files: "",
@@ -33,21 +32,26 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const [selectedSecondReader, setSelectedSecondReader] = useState<string[]>(
     []
   );
-  
-  const [selectedSupervisor, setSelectedSupervisor] = useState<string[]>(
-    []
-  );
+
   const [unassignedSecondReader, setUnassignedSecondReader] = useState<
     string | null
   >(null);
+
   const [lecturers, setLecturers] = useState<User[]>([]); // List of lecturers for the drop down.
-  const [invitedLecturers, setInvitedLecturers] = useState<string[]>([]); // Track invited lecturers
-  const [invitedLecturer, setInvitedLecturer] = useState<User | null>(null);
+  const [invitedSecondReaders, setInvitedSecondReaders] = useState<string[]>(
+    []
+  );
+
+  const [invitedSecondReader, setInvitedSecondReader] = useState<User | null>(
+    null
+  );
 
   const [isGroupProject, setIsGroupProject] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
+  const [showInviteSecondReaderModal, setShowInviteSecondReaderModal] =
+    useState<boolean>(false);
+
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
   const socket = useSocket();
 
@@ -70,7 +74,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             visibility: projectData.project.visibility,
             abstract: projectData.project.abstract || "",
             description: projectData.project.description || "",
-            supervisor: projectData.project.supervisor || "",
             secondReader: projectData.project.secondReader || "",
             applicants: projectData.project.applicants || [],
             files: projectData.project.files || "",
@@ -82,29 +85,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           );
           setLecturers(filteredLecturers);
 
-          const assignedSupervisor = 
-          projectData.project.projectAssignedTo?.supervisorId._id;
-          const matchedSupervisor = filteredLecturers.find(
-            (lecturer: User ) => lecturer._id === assignedSupervisor
-          );
-
-          setSelectedSupervisor(matchedSupervisor?._id || null);
-          
           const assignedStudent =
             projectData.project.projectAssignedTo?.studentsId || [];
           setSelectedStudents(assignedStudent);
-          
-          
+
           const assignedSecondReader =
             projectData.project.projectAssignedTo?.secondReaderId._id;
           const matchedSecondReader = filteredLecturers.find(
             (lecturer: User) => lecturer._id === assignedSecondReader
           );
 
-
           setSelectedSecondReader(matchedSecondReader?._id || null); // Set to null if no match
-
-          // Need to make it so that if the the secondReader is unassigned then, update this.
           setIsGroupProject(assignedStudent.length > 1);
         } else {
           setError("Failed to fetch project or lecturers");
@@ -161,7 +152,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     const receiverId = project?.projectAssignedTo.secondReaderId?._id;
 
     if (selectedId === "invite") {
-      setShowInviteModal(true);
+      setShowInviteSecondReaderModal(true);
       return;
     }
 
@@ -179,35 +170,9 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     // setSelectedSecondReader(secondReader);
   };
 
-  
-  const handleSupervisorChange = async (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const selectedId = e.target.value;
-    console.log(selectedId);
-
-    const receiverId = project?.projectAssignedTo.supervisorId?._id;
-
-    if (selectedId === "invite") {
-      setShowInviteModal(true);
-      return;
-    }
-
-    let Supervisor;
-
-    if (selectedId === "") {
-      console.log("This is empty.");
-      Supervisor = "";
-    } else {
-      Supervisor = project?.projectAssignedTo.supervisorId;
-      console.log(project?.projectAssignedTo.supervisorId);
-    }
-
-  };
-
-  const handleInviteClick = async (lecturer: User) => {
-    setInvitedLecturers((prev) => [...prev, lecturer._id]); // Add lecturer to invited list
-    setInvitedLecturer(lecturer);
+  const handleInviteSecondReaderClick = async (lecturer: User) => {
+    setInvitedSecondReaders((prev) => [...prev, lecturer._id]); // Add lecturer to invited list
+    setInvitedSecondReader(lecturer);
 
     const userId = session?.user.id;
     const receiversId = [lecturer._id];
@@ -252,7 +217,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
       projectAssignedTo: {
         ...project?.projectAssignedTo,
         studentsId: selectedStudents,
-        supervisorId: project?.projectAssignedTo?.supervisorId || null,
         secondReaderId: project?.projectAssignedTo?.secondReaderId || null,
       },
     };
@@ -299,7 +263,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             const applicantReceivers = updatedProject.project.applicants.map(
               (applicant: { studentId: string }) => applicant.studentId
             );
-            console.log(applicantReceivers);
+            // console.log(applicantReceivers);
             socket.emit("sendNotification", {
               userId,
               receiversId: applicantReceivers,
@@ -404,7 +368,6 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 value={formData.programme.toString()}
                 onChange={handleChange}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-
                 required
               >
                 <option value="">Select a course</option>
@@ -415,89 +378,70 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 ))}
               </select>
             </div>
+            {session.user.role == "Lecturer" ||
+              (session.user.role == "Admin" && (
+                <div>
+                  <label
+                    htmlFor="students"
+                    className="block text-lg text-gray-700 mb-2"
+                  >
+                    Select {isGroupProject ? "Students" : "Student"}
+                  </label>
+                  <select
+                    id="students"
+                    name="students"
+                    value={isGroupProject ? "" : selectedStudents[0] || ""}
+                    onChange={handleStudentChange}
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                  >
+                    <option value="">
+                      {isGroupProject ? "Select Students" : "Select a Student"}
+                    </option>
+                    {project?.applicants.map((applicant) => (
+                      <option value={applicant.studentId?._id}>
+                        {applicant.studentId?.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
 
-            <div>
-              <label
-                htmlFor="supervisor"
-                className="block text-lg text-gray-700 mb-2"
-              >
-                Supervisor
-              </label>
-              <select
-                id="supervisor"
-                name="supervisor"
-                key={selectedSupervisor}
-                value={selectedSupervisor || ""}
-                onChange={handleSupervisorChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-              >
-                <option value="invite">Invite...</option>
-                <option value={selectedSupervisor}>
-                  Assigned:{" "}
-                  {lecturers.find(
-                    (lecturers) => lecturers._id === selectedSupervisor
-                  )?.name || "No one has been assigned"}
-                </option>
-                {selectedSupervisor && <option value="">Unassign...</option>}
-              </select>
-            </div>
+            {session.user.role == "Lecturer" ||
+              (session.user.role == "Admin" && (
+                <div>
+                  <label
+                    htmlFor="secondReader"
+                    className="block text-lg text-gray-700 mb-2"
+                  >
+                    Second Reader
+                  </label>
+                  <select
+                    id="secondReader"
+                    name="secondReader"
+                    key={selectedSecondReader}
+                    value={selectedSecondReader || ""}
+                    onChange={handleSecondReaderChange}
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                  >
+                    <option value="invite">Invite...</option>
+                    <option value={selectedSecondReader}>
+                      Assigned:{" "}
+                      {lecturers.find(
+                        (lecturers) => lecturers._id === selectedSecondReader
+                      )?.name || "No one has been assigned"}
+                    </option>
+                    {selectedSecondReader && (
+                      <option value="">Unassign...</option>
+                    )}
+                  </select>
+                </div>
+              ))}
 
-            <div>
-              <label
-                htmlFor="students"
-                className="block text-lg text-gray-700 mb-2"
-              >
-                Select {isGroupProject ? "Students" : "Student"}
-              </label>
-              <select
-                id="students"
-                name="students"
-                value={isGroupProject ? "" : selectedStudents[0] || ""}
-                onChange={handleStudentChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-              >
-                <option value="">
-                  {isGroupProject ? "Select Students" : "Select a Student"}
-                </option>
-                {project?.applicants.map((applicant) => (
-                  <option value={applicant.studentId?._id}>
-                    {applicant.studentId?.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="secondReader"
-                className="block text-lg text-gray-700 mb-2"
-              >
-                Second Reader
-              </label>
-              <select
-                id="secondReader"
-                name="secondReader"
-                key={selectedSecondReader}
-                value={selectedSecondReader || ""}
-                onChange={handleSecondReaderChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
-              >
-                <option value="invite">Invite...</option>
-                <option value={selectedSecondReader}>
-                  Assigned:{" "}
-                  {lecturers.find(
-                    (lecturers) => lecturers._id === selectedSecondReader
-                  )?.name || "No one has been assigned"}
-                </option>
-                {selectedSecondReader && <option value="">Unassign...</option>}
-              </select>
-            </div>
-
-            {showInviteModal && (
+            {showInviteSecondReaderModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                 <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
                   <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
-                    Invite a Lecturer
+                    Invite a SecondReader
                   </h2>
                   <div className="space-y-4">
                     {lecturers.map((lecturer) => (
@@ -507,15 +451,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                       >
                         <span>{lecturer.name}</span>
                         <button
-                          onClick={() => handleInviteClick(lecturer)}
+                          onClick={() =>
+                            handleInviteSecondReaderClick(lecturer)
+                          }
                           className={`px-4 py-2 rounded-lg ${
-                            invitedLecturers.includes(lecturer._id)
+                            invitedSecondReaders.includes(lecturer._id)
                               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                               : "bg-lime-500 text-white hover:bg-lime-600"
                           }`}
-                          disabled={invitedLecturers.includes(lecturer._id)}
+                          disabled={invitedSecondReaders.includes(lecturer._id)}
                         >
-                          {invitedLecturers.includes(lecturer._id)
+                          {invitedSecondReaders.includes(lecturer._id)
                             ? "Invited"
                             : "Invite"}
                         </button>
@@ -524,17 +470,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                   </div>
                   <div className="flex justify-end mt-4">
                     <button
-                      onClick={() => setShowInviteModal(false)}
+                      onClick={() => setShowInviteSecondReaderModal(false)}
                       className="bg-gray-300 text-black px-4 py-2 rounded-lg"
                     >
-                      Go Back
+                      Cancel
                     </button>
                   </div>
                 </div>
               </div>
             )}
 
-            {isGroupProject && (
+            {isGroupProject && session.user.role == "Lecturer" && (
               <div>
                 <label className="block text-lg text-gray-700 mb-2">
                   Selected Students
@@ -567,22 +513,25 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               </div>
             )}
 
-            <div className="col-span-2">
-              <label
-                htmlFor="groupProject"
-                className="block text-lg text-gray-700 mb-2"
-              >
-                Group Project
-              </label>
-              <input
-                type="checkbox"
-                id="groupProject"
-                name="groupProject"
-                checked={isGroupProject}
-                onChange={handleGroupToggle}
-                className="w-5 h-5"
-              />
-            </div>
+            {session.user.role == "Lecturer" ||
+              (session.user.role == "Admin" && (
+                <div className="col-span-2">
+                  <label
+                    htmlFor="groupProject"
+                    className="block text-lg text-gray-700 mb-2"
+                  >
+                    Group Project
+                  </label>
+                  <input
+                    type="checkbox"
+                    id="groupProject"
+                    name="groupProject"
+                    checked={isGroupProject}
+                    onChange={handleGroupToggle}
+                    className="w-5 h-5"
+                  />
+                </div>
+              ))}
 
             <div className="col-span-2">
               <label
@@ -652,7 +601,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           <div className="mt-6 flex gap-2 justify-end">
             <Link
               href="/pages/projects"
-              className="bg-red-500 text-white px-4 py-3 rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-lime-600"
+              className="bg-gray-300 text-black px-4 py-3 rounded-xl hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-lime-600"
             >
               Cancel
             </Link>

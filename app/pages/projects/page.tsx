@@ -462,16 +462,6 @@ const ProjectsPage = () => {
                       </button>
                     )}
 
-                  {selectedProject.projectAssignedTo.studentsId.some(
-                    (student) => student._id === session?.user.id
-                  ) && (
-                    <Link
-                      href={`/pages/deliverables?projectId=${selectedProject._id}`}
-                      className="bg-lime-800 text-white px-6 py-2 rounded-lg hover:bg-lime-900 transition duration-200"
-                    >
-                      📝 Manage Deliverables
-                    </Link>
-                  )}
                 </div>
 
                 <p>
