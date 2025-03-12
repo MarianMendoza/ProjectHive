@@ -72,10 +72,7 @@ const startServer = async () => {
           // console.log(receiversId)
         }
 
-        if (!mongoose.Types.ObjectId.isValid(projectId) || projectId.length !== 24) {
-          throw new Error(`Invalid projectId: ${projectId}`);
-        }
-
+        
         // console.log(receiversId);
         console.log(userId.name);
 
@@ -89,7 +86,9 @@ const startServer = async () => {
         // Fetch the project data
         const project = await Projects.findById(projectId, 'title');
         if (!project) {
-          throw new Error(`Project not found for projectId: ${projectId}`);
+          console.log(`Project not found for projectId: ${projectId}`);
+        } else{
+          console.log("No project.")
         }
 
         const now = new Date();
@@ -143,7 +142,17 @@ const startServer = async () => {
           case "SubmitSecondReader":
             message = `${timestamp} \n ${user.name} has submitted grades for ${project.title}`
             break
+          case "LecturerCreated":
+            message = `${timestamp} \n ${user.name} is waiting to be approved.`
+            break
+          case "ApproveLecturer":
+            message = `${timestamp} \n You have been approved. Navigate to your dashboard to start using the system.`
+            break
+          case "DeclineLecturer":
+            message = `${timestamp} \n You have been declined access to Lecturers permissions.`
+            break
         }
+
 
         const notification = new Notification({
           userId: userId,

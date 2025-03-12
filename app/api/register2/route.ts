@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import connectMongo from "../../../lib/mongodb"; // Adjust the path according to your structure
-import User from "../../models/User"; // Adjust the path according to your structure
-import { verifyToken } from '../../../lib/tokenUtils'; // Import the JWT utility
-
+import connectMongo from '@/lib/mongodb';
+import User from '@/app/models/User';
+import { verifyToken } from '@/lib/tokenUtils';
 
 export async function POST(req: Request) {
     await connectMongo();
@@ -28,5 +27,5 @@ export async function POST(req: Request) {
     user.approved = role === 'Lecturer' ? false : true; // Set approved based on role
     await user.save();
   
-    return NextResponse.json({ message: "Role saved successfully!" }, { status: 200 });
+    return NextResponse.json({ user: {_id: user._id, role: user.role, approved: user.approved} }, { status: 200 });
   }
