@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { IDeliverables } from "../models/Deliverables";
+import { useSocket } from "@/app/provider";
 
 export const handleRowExpand = (
   row: Deliverable,
@@ -25,6 +26,7 @@ export const expandedRowContent = ({
   row: IDeliverables;
   showSecondReader: boolean;
 }) => {
+  const socket = useSocket();
   const { data: session } = useSession();
   const [supervisorFeedback, setSupervisorFeedback] = useState({
     outlineDocument: {
@@ -117,10 +119,41 @@ export const expandedRowContent = ({
           [`${deliverableType}.supervisorSubmit`]: true,
           [`${deliverableType}.supervisorSigned`]: true,
         };
+
+        const userId = session?.user.id;
+        const receiversId = [
+          row.data.projectId.projectAssignedTo.secondReaderId._id,
+        ];
+        const projectId = row.data.projectId._id;
+        const type = "SupervisorSigned";
+
+        if (socket) {
+          socket.emit("sendNotification", {
+            userId,
+            receiversId,
+            projectId,
+            type,
+          });
+        }
       } else {
         updateData = {
           [`${deliverableType}.secondReaderSigned`]: true,
         };
+
+        const userId = session?.user.id;
+        const receiversId = [
+          row.data.projectId.projectAssignedTo.supervisorId._id,
+        ];
+        const projectId = row.data.projectId._id;
+        const type = "SecondReaderSigned";
+        if (socket) {
+          socket.emit("sendNotification", {
+            userId,
+            receiversId,
+            projectId,
+            type,
+          });
+        }
       }
     } else {
       alert("Username does not match.");
@@ -217,6 +250,22 @@ export const expandedRowContent = ({
             [`${deliverableType}.${feedbackType}`]: feedback,
             [`${deliverableType}.supervisorInitialSubmit`]: true,
           };
+
+          const userId = session?.user.id;
+          const receiversId = [
+            row.data.projectId.projectAssignedTo.secondReaderId._id,
+          ];
+          const projectId = row.data.projectId._id;
+          const type = "SubmitSupervisor";
+
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,
+              projectId,
+              type,
+            });
+          }
         } else {
           updateData = {
             [`${deliverableType}.${feedbackType}`]: feedback,
@@ -272,7 +321,38 @@ export const expandedRowContent = ({
         throw new Error("Failed to update deliverables.");
       }
 
-      alert("This is now published.");
+      let type = "";
+
+      switch (deliverableType) {
+        case "outlineDocument":
+          type = "outlineDocumentPublished";
+          break;
+        case "extendedAbstract":
+          type = "extendedAbstractPublished";
+          break;
+        case "finalReport":
+          type = "finalReportPublished";
+          break;
+        default:
+          type = "";
+          break;
+      }
+
+      const userId = session?.user.id;
+      const students = row.data.projectId.projectAssignedTo.studentsId || [];
+      const receiversId = students.map((student: any) => student._id);
+      const projectId = row.data.projectId._id;
+
+      if (socket) {
+        socket.emit("sendNotification", {
+          userId,
+          receiversId,
+          projectId,
+          type,
+        });
+      }
+
+      alert(`This has published grades for ${deliverableType}.`);
     } catch (error) {
       alert("An error occurred while submitting feedback.");
     }
@@ -296,6 +376,22 @@ export const expandedRowContent = ({
             [`${deliverableType}.${feedbackType}`]: feedback,
             [`${deliverableType}.secondReaderInitialSubmit`]: true,
           };
+
+          const userId = session?.user.id;
+          const receiversId = [
+            row.data.projectId.projectAssignedTo.supervisorId._id,
+          ];
+          const projectId = row.data.projectId._id;
+          const type = "SubmitSecondReader";
+
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,
+              projectId,
+              type,
+            });
+          }
         } else {
           updateData = {
             [`${deliverableType}.${feedbackType}`]: feedback,
@@ -772,10 +868,10 @@ export const expandedRowContent = ({
                   </p>
                   <div className="flex gap-2">
                     <button
-                      disabled={!row.finalReport?.supervisorSubmit}
+                      disabled={row.finalReport?.supervisorSubmit}
                       onClick={() => handleOpenModal("secondReader")}
                       className={`p-2 text-sm rounded-lg transition-all duration-200 ${
-                        !row.finalReport?.supervisorSubmit
+                        row.finalReport?.supervisorSubmit
                           ? "bg-gray-400 text-gray-600 cursor-not-allowed" // Styles for disabled button
                           : "bg-teal-500 hover:bg-teal-600 text-white cursor-pointer" // Styles for enabled button
                       }`}
@@ -784,9 +880,9 @@ export const expandedRowContent = ({
                     </button>
 
                     <button
-                      disabled={!row.finalReport?.supervisorSubmit}
+                      disabled={row.finalReport?.supervisorSubmit}
                       className={`p-2 text-sm rounded-lg transition-all duration-200 ${
-                        !row.finalReport?.supervisorSubmit
+                        row.finalReport?.supervisorSubmit
                           ? "bg-gray-400 text-gray-600 cursor-not-allowed" // Styles for disabled button
                           : "bg-orange-500 hover:bg-orange-600 text-white cursor-pointer" // Styles for enabled button
                       }`}
