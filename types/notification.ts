@@ -8,7 +8,7 @@ export interface Notification {
   receiversId:User[];
   message: string; // The notification message
   messageUser: string;
-  type: "ApplicationStudent" | "StudentAccept" |"StudentDecline"|"Closed" | "InvitationSecondReader" | "DeclineSecondReader" |"AcceptSecondReader" | "UnassignSecondReader" | "InvitationSupervisor"| "SupervisorDecline" | "SupervisorAccept" | "GradesPublished"| "SubmitSupervisor" | "SubmitSecondReader"; // Type of notification
+  type: "ApplicationStudent" | "StudentAccept" |"StudentDecline"|"Closed" | "InvitationSecondReader" | "DeclineSecondReader" |"AcceptSecondReader" | "UnassignSecondReader" | "InvitationSupervisor"| "SupervisorDecline" | "SupervisorAccept" | "GradesPublished"| "SubmitSupervisor" | "SubmitSecondReader" | "LecturerCreated" | "ApproveLecturer" | "DeclineLecturer"; // Type of notification
   relatedProjectId: Project | null; // The project associated with the notification, if any
   isRead: boolean; // Whether the notification has been read
   timestamp: Date; 

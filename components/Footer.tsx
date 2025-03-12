@@ -6,10 +6,7 @@ export default function Footer() {
                 </span>
                 <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-black sm:mt-0">
                     <li>
-                        <a href="#" className="hover:underline me-4 md:me-6">About</a>
-                    </li>
-                    <li>
-                        <a href="#" className="hover:underline">Contact</a>
+                        <a href="https://github.com/MarianMendoza/ProjectHive" className="hover:underline">Gitub</a>
                     </li>
                 </ul>
             </div>

@@ -53,8 +53,11 @@ const Notifications = () => {
     const receiversId = [relatedProject.userId?._id];
     const projectId = relatedProject.relatedProjectId?._id;
 
-    console.log(relatedProject.relatedProjectId?._id)
-    console.log(projectId)
+    // console.log(relatedProject.relatedProjectId?._id)
+    // console.log(projectId)
+    // console.log(relatedProject.userId?._id)
+    // console.log(receiversId)
+
 
     if (relatedProject.type == "InvitationSecondReader"){
       type = "AcceptSecondReader";
@@ -66,7 +69,13 @@ const Notifications = () => {
         }
       };
     }
-    // Need to check this in model.
+
+    if (relatedProject.type == "LecturerCreated"){
+      type = "ApproveLecturer"
+       user = {
+        approved: true
+      }
+    }
 
 
     if (relatedProject.type == "ApplicationStudent"){
@@ -91,29 +100,59 @@ const Notifications = () => {
 
      
     try {
-      const res = await fetch(`../../api/projects/${projectId}`,{
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-      });
 
-      const data = await res.json();
-
-
-      if (res.ok){
-        console.log("Project updated successfully!:", data);
-
-         if (socket) {
-          socket.emit("sendNotification", { userId, receiversId, projectId, type });
-        } else {
-          console.error("Socket is not initialized");
+      if(relatedProject.type == "LecturerCreated"){
+        const res = await fetch(`/api/users/${relatedProject.userId?._id}`,{
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user),
+        });
+  
+        const data = await res.json();
+  
+  
+        if (res.ok){
+          console.log("User updated successfully!:", data);
+  
+           if (socket) {
+            socket.emit("sendNotification", { userId, receiversId, projectId, type });
+          } else {
+            console.error("Socket is not initialized");
+          }
+          markAsRead(relatedProject?._id);
+        } else{
+          console.error("Failed to update user:", data);
         }
-        markAsRead(relatedProject?._id);
-      } else{
-        console.error("Failed to update project:", data);
+
+      }else{
+        const res = await fetch(`/api/projects/${projectId}`,{
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user),
+        });
+  
+        const data = await res.json();
+  
+  
+        if (res.ok){
+          console.log("Project updated successfully!:", data);
+  
+           if (socket) {
+            socket.emit("sendNotification", { userId, receiversId, projectId, type });
+          } else {
+            console.error("Socket is not initialized");
+          }
+          markAsRead(relatedProject?._id);
+        } else{
+          console.error("Failed to update project:", data);
+        }
+        
       }
+     
     } catch (error) {
       console.error("Error accepting invitations:", error);  
     }
@@ -133,12 +172,15 @@ const Notifications = () => {
     if(relatedProject.type ==="InvitationSupervisor"){
       type = "SupervisorDecline";
     }
+    if(relatedProject.type =="LecturerCreated"){
+      type = "DeclineLecturer";
+    }
     
 
     //dont make this an array
     const userId = relatedProject.receiversId.toString();
     const receiversId = [relatedProject.userId._id];
-    const projectId = relatedProject.relatedProjectId._id;
+    const projectId = relatedProject.relatedProjectId?._id ;
 
     // console.log(userId, receiversId, projectId , type);
     if (socket) {
@@ -206,6 +248,23 @@ const Notifications = () => {
                   )}
 
                   {notification.type === "InvitationSecondReader" &&
+                    !notification.isRead && (
+                      <div className="flex space-x-2 w-full">
+                        <button
+                          className=" text-sm px-2 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
+                          onClick={() => acceptInvitation(notification)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className=" text-sm px-2 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-200 w-full"
+                          onClick={() => declineInvitation(notification)}
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
+                     {notification.type === "LecturerCreated" &&
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
