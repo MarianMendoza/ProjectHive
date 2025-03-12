@@ -13,7 +13,9 @@ const UsersPage = () => {
   const [selectedLecturer, setSelectedLecturer] = useState<User | null>(null);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [message, setMessage] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("All");
+  const [showConfirmModal, setshowConfirmModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const socket = useSocket();
 
@@ -59,14 +61,20 @@ const UsersPage = () => {
     setShowInviteModal(true);
   };
 
+  
+  const handleInvite = async () => {
+    setshowConfirmModal(true);
+  }
+
   const handleInviteSubmit = async () => {
-    // console.log("Selected Project;" + selectedProject);
+    setshowConfirmModal(false);
 
     if (session?.user.role === "Lecturer") {
       const userId = session?.user.id;
       const receiversId = [selectedLecturer?._id];
       const projectId = selectedProject;
       const type = "InvitationSecondReader";
+      const messageUser = message;
 
       console.log(projectId);
 
@@ -75,6 +83,7 @@ const UsersPage = () => {
           userId,
           receiversId,
           projectId,
+          messageUser,
           type,
         });
       } else {
@@ -85,12 +94,13 @@ const UsersPage = () => {
       const receiversId = [selectedLecturer?._id];
       const projectId = selectedProject;
       const type = "InvitationSupervisor";
-
+      const messageUser = message;
       if (socket) {
         socket.emit("sendNotification", {
           userId,
           receiversId,
           projectId,
+          messageUser,
           type,
         });
       } else {
@@ -251,10 +261,40 @@ const UsersPage = () => {
                 Cancel
               </button>
               <button
-                onClick={handleInviteSubmit}
+                onClick={handleInvite}
                 className="bg-lime-500 text-white px-6 py-2 rounded-lg hover:bg-lime-600 transition duration-200 ease-in-out"
               >
                 Send Invitation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmModal && (
+        <div className="modal fixed w-full inset-0 flex justify-center items-center bg-black bg-opacity-50 ">
+          <div className="modal-content bg-white p-8 rounded-2xl w-96 max-w-full shadow-lg">
+            <h2 className="text-1xl font-semibold text-gray-800 mb-4">
+              Send a message to {selectedLecturer?.name}:
+            </h2>
+            <textarea
+              className="w-full h-36 p-4 border border-gray-300 rounded-md text-md focus:outline-none focus:ring-2 focus:ring-lime-500 resize-none"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Enter your message"
+            />
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                className="bg-gray-300 text-black px-6 py-3 rounded-md font-medium  focus:bg-gray-400"
+                onClick={() => setshowConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-lime-600 text-white px-6 py-3 rounded-md font-medium focus:bg-lime-500"
+                onClick={() => handleInviteSubmit()}
+              >
+                Submit
               </button>
             </div>
           </div>

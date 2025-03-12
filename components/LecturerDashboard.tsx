@@ -198,16 +198,16 @@ export default function LecturerDashboard() {
   const columns = [
     {
       name: "Project Title",
-      selector: (row) => row.title,
+      selector: (row:Project) => row.title,
       sortable: true,
       minWidth: "180px",
-      cell: (row) => (
+      cell: (row:Project) => (
         <span className="font-medium text-gray-800">{row.title}</span>
       ),
     },
     {
       name: "Created At",
-      selector: (row) =>
+      selector: (row:Project) =>
         new Date(row.createdAt).toLocaleDateString("en-US", {
           year: "numeric",
           month: "short",
@@ -218,21 +218,21 @@ export default function LecturerDashboard() {
     },
     {
       name: "Supervisor",
-      selector: (row) =>
+      selector: (row:Project) =>
         row.projectAssignedTo.supervisorId?.name || "Not Assigned",
       sortable: true,
       minWidth: "140px",
     },
     {
       name: "Second Reader",
-      selector: (row) =>
+      selector: (row:Project) =>
         row.projectAssignedTo.secondReaderId?.name || "Not Assigned",
       sortable: true,
       minWidth: "140px",
     },
     {
       name: "Students",
-      selector: (row) => (
+      selector: (row:Project) => (
         <div className="text-sm">
           {row.projectAssignedTo.studentsId.length > 0 ? (
             row.projectAssignedTo.studentsId.map((student) => (
@@ -249,7 +249,7 @@ export default function LecturerDashboard() {
     },
     {
       name: "Actions",
-      cell: (row) => (
+      cell: (row:Project) => (
         <div className="flex items-center space-x-2">
           {/* View Deliverables */}
           <Link
