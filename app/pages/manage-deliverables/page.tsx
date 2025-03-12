@@ -1,6 +1,8 @@
 "use client";
 import { Deliverable, IDeliverables } from "@/types/deliverable"; // Assuming IDeliverables is exported here
 import { useSession } from "next-auth/react";
+import { useSocket } from "@/app/provider";
+
 import {
   handleRowExpand,
   expandedRowContent,
@@ -19,6 +21,7 @@ export default function ManageDeliverable() {
     Project[]
   >([]);
   const [showSecondReader, setShowSecondReader] = useState(false);
+  const socket = useSocket();
 
   useEffect(() => {
     const fetchDeliverables = async () => {
@@ -30,7 +33,7 @@ export default function ManageDeliverable() {
         const filteredDeliverables = data.filter(
           (deliverable: IDeliverables) => {
             const isSupervisor =
-              deliverable.projectId?.projectAssignedTo?.supervisorId._id ===
+              deliverable.projectId?.projectAssignedTo?.supervisorId?._id ===
               session?.user.id;
 
             return isSupervisor;
@@ -40,7 +43,7 @@ export default function ManageDeliverable() {
         const secondReaderDeliverables = data.filter(
           (deliverable: IDeliverables) => {
             return (
-              deliverable.projectId?.projectAssignedTo.secondReaderId?._id.toString() ===
+              deliverable.projectId?.projectAssignedTo?.secondReaderId?._id.toString() ===
               session?.user.id
             );
           }
@@ -94,6 +97,9 @@ export default function ManageDeliverable() {
         },
         body: JSON.stringify(updateData),
       });
+
+      
+      
 
       if (!res.ok) {
         throw new Error(`Failed to update grades: ${res.statusText}`);

@@ -133,14 +133,26 @@ const startServer = async () => {
           case "SupervisorDecline":
             message = `${timestamp} \n Your invite to ${user.name} has been declined for ${project.title}.`
             break
-          case "GradesPublished":
-            message = `${timestamp} \n Your grades have been updated! View this in your deliverables page to view more details.`
+          case "outlineDocumentPublished":
+            message = `${timestamp} \n Your grades for your outline document has been released! View this in your deliverables page.`
+            break
+          case "extendedAbstractPublished":
+            message = `${timestamp} \n Your grades for your outline document has been released! View this in your deliverables page.`
+            break
+          case "finalReportPublished":
+            message = `${timestamp} \n Your grades for your outline document has been released! View this in your deliverables page.`
             break
           case "SubmitSupervisor":
-            message = `${timestamp} \n ${user.name} has submitted grades for ${project.title}`
+            message = `${timestamp} \n ${user.name} has submitted grades and feedback for ${project.title}`
             break
           case "SubmitSecondReader":
-            message = `${timestamp} \n ${user.name} has submitted grades for ${project.title}`
+            message = `${timestamp} \n ${user.name} has submitted grades and feedback for ${project.title}`
+            break
+          case "SupervisorSigned":
+            message = `${timestamp} \n Your feedback has been signed off by ${user.name}, make sure to sign to completely publish grades.`
+            break
+          case "SecondReaderSigned":
+            message = `${timestamp} \n Your feedback has been signed off by ${user.name}, make sure to publish after signing!.`
             break
           case "LecturerCreated":
             message = `${timestamp} \n ${user.name} is waiting to be approved.`
@@ -152,7 +164,6 @@ const startServer = async () => {
             message = `${timestamp} \n You have been declined access to Lecturers permissions.`
             break
         }
-
 
         const notification = new Notification({
           userId: userId,
