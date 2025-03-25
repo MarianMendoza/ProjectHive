@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   const id = url.pathname.split("/").pop();
 
   try {
-      const deliverables = await Deliverables.findById(id)
+      let deliverables = await Deliverables.findById(id)
           .populate({
               path: "projectId",
               select: "projectAssignedTo",
@@ -25,6 +25,27 @@ export async function GET(req: Request) {
               ]
 
           }).populate('deadlineId', 'outlineDocumentDeadline extendedAbstractDeadline finalReportDeadline').lean();
+
+          if (!deliverables) {
+            deliverables = await Deliverables.findOne({ projectId: id })
+              .populate({
+                path: "projectId",
+                select: "projectAssignedTo",
+                populate: [
+                  {
+                    path: "projectAssignedTo.supervisorId",
+                    select: "_id",
+                  },
+                  {
+                    path: "projectAssignedTo.secondReaderId",
+                    select: "_id",
+                  },
+                ],
+              })
+              .populate("deadlineId", "outlineDocumentDeadline extendedAbstractDeadline finalReportDeadline")
+              .lean();
+          }
+      
 
       
 
