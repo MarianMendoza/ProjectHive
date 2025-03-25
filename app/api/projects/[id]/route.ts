@@ -22,6 +22,9 @@ export async function GET(req: Request) {
         }).populate({
             path: "projectAssignedTo.secondReaderId",
             select: "name"
+        }).populate({
+            path:"projectAssignedTo.studentsId",
+            select: "name"
         });
         if (!project) {
             throw new Error("Project not found");
