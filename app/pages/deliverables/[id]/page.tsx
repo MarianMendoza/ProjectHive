@@ -311,7 +311,7 @@ export default function DeliverablesPage({
                 </p>
                 <p className="text-sm text-gray-600 mb-4">{description}</p>
 
-                {isPublished == true && isStudent && (
+                {isPublished == true && (
                   <div className="mt-4 mb-4">
                     <h3 className="text-small font-semibold text-gray-800 mb-2">
                       📋 Supervisor's Grade & Feedback

@@ -15,7 +15,7 @@ dotenv.config();
 console.log(process.env.MONGODB_URI); // Debug log
 
 // Wrap the MongoDB connection and server startup in an async function
-const startServer = async () => {
+export const startServer = async () => {
   // Connect to MongoDB
   await connectMongo();  // This will ensure MongoDB is connected before starting the server
 

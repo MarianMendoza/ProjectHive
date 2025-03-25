@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Bell, LogOut,BellRing } from "lucide-react";
+import { Bell, LogOut, Menu, X } from "lucide-react";
 import Notifications from "./Notifications";
 
 export default function Navbar() {
@@ -10,7 +10,7 @@ export default function Navbar() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
-
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const fetchProfileImage = async () => {
     if (session?.user?.id) {
@@ -40,143 +40,222 @@ export default function Navbar() {
   const userName = session?.user?.name || "";
 
   return (
-    <div>
-      <nav className="bg-white border-gray-200">
-        <div className="w-full flex items-center justify-between mx-0 p-6">
-          <a
-            href="https://findlogovector.com/university-college-cork-ucc-logo-vector-svg/"
-            target="_blank"
+    <nav className="bg-white border-gray-200">
+      <div className="w-full flex items-center justify-between p-6">
+        {/* UCC Logo */}
+        <a
+          href="https://findlogovector.com/university-college-cork-ucc-logo-vector-svg/"
+          target="_blank"
+          className="flex-shrink-0"
+        >
+          <img
+            src="https://findlogovector.com/wp-content/uploads/2019/04/university-college-cork-ucc-logo-vector.png"
+            className="h-16"
+            alt="UCC Logo"
+          />
+        </a>
+
+        {/* MOBILE: Menu Button (Only visible on sm and below) */}
+        <button
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className="md:hidden text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition"
+        >
+          {dropdownOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* MOBILE: Dropdown Menu */}
+        {dropdownOpen && (
+          <div className="absolute top-20 left-0 w-full bg-white mt-2 p-4 border-b-2 space-y-2 md:hidden z-50">
+            <Link
+              href="/"
+              className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+            >
+              Home
+            </Link>
+            <Link
+              href="/pages/open-day"
+              className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+            >
+              Open Day
+            </Link>
+            <Link
+              href="/pages/projects"
+              className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+            >
+              Projects
+            </Link>
+            <Link
+              href="/pages/past-projects"
+              className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+            >
+              Past Projects
+            </Link>
+            <Link
+              href="/pages/users"
+              className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+            >
+              Users
+            </Link>
+
+            {session ? (
+              <>
+                <Link
+                  href="/pages/dashboard"
+                  className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/pages/profile"
+                  className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+                >
+                  View Profile
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="flex items-center w-full px-4 py-2 text-gray-800 hover:bg-gray-100 rounded"
+                >
+                  <LogOut size={16} className="mr-2" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/pages/sign-in"
+                  className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/pages/register"
+                  className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
+                >
+                  Register
+                </Link>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* DESKTOP: Navigation Links */}
+        <div className="hidden md:flex items-center space-x-12">
+          <Link href="/" className="text-black hover:text-lime-600">
+            Home
+          </Link>
+          <Link
+            href="/pages/open-day"
+            className="text-black hover:text-lime-600"
           >
-            <img
-              src="https://findlogovector.com/wp-content/uploads/2019/04/university-college-cork-ucc-logo-vector.png"
-              className="h-16   m-0 p-0"
-              alt="UCC Logo"
-            />
-          </a>
+            Open Day
+          </Link>
+          <Link
+            href="/pages/projects"
+            className="text-black hover:text-lime-600"
+          >
+            Projects
+          </Link>
+          <Link
+            href="/pages/past-projects"
+            className="text-black hover:text-lime-600"
+          >
+            Past Projects
+          </Link>
+          <Link href="/pages/users" className="text-black hover:text-lime-600">
+            Users
+          </Link>
 
-          {/* <button data-collapse-toggle="navbar-default" type="button" className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
-            <span className="sr-only">Open main menu</span>
-            <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
-            </svg>
-          </button> */}
-          <div className="hidden w-full md:block md:w-auto" id="navbar-default">
-            <div className="font-medium items-center mr-20 flex flex-col p-4 md:p-0 mt-4 border md:flex-row md:space-x-12 rtl:space-x-reverse md:mt-0 md:border-0 ">
+          {session ? (
+            <Link
+              href="/pages/dashboard"
+              className="text-black hover:text-lime-600"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
               <Link
-                href="/"
-                className="block py-2 px-3 text-black md:p-0 hover:text-lime-600"
-                aria-current="page"
+                href="/pages/register"
+                className="text-black hover:text-lime-600"
               >
-                Home
+                Register
               </Link>
               <Link
-                href="/pages/projects"
-                className="block py-2 px-3 text-black md:p-0 hover:text-lime-600"
-                aria-current="page"
+                href="/pages/sign-in"
+                className="text-black hover:text-lime-600"
               >
-                Projects
+                Login
               </Link>
-              <Link
-                href="/pages/past-projects"
-                className="block py-2 px-3 text-black md:p-0 hover:text-lime-600"
-                aria-current="page"
+            </>
+          )}
+        </div>
+        <div className="flex items-center space-x-4">
+          {/* Profile & Notifications (Always Visible) */}
+          {session && (
+            <button
+              onClick={() => setNotificationOpen(!notificationOpen)}
+              className="relative flex items-center"
+            >
+              <Bell
+                size={24}
+                className="text-gray-700 hover:text-gray-900 transition"
+              />
+              <span className="absolute top-0 right-0 block w-2.5 h-2.5 bg-red-500 rounded-full" />
+            </button>
+          )}
+
+          {/* Profile Dropdown */}
+          {session && (
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="w-11 h-11 flex items-center rounded-full border border-gray-300 overflow-hidden"
               >
-                Past Projects
-              </Link>
-              <Link
-                href="/pages/users"
-                className="block py-2 px-3 text-black md:p-0 hover:text-lime-600"
-              >
-                {" "}
-                Users
-              </Link>
+                <img
+                  src={profileImage || "/placeholder-profile.png"}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </button>
 
-              {session ? (
-                <>
-                  <Link
-                    href="/pages/dashboard"
-                    className="block py-2 px-3 text-black md:p-0 hover:text-lime-600"
-                  >
-                    Dashboard
-                  </Link>
-
-                  <button
-                    onClick={() => setNotificationOpen(!notificationOpen)}
-                    className="relative flex items-center"
-                  >
-                    <Bell size={24} className="text-gray-700" />
-                    <span className="absolute top-0 right-0 block w-2.5 h-2.5 bg-red-500 rounded-full" />
-                  </button>
-
-                  <div className="relative flex items-center">
-                    <button
-                      onClick={() => setMenuOpen(!menuOpen)}
-                      className="flex w-11 h-11 items-center space-x-2"
+              {/* Profile Dropdown Content */}
+              {menuOpen && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+                  <div className="py-1">
+                    <Link
+                      href="/pages/profile"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
                     >
-                      <img
-                        src={profileImage || "/placeholder-profile.png"}
-                        alt="Profile"
-                        className="w-full h-full object-cover rounded-full shadow-md "
-                      />
+                      View Profile
+                    </Link>
+                    <Link
+                      href="/pages/dashboard"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => signOut({ callbackUrl: "/" })}
+                      className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                    >
+                      <LogOut size={16} className="mr-2" />
+                      Logout
                     </button>
-
-                 
-
-                    {menuOpen && (
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
-                        <div className="py-1">
-                          <Link
-                            href="/pages/profile"
-                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                          >
-                            View Profile
-                          </Link>
-                          <Link
-                            href="/pages/dashboard"
-                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                          >
-                            Dashboard
-                          </Link>
-                          <button
-                            onClick={() => signOut({ callbackUrl: "/" })}
-                            className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                          >
-                            <LogOut size={16} className="mr-2" />
-                            Logout
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {notificationOpen && (
-                      <div className="absolute top-full right-0 mt-2 w-60 bg-white border rounded-lg shadow-lg z-50">
-                        <div className="py-1">
-                          <Notifications></Notifications>
-                        </div>
-                      </div>
-                    )}
                   </div>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/pages/sign-in"
-                    className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/pages/register"
-                    className="block py-2 px-3 text-black md:p-0 rounded md:border-0 hover:text-lime-600"
-                  >
-                    Register
-                  </Link>
-                </>
+                </div>
               )}
             </div>
-          </div>
+          )}
+
+          {notificationOpen && (
+            <div className="absolute top-20 right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50 w-auto">
+              <div className="py-1">
+                <Notifications />
+              </div>
+            </div>
+          )}
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }

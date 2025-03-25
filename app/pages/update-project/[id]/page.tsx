@@ -378,8 +378,9 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 ))}
               </select>
             </div>
-            {session.user.role == "Lecturer" ||
-              (session.user.role == "Admin" && (
+
+            {session.user.role == "Lecturer" && (
+              <>
                 <div>
                   <label
                     htmlFor="students"
@@ -404,7 +405,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                     ))}
                   </select>
                 </div>
-              ))}
+              </>
+              )}
 
             {session.user.role == "Lecturer" ||
               (session.user.role == "Admin" && (

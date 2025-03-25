@@ -61,10 +61,9 @@ const UsersPage = () => {
     setShowInviteModal(true);
   };
 
-  
   const handleInvite = async () => {
     setshowConfirmModal(true);
-  }
+  };
 
   const handleInviteSubmit = async () => {
     setshowConfirmModal(false);
@@ -123,20 +122,21 @@ const UsersPage = () => {
   });
 
   return (
-    <div className="container mx-auto p-4 flex">
-      <div className={`w-full pr-4`}>
-        <div className="flex justify-between mb-4">
+    <div className="container mx-auto p-4 flex flex-col lg:flex-row">
+      <div className="w-full lg:pr-4">
+        {/* Search and Filter */}
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
           <input
             type="text"
             placeholder="Search by name"
-            className="px-4 py-2 border rounded"
+            className="w-full sm:w-1/2 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-lime-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            className="px-4 py-2 border rounded"
+            className="w-full sm:w-1/4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-lime-500"
           >
             <option value="All">All Roles</option>
             <option value="student">Student</option>
@@ -144,27 +144,31 @@ const UsersPage = () => {
           </select>
         </div>
 
+        {/* User List */}
         <div className="space-y-4">
           {filteredUsers.map((user) => (
             <div
               key={user._id}
-              className="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0"
+              className="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row items-center sm:items-start justify-between space-y-4 sm:space-y-0"
             >
-              {user.pfpurl ? (
-                <img
-                  src={user.pfpurl}
-                  alt={user.name}
-                  className="w-16 h-16 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500 text-xs text-center">
-                    No Image
-                  </span>
-                </div>
-              )}
+              <div className="w-full sm:w-auto flex justify-center sm:justify-start">
+                {user.pfpurl ? (
+                  <img
+                    src={user.pfpurl}
+                    alt={user.name}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-xs text-center">
+                      No Image
+                    </span>
+                  </div>
+                )}
+              </div>
 
-              <div className="flex-grow sm:ml-4">
+              {/* User Details */}
+              <div className="flex-grow m-2 text-center sm:text-left">
                 <h2 className="text-lg font-semibold">{user.name}</h2>
                 <p className="text-gray-500 text-sm italic">{user.role}</p>
                 <p className="text-gray-600 text-sm">
@@ -177,33 +181,26 @@ const UsersPage = () => {
                 </p>
               </div>
 
-              <div className="flex space-x-2">
-                {user.role === "Lecturer" &&
-                  session?.user.role == "Lecturer" &&
-                  session !== null &&
-                  session?.user.id !== user._id && (
-                    <button
-                      onClick={() => handleInviteClick(user)}
-                      className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
-                    >
-                      Invite
-                    </button>
-                  )}
+              {/* Actions - Invite Button Full Width on Mobile */}
+              <div className="w-full sm:w-auto flex flex-col md:flex-row md:items-center md:justify-end space-y-2 md:space-y-0 md:space-x-4">
+                {/* Invite Button - Shown for Eligible Users */}
+                {(user.role === "Lecturer" &&
+                  session?.user.role === "Lecturer" &&
+                  session?.user.id !== user._id) ||
+                (user.role === "Lecturer" &&
+                  session?.user.role === "Student" &&
+                  session?.user.id !== user._id) ? (
+                  <button
+                    onClick={() => handleInviteClick(user)}
+                    className="px-4 py-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
+                  >
+                    Invite
+                  </button>
+                ) : null}
 
-                {user.role === "Lecturer" &&
-                  session?.user.role == "Student" &&
-                  session !== null &&
-                  session?.user.id !== user._id && (
-                    <button
-                      onClick={() => handleInviteClick(user)}
-                      className="px-3 py-2 m-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
-                    >
-                      Invite
-                    </button>
-                  )}
-
+                {/* Approval Status - Next to Invite Button on md/lg screens */}
                 <span
-                  className={`px-3 py-2 m-2 text-sm rounded-full ${
+                  className={`px-3 py-2 text-sm rounded-full text-center ${
                     user.approved
                       ? "bg-green-100 text-green-600"
                       : "bg-yellow-100 text-yellow-600"
@@ -217,8 +214,9 @@ const UsersPage = () => {
         </div>
       </div>
 
+      {/* Invite Modal */}
       {showInviteModal && selectedLecturer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center px-4">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
             <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
               Invite {selectedLecturer.name} to become a{" "}
@@ -265,36 +263,6 @@ const UsersPage = () => {
                 className="bg-lime-500 text-white px-6 py-2 rounded-lg hover:bg-lime-600 transition duration-200 ease-in-out"
               >
                 Send Invitation
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showConfirmModal && (
-        <div className="modal fixed w-full inset-0 flex justify-center items-center bg-black bg-opacity-50 ">
-          <div className="modal-content bg-white p-8 rounded-2xl w-96 max-w-full shadow-lg">
-            <h2 className="text-1xl font-semibold text-gray-800 mb-4">
-              Send a message to {selectedLecturer?.name}:
-            </h2>
-            <textarea
-              className="w-full h-36 p-4 border border-gray-300 rounded-md text-md focus:outline-none focus:ring-2 focus:ring-lime-500 resize-none"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Enter your message"
-            />
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                className="bg-gray-300 text-black px-6 py-3 rounded-md font-medium  focus:bg-gray-400"
-                onClick={() => setshowConfirmModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-lime-600 text-white px-6 py-3 rounded-md font-medium focus:bg-lime-500"
-                onClick={() => handleInviteSubmit()}
-              >
-                Submit
               </button>
             </div>
           </div>

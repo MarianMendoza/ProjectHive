@@ -13,6 +13,7 @@ const ProjectsPage = () => {
   const [programmeFilter, setProgrammeFilter] = useState<string>("All");
   const [programme, setProgrammes] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showProjectModal, setShowProjectModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -98,7 +99,10 @@ const ProjectsPage = () => {
     fetchProgrammes();
     fetchProjects();
   }, [session, searchQuery, statusFilter, programmeFilter]); // Dependency array to re-run effect on searchQuery or statusFilter change
-
+    const handleProjectClick = (project:Project) => {
+      setSelectedProject(project);
+      setShowProjectModal(true); // Open modal on mobile
+    };
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
@@ -176,10 +180,10 @@ const ProjectsPage = () => {
       } else {
         const updatedProject = await res.json();
         const userId = session.user.id;
-        console.log(selectedProject.projectAssignedTo.supervisorId._id)
-        const receiversId = 
-          [selectedProject.projectAssignedTo?.supervisorId._id]
-        ;
+        console.log(selectedProject.projectAssignedTo.supervisorId._id);
+        const receiversId = [
+          selectedProject.projectAssignedTo?.supervisorId._id,
+        ];
         console.log(receiversId);
         const projectId = selectedProject._id;
         const type = "ApplicationStudent";
@@ -461,7 +465,6 @@ const ProjectsPage = () => {
                           : "Apply"}
                       </button>
                     )}
-
                 </div>
 
                 <p>
