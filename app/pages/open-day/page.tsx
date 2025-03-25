@@ -1,8 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import Countdown from "@/components/CountDown";
-
 export default function OpenDay() {
   return (
     <div className="flex flex-col items-center scroll-smooth mb-10">
@@ -16,7 +13,7 @@ export default function OpenDay() {
       {/* Banner Section */}
       <section className="w-full m-auto p-20 text-white text-center">
         <h1 className="text-5xl font-bold text-lime-800">
-          Computer Science FYP Open Day
+          FYP Open Day
         </h1>
         <p className="mt-4 text-lg text-lime-800">
           Join us on April 2, 2025, for an exciting showcase of student
