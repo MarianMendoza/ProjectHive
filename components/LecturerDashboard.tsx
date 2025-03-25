@@ -253,7 +253,7 @@ export default function LecturerDashboard() {
         <div className="flex items-center space-x-2">
           {/* View Deliverables */}
           <Link
-            href={`/pages/deliverables/${row.deliverables._id}`}
+            href={`/pages/project-page/${row._id}`}
             title="View Deliverables"
             className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 text-xs flex items-center justify-center w-[90px]"
           >
@@ -310,11 +310,7 @@ export default function LecturerDashboard() {
                         Create New Project
                       </Link>
                     </button>
-                    <button className="bg-lime-800 text-sm text-white px-2 py-2 rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out">
-                      <Link href="/pages/manage-deliverables">
-                        Manage Deliverables
-                      </Link>
-                    </button>
+                    
                   </div>
                 </div>
                 {/* Your Projects Section */}
