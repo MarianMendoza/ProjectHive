@@ -47,8 +47,6 @@ export async function GET(req: Request) {
           }
       
 
-      
-
       if (!deliverables) {
           return NextResponse.json({ message: "Deliverables not found" }, { status: 404 });
       }

@@ -1,1 +1,0 @@
-// Different document type + Save + Publish

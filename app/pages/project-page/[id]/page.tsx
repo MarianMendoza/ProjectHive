@@ -21,6 +21,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
     finalSecondReaderGrade: null,
   });
   const [initialFeedbackReady, setInitialFeedbackReady] = useState(false);
+  const [feedbackReady, setFeedbackReady] = useState(false);
 
   useEffect(() => {
     const fetchDeliverables = async () => {
@@ -51,7 +52,8 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
           deliverable?.finalReport?.secondReaderInitialSubmit;
         setInitialFeedbackReady(isInitialFeedbackReady);
 
-     
+        const isFeedbackReady = deliverable?.finalReport?.supervisorSubmit;
+        setFeedbackReady(isFeedbackReady);
       } catch (err) {
         console.error("Error fetching deliverable:", err);
         setError("An error occurred.");
@@ -171,18 +173,28 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                   ]
                 : ["Provisional Report", "Final Report"]
               ).map((doc) => (
-                <button
+                <Link
                   key={doc}
-                  onClick={() => handleGradingClick(doc)}
-                  className=" bg-lime-600 text-white px-6 py-3 rounded-full font-medium shadow-md hover:bg-lime-700  duration-200 ease-in-out"
+                  href={`/pages/deliverables-page/${doc}/${id}`}
+                  className={`bg-lime-600 text-white px-6 py-3 rounded-full font-medium shadow-md hover:bg-lime-700 duration-200 ease-in-out ${
+                    !feedbackReady && !supervisor
+                      ? "cursor-not-allowed opacity-50"
+                      : ""
+                  }`}
+                  onClick={(e) => {
+                    if (!feedbackReady && !supervisor) {
+                      e.preventDefault(); 
+                    }
+                  }}
+                  aria-disabled={!feedbackReady && !supervisor}
                 >
                   {doc}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
 
-          <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
+          <div className="mt-6 bg-white p-6">
             <h2 className="text-lg font-bold mb-4 text-gray-800">
               📊 Grades Summary
             </h2>
@@ -191,39 +203,30 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
               {
                 label: "Outline Document",
                 value: grades.outlineGrade,
-                visibleTo: "all",
+                show: !secondReader,
               },
               {
                 label: "Extended Abstract",
                 value: grades.abstractGrade,
-                visibleTo: "all",
+                show: !secondReader,
               },
               {
                 label: "Supervisor Provisional Grade",
                 value: grades.finalSupervisorInitialGrade,
-                visibleTo: "supervisorOnly",
+                show: !secondReader || initialFeedbackReady,
               },
               {
                 label: "Second Reader Provisional Grade",
                 value: grades.finalSecondReaderGrade,
-                visibleTo: "supervisorOnly",
+                show: secondReader || initialFeedbackReady,
               },
               {
                 label: "Final Supervisor Grade",
                 value: grades.finalSupervisorGrade,
-                visibleTo: "all",
+                show: true,
               },
             ]
-              .filter((item) => {
-                if (item.visibleTo === "supervisorOnly") {
-                  return !secondReader && initialFeedbackReady;
-                }
-                if (secondReader && item.label === "Outline Document")
-                  return false;
-                if (secondReader && item.label === "Extended Abstract")
-                  return false;
-                return true;
-              })
+              .filter((item) => item.show)
               .map((item, index) => (
                 <div key={index} className="mb-4">
                   <div className="flex justify-between mb-1 text-sm font-medium text-gray-700">
