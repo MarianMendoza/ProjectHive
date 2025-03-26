@@ -10,6 +10,7 @@ export interface Deliverable {
 }
 
 export interface FinalReport {
+  file:string | null;
   uploadedAt: Date | null;
   supervisorInitialGrade?: number | null;
   supervisorInitialFeedback?: Map<string, string>;
