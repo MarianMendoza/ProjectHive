@@ -13,6 +13,12 @@ export default function DeliverablePage({
   const { id, type } = params;
   const socket = useSocket();
   const { data: session } = useSession();
+  const [isViewingCounterpart, setIsViewingCounterpart] = useState(false);
+  const [counterpartFeedback, setCounterpartFeedback] = useState<
+    typeof feedback | null
+  >(null);
+  const [counterpartGrade, setCounterpartGrade] = useState<number | null>(null);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [deliverable, setDeliverables] = useState<IDeliverables | null>(null);
@@ -352,27 +358,101 @@ export default function DeliverablePage({
         <h2 className="text-base sm:text-lg text-center text-gray-500 mb-8">
           {decodedType}
         </h2>
-        {file ? (
-          <div className="flex justify-center mb-6">
-            <button
-              onClick={() => handleDownload(file)}
-              className="flex items-center gap-2 px-5 py-2 bg-lime-700 text-white font-medium rounded-full shadow-md hover:bg-lime-800 transition"
-            >
-              <FaDownload className="text-white" />
-              Download Document
-            </button>
-          </div>
-        ) : (
-          <div className="flex justify-center mb-6">
-            <button
-              disabled
-              className="flex items-center gap-2 px-5 py-2 bg-gray-300 text-gray-600 font-medium rounded-full cursor-not-allowed"
-            >
-              <FaDownload />
-              File not available
-            </button>
-          </div>
-        )}
+       
+
+        <div className="flex justify-center gap-6">
+          {file ? (
+            <div className="flex justify-center mb-6">
+              <button
+                onClick={() => handleDownload(file)}
+                className="flex items-center gap-2 px-5 py-2 bg-lime-700 text-white font-medium rounded-full shadow-md hover:bg-lime-800 transition"
+              >
+                <FaDownload className="text-white" />
+                Download Document
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-center mb-6">
+              <button
+                disabled
+                className="flex items-center gap-2 px-5 py-2 bg-gray-300 text-gray-600 font-medium rounded-full cursor-not-allowed"
+              >
+                <FaDownload />
+                File not available
+              </button>
+            </div>
+          )}
+
+          {formattedType === "provisionalReport" && (
+            <div className="flex justify-center mb-6">
+              {supervisor &&
+                deliverable?.deliverables?.finalReport
+                  ?.secondReaderInitialSubmit && (
+                  <button
+                    className={`px-5 py-2 rounded-full transition font-medium ${
+                      isViewingCounterpart
+                        ? "bg-lime-700 hover:bg-lime-800 text-white"
+                        : "bg-gray-300 hover:bg-gray-400 text-gray-800"
+                    }`}
+                    onClick={() => {
+                      if (isViewingCounterpart) {
+                        setCounterpartFeedback(null);
+                        setCounterpartGrade(null);
+                        setIsViewingCounterpart(false);
+                      } else {
+                        const srFeedback =
+                          deliverable.deliverables.finalReport
+                            .secondReaderInitialFeedback;
+                        const srGrade =
+                          deliverable.deliverables.finalReport
+                            .secondReaderInitialGrade;
+                        setCounterpartFeedback(srFeedback);
+                        setCounterpartGrade(srGrade);
+                        setIsViewingCounterpart(true);
+                      }
+                    }}
+                  >
+                    {isViewingCounterpart
+                      ? "Back to Your Feedback"
+                      : "View Second Reader Feedback"}
+                  </button>
+                )}
+
+              {secondReader &&
+                deliverable?.deliverables?.finalReport
+                  ?.supervisorInitialSubmit && (
+                  <button
+                    className={`px-5 py-2 rounded-full transition font-medium ${
+                      isViewingCounterpart
+                        ? "bg-lime-700 hover:bg-lime-800 text-white"
+                        : "bg-gray-300 hover:bg-gray-400 text-gray-800"
+                    }`}
+                    onClick={() => {
+                      if (isViewingCounterpart) {
+                        setCounterpartFeedback(null);
+                        setCounterpartGrade(null);
+                        setIsViewingCounterpart(false);
+                      } else {
+                        const spFeedback =
+                          deliverable.deliverables.finalReport
+                            .supervisorInitialFeedback;
+                        const spGrade =
+                          deliverable.deliverables.finalReport
+                            .supervisorInitialGrade;
+                        setCounterpartFeedback(spFeedback);
+                        setCounterpartGrade(spGrade);
+                        setIsViewingCounterpart(true);
+                      }
+                    }}
+                  >
+                    {isViewingCounterpart
+                      ? "Back to Your Feedback"
+                      : "View Supervisor Feedback"}
+                  </button>
+                )}
+            </div>
+          )}
+        </div>
 
         {/* Grade Slider */}
         <div className="mb-10">
@@ -384,23 +464,39 @@ export default function DeliverablePage({
               type="range"
               min="0"
               max="100"
-              value={grade}
-              disabled={isFinalReportSecondReaderViewOnly} 
+              value={isViewingCounterpart ? counterpartGrade ?? 0 : grade}
+              disabled={
+                isFinalReportSecondReaderViewOnly || isViewingCounterpart
+              }
               onChange={(e) => setGrade(Number(e.target.value))}
               className="w-full sm:w-3/4 appearance-none accent-lime-500"
               style={{
-                background: `linear-gradient(to right, #84cc16 ${grade}%, #f3f4f6 ${grade}%)`,
+                background: `linear-gradient(to right, #84cc16 ${
+                  isViewingCounterpart ? counterpartGrade ?? 0 : grade
+                }%, #f3f4f6 ${
+                  isViewingCounterpart ? counterpartGrade ?? 0 : grade
+                }%)`,
                 height: "8px",
                 borderRadius: "9999px",
                 outline: "none",
-                cursor: isFinalReportSecondReaderViewOnly
-                  ? "not-allowed"
-                  : "pointer",
+                cursor:
+                  isFinalReportSecondReaderViewOnly || isViewingCounterpart
+                    ? "not-allowed"
+                    : "pointer",
               }}
             />
-            <div className="text-lg font-bold text-lime-600">{grade}/100</div>
+            <div className="text-lg font-bold text-lime-600">
+              {isViewingCounterpart ? counterpartGrade ?? 0 : grade}/100
+            </div>
           </div>
         </div>
+
+        {isViewingCounterpart && (
+          <div className="text-center text-md mb-6 ">
+            You are currently viewing{" "}
+            {supervisor ? "Second Reader's" : "Supervisor's"} feedback.
+          </div>
+        )}
 
         {/* Feedback Form */}
         <form className="space-y-10">
@@ -414,10 +510,16 @@ export default function DeliverablePage({
                 </label>
                 <textarea
                   className="w-full p-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-lime-400 transition"
-                  value={value}
+                  value={
+                    isViewingCounterpart
+                      ? counterpartFeedback?.[field] ?? ""
+                      : value
+                  }
                   onChange={(e) => handleFeedbackChange(e, field)}
                   rows={4}
-                  readOnly={isFinalReportSecondReaderViewOnly}
+                  readOnly={
+                    isFinalReportSecondReaderViewOnly || isViewingCounterpart
+                  }
                 />
                 <div className="text-right text-sm text-gray-500">
                   {wordCount}/300 words
@@ -428,7 +530,7 @@ export default function DeliverablePage({
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-            {!isFinalReportSecondReaderViewOnly && (
+            {!isFinalReportSecondReaderViewOnly && !isViewingCounterpart && (
               <button
                 onClick={() => handleSaveFeedback()}
                 type="button"
@@ -438,13 +540,15 @@ export default function DeliverablePage({
               </button>
             )}
 
-            <button
-              onClick={() => handlePublish()}
-              type="button"
-              className="w-full sm:w-auto px-6 py-3 bg-lime-800 text-white rounded-full shadow-md hover:bg-lime-900 transition"
-            >
-              Publish
-            </button>
+            {!isViewingCounterpart && (
+              <button
+                onClick={() => handlePublish()}
+                type="button"
+                className="w-full sm:w-auto px-6 py-3 bg-lime-800 text-white rounded-full shadow-md hover:bg-lime-900 transition"
+              >
+                Publish
+              </button>
+            )}
           </div>
         </form>
       </div>
