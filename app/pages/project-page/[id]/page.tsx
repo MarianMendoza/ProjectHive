@@ -40,7 +40,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         }
 
         const fetched = data.deliverables;
-        setDeliverables(fetched); // ✅ now set it
+        setDeliverables(fetched);
 
         setGrades({
           outlineGrade: fetched?.outlineDocument?.supervisorGrade ?? null,
@@ -167,66 +167,75 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
             })}
           </div>
         </div>
-
-        <div className="mt-6 bg-white p-6">
-          <h2 className="text-lg font-bold mb-4 text-gray-800">
-            📊 Grades Summary
+        <div className="mt-6 bg-white p-6 rounded-xl">
+          <h2 className="text-lg font-bold mb-6 text-gray-800 text-center">
+          🍯 Grades Summary
           </h2>
 
-          {[
-            {
-              label: "Outline Document",
-              value: grades.outlineGrade,
-              show: !secondReader,
-            },
-            {
-              label: "Extended Abstract",
-              value: grades.abstractGrade,
-              show: !secondReader,
-            },
-            {
-              label: "Supervisor Provisional Grade",
-              value: grades.finalSupervisorInitialGrade,
-              show: !secondReader || initialFeedbackReady,
-            },
-            {
-              label: "Second Reader Provisional Grade",
-              value: grades.finalSecondReaderInitialGrade,
-              show: !supervisor || initialFeedbackReady,
-            },
-            {
-              label: "Final Supervisor Grade",
-              value: grades.finalSupervisorGrade,
-              show: !secondReader || finalFeedbackReady,
-            },
-          ]
-            .filter((item) => item.show)
-            .map((item, index) => (
-              <div key={index} className="mb-4">
-                <div className="flex justify-between mb-1 text-sm font-medium text-gray-700">
-                  <span>{item.label}</span>
-                  <span>
-                    {item.value !== null && item.value !== undefined
-                      ? `${item.value}/100`
-                      : "N/A"}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-4">
+          <div className="flex flex-col md:flex-row flex-wrap gap-6 justify-center items-center">
+            {[
+              {
+                label: "Outline Document",
+                value: grades.outlineGrade,
+                show: !secondReader,
+              },
+              {
+                label: "Extended Abstract",
+                value: grades.abstractGrade,
+                show: !secondReader,
+              },
+              {
+                label: "Supervisor Provisional Grade",
+                value: grades.finalSupervisorInitialGrade,
+                show: !secondReader || initialFeedbackReady,
+              },
+              {
+                label: "Second Reader Provisional Grade",
+                value: grades.finalSecondReaderInitialGrade,
+                show: !supervisor || initialFeedbackReady,
+              },
+              {
+                label: "Final Supervisor Grade",
+                value: grades.finalSupervisorGrade,
+                show: !secondReader || finalFeedbackReady,
+              },
+            ]
+              .filter((item) => item.show)
+              .map((item, index) => {
+                const value = item.value;
+
+                const getColor = () => {
+                  if (value === null || value === undefined)
+                    return "bg-gray-200 text-gray-500";
+                  if (value >= 70) return "bg-amber-300 text-amber-900";
+                  if (value >= 50) return "bg-yellow-200 text-yellow-800"; 
+                  if (value >= 1) return "bg-orange-200 text-orange-800"; 
+                  return "bg-gray-200 text-gray-500";
+                };
+
+                return (
                   <div
-                    className={`h-4 rounded-full ${
-                      item.value >= 70
-                        ? "bg-green-500"
-                        : item.value >= 50
-                        ? "bg-yellow-400"
-                        : item.value >= 1
-                        ? "bg-red-500"
-                        : "bg-gray-300"
-                    }`}
-                    style={{ width: `${item.value ?? 0}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
+                    key={index}
+                    className="flex flex-col items-center space-y-2 w-28 text-center"
+                  >
+                    <div
+                      className={`w-24 h-24 ${getColor()} flex items-center justify-center font-bold text-lg`}
+                      style={{
+                        clipPath:
+                          "polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)",
+                      }}
+                    >
+                      {value !== null && value !== undefined
+                        ? `${value}`
+                        : "N/A"}
+                    </div>
+                    <span className="text-xs text-gray-600 font-medium leading-tight">
+                      {item.label}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
         </div>
 
         <div className="space-y-8">
