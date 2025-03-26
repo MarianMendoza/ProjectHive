@@ -130,33 +130,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
           {project.title}
         </h1>
 
-        <div className="space-y-8">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex gap-2">
-              <h2 className="text-xl font-medium text-gray-700 ">Status</h2>
-              <p
-                className={`px-4 py-1 rounded-full ${
-                  project.status
-                    ? "bg-green-100 text-green-600"
-                    : "bg-yellow-100 text-yellow-600"
-                }`}
-              >
-                {project.status ? "Open" : "Closed"}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <h2 className="text-xl font-medium text-gray-700">Visibility</h2>
-              <p
-                className={`px-4 py-1 rounded-full ${
-                  project.visibility === "Public"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-yellow-100 text-yellow-600"
-                }`}
-              >
-                {project.visibility}
-              </p>
-            </div>
-          </div>
+        
 
           <div className="w-full">
             <h2 className="text-xl font-medium text-gray-700 text-center mb-4">
@@ -167,7 +141,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
               {(supervisor
                 ? [
                     "Outline Document",
-                    "Further Abstract",
+                    "Extended Abstract",
                     "Provisional Report",
                     "Final Report",
                   ]
@@ -253,6 +227,34 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               ))}
+          </div>
+
+          <div className="space-y-8">
+          <div className="flex gap-4 items-center mb-4">
+            <div className="flex gap-2">
+              <h2 className="text-xl font-medium text-gray-700 ">Status</h2>
+              <p
+                className={`px-4 py-1 rounded-full ${
+                  project.status
+                    ? "bg-green-100 text-green-600"
+                    : "bg-yellow-100 text-yellow-600"
+                }`}
+              >
+                {project.status ? "Open" : "Closed"}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <h2 className="text-xl font-medium text-gray-700">Visibility</h2>
+              <p
+                className={`px-4 py-1 rounded-full ${
+                  project.visibility === "Public"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-yellow-100 text-yellow-600"
+                }`}
+              >
+                {project.visibility}
+              </p>
+            </div>
           </div>
 
           <div className="mt-8">

@@ -12,7 +12,7 @@ export async function GET(req: Request) {
       let deliverables = await Deliverables.findById(id)
           .populate({
               path: "projectId",
-              select: "projectAssignedTo",
+              select: "title projectAssignedTo",
               populate: [
                   {
                       path: "projectAssignedTo.supervisorId",
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
             deliverables = await Deliverables.findOne({ projectId: id })
               .populate({
                 path: "projectId",
-                select: "projectAssignedTo",
+                select: "title projectAssignedTo",
                 populate: [
                   {
                     path: "projectAssignedTo.supervisorId",

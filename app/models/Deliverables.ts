@@ -22,6 +22,7 @@ const DeliverableSchema = new Schema({
 });
 
 const finalReportSchema = new Schema({
+  file: { type: String, default: null },
   deadlineId: { type: String, default: null },
   uploadedAt: { type: Date, default: null },
   supervisorInitialGrade: { type: Number, default: null },
