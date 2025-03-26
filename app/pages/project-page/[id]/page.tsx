@@ -4,6 +4,7 @@ import { IProjects } from "@/app/models/Projects";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { IDeliverables } from "@/types/deliverable";
 
 export default function ProjectPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -12,15 +13,18 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [secondReader, isSecondReader] = useState<boolean>(false);
+  const [deliverable, setDeliverables] = useState<IDeliverables | null>(null);
   const [supervisor, isSupervisor] = useState<boolean>(false);
   const [grades, setGrades] = useState({
     outlineGrade: null,
     abstractGrade: null,
     finalSupervisorGrade: null,
     finalSupervisorInitialGrade: null,
-    finalSecondReaderGrade: null,
+    finalSecondReaderInitialGrade: null,
   });
   const [initialFeedbackReady, setInitialFeedbackReady] = useState(false);
+  const [finalFeedbackReady, setFinalFeedbackReady] = useState(false);
+
   const [feedbackReady, setFeedbackReady] = useState(false);
 
   useEffect(() => {
@@ -34,26 +38,29 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
           setLoading(false);
           return;
         }
-        const deliverable = data.deliverables;
+
+        const fetched = data.deliverables;
+        setDeliverables(fetched); // ✅ now set it
 
         setGrades({
-          outlineGrade: deliverable?.outlineDocument?.supervisorGrade ?? null,
-          abstractGrade: deliverable?.extendedAbstract?.supervisorGrade ?? null,
-          finalSupervisorGrade:
-            deliverable?.finalReport?.supervisorGrade ?? null,
+          outlineGrade: fetched?.outlineDocument?.supervisorGrade ?? null,
+          abstractGrade: fetched?.extendedAbstract?.supervisorGrade ?? null,
+          finalSupervisorGrade: fetched?.finalReport?.supervisorGrade ?? null,
           finalSupervisorInitialGrade:
-            deliverable?.finalReport?.supervisorInitialGrade ?? null,
-          finalSecondReaderGrade:
-            deliverable?.finalReport?.secondReaderInitialGrade ?? null,
+            fetched?.finalReport?.supervisorInitialGrade ?? null,
+          finalSecondReaderInitialGrade:
+            fetched?.finalReport?.secondReaderInitialGrade ?? null,
         });
 
         const isInitialFeedbackReady =
-          deliverable?.finalReport?.supervisorInitialSubmit &&
-          deliverable?.finalReport?.secondReaderInitialSubmit;
-        setInitialFeedbackReady(isInitialFeedbackReady);
+          fetched?.finalReport?.supervisorInitialSubmit &&
+          fetched?.finalReport?.secondReaderInitialSubmit;
 
-        const isFeedbackReady = deliverable?.finalReport?.supervisorSubmit;
-        setFeedbackReady(isFeedbackReady);
+        const isFinalSubmitted = fetched?.finalReport?.supervisorSigned;
+
+        setInitialFeedbackReady(isInitialFeedbackReady);
+        setFinalFeedbackReady(isFinalSubmitted);
+        setFeedbackReady(fetched?.finalReport?.supervisorSubmit ?? false);
       } catch (err) {
         console.error("Error fetching deliverable:", err);
         setError("An error occurred.");
@@ -61,7 +68,6 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         setLoading(false);
       }
     };
-
     const fetchProjectData = async () => {
       try {
         const res = await fetch(`/api/projects/${id}`);
@@ -94,19 +100,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       isSupervisor(false);
     }
   }, [project, session]);
-
-  const handleGradingClick = (documentName: string) => {
-    alert(`Start grading the ${documentName}`);
-  };
-
-  const handleDownload = (fileName: string): void => {
-    const link: HTMLAnchorElement = document.createElement("a");
-    link.href = fileName;
-    link.setAttribute("download", "");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  console.log(deliverable);
 
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;
@@ -130,98 +124,112 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
           {project.title}
         </h1>
 
-        
+        <div className="w-full">
+          <h2 className="text-xl font-medium text-gray-700 text-center mb-4">
+            Deliverables
+          </h2>
 
-          <div className="w-full">
-            <h2 className="text-xl font-medium text-gray-700 text-center mb-4">
-              Deliverables
-            </h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {(supervisor
+              ? [
+                  "Outline Document",
+                  "Extended Abstract",
+                  "Provisional Report",
+                  "Final Report",
+                ]
+              : ["Provisional Report", "Final Report"]
+            ).map((doc) => {
+              const isFinalReport = doc === "Final Report";
+              const supervisorHasSigned =
+                deliverable?.finalReport?.supervisorSigned === true;
 
-            <div className="flex flex-wrap justify-center gap-4">
-              {(supervisor
-                ? [
-                    "Outline Document",
-                    "Extended Abstract",
-                    "Provisional Report",
-                    "Final Report",
-                  ]
-                : ["Provisional Report", "Final Report"]
-              ).map((doc) => (
+              const isDisabled =
+                secondReader && isFinalReport && !supervisorHasSigned;
+
+              return (
                 <Link
                   key={doc}
-                  href={`/pages/deliverables-page/${doc}/${id}`}
-                  className={`bg-lime-600 text-white px-6 py-3 rounded-full font-medium shadow-md hover:bg-lime-700 duration-200 ease-in-out
+                  href={
+                    !isDisabled ? `/pages/deliverables-page/${doc}/${id}` : "#"
+                  }
+                  className={`px-6 py-3 rounded-full font-medium shadow-md duration-200 ease-in-out ${
+                    isDisabled
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-lime-600 text-white hover:bg-lime-700"
                   }`}
-               
+                  onClick={(e) => {
+                    if (isDisabled) e.preventDefault(); // prevent navigation if disabled
+                  }}
                 >
                   {doc}
                 </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
+        </div>
 
-          <div className="mt-6 bg-white p-6">
-            <h2 className="text-lg font-bold mb-4 text-gray-800">
-              📊 Grades Summary
-            </h2>
+        <div className="mt-6 bg-white p-6">
+          <h2 className="text-lg font-bold mb-4 text-gray-800">
+            📊 Grades Summary
+          </h2>
 
-            {[
-              {
-                label: "Outline Document",
-                value: grades.outlineGrade,
-                show: !secondReader,
-              },
-              {
-                label: "Extended Abstract",
-                value: grades.abstractGrade,
-                show: !secondReader,
-              },
-              {
-                label: "Supervisor Provisional Grade",
-                value: grades.finalSupervisorInitialGrade,
-                show: !secondReader || initialFeedbackReady,
-              },
-              {
-                label: "Second Reader Provisional Grade",
-                value: grades.finalSecondReaderGrade,
-                show: secondReader || initialFeedbackReady,
-              },
-              {
-                label: "Final Supervisor Grade",
-                value: grades.finalSupervisorGrade,
-                show: true,
-              },
-            ]
-              .filter((item) => item.show)
-              .map((item, index) => (
-                <div key={index} className="mb-4">
-                  <div className="flex justify-between mb-1 text-sm font-medium text-gray-700">
-                    <span>{item.label}</span>
-                    <span>
-                      {item.value !== null && item.value !== undefined
-                        ? `${item.value}/100`
-                        : "N/A"}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-4">
-                    <div
-                      className={`h-4 rounded-full ${
-                        item.value >= 70
-                          ? "bg-green-500"
-                          : item.value >= 50
-                          ? "bg-yellow-400"
-                          : item.value >= 1
-                          ? "bg-red-500"
-                          : "bg-gray-300"
-                      }`}
-                      style={{ width: `${item.value ?? 0}%` }}
-                    ></div>
-                  </div>
+          {[
+            {
+              label: "Outline Document",
+              value: grades.outlineGrade,
+              show: !secondReader,
+            },
+            {
+              label: "Extended Abstract",
+              value: grades.abstractGrade,
+              show: !secondReader,
+            },
+            {
+              label: "Supervisor Provisional Grade",
+              value: grades.finalSupervisorInitialGrade,
+              show: !secondReader || initialFeedbackReady,
+            },
+            {
+              label: "Second Reader Provisional Grade",
+              value: grades.finalSecondReaderInitialGrade,
+              show: !supervisor || initialFeedbackReady,
+            },
+            {
+              label: "Final Supervisor Grade",
+              value: grades.finalSupervisorGrade,
+              show: !secondReader || finalFeedbackReady,
+            },
+          ]
+            .filter((item) => item.show)
+            .map((item, index) => (
+              <div key={index} className="mb-4">
+                <div className="flex justify-between mb-1 text-sm font-medium text-gray-700">
+                  <span>{item.label}</span>
+                  <span>
+                    {item.value !== null && item.value !== undefined
+                      ? `${item.value}/100`
+                      : "N/A"}
+                  </span>
                 </div>
-              ))}
-          </div>
+                <div className="w-full bg-gray-200 rounded-full h-4">
+                  <div
+                    className={`h-4 rounded-full ${
+                      item.value >= 70
+                        ? "bg-green-500"
+                        : item.value >= 50
+                        ? "bg-yellow-400"
+                        : item.value >= 1
+                        ? "bg-red-500"
+                        : "bg-gray-300"
+                    }`}
+                    style={{ width: `${item.value ?? 0}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+        </div>
 
-          <div className="space-y-8">
+        <div className="space-y-8">
           <div className="flex gap-4 items-center mb-4">
             <div className="flex gap-2">
               <h2 className="text-xl font-medium text-gray-700 ">Status</h2>
