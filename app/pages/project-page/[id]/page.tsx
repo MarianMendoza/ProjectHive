@@ -150,17 +150,9 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 <Link
                   key={doc}
                   href={`/pages/deliverables-page/${doc}/${id}`}
-                  className={`bg-lime-600 text-white px-6 py-3 rounded-full font-medium shadow-md hover:bg-lime-700 duration-200 ease-in-out ${
-                    !feedbackReady && !supervisor
-                      ? "cursor-not-allowed opacity-50"
-                      : ""
+                  className={`bg-lime-600 text-white px-6 py-3 rounded-full font-medium shadow-md hover:bg-lime-700 duration-200 ease-in-out
                   }`}
-                  onClick={(e) => {
-                    if (!feedbackReady && !supervisor) {
-                      e.preventDefault(); 
-                    }
-                  }}
-                  aria-disabled={!feedbackReady && !supervisor}
+               
                 >
                   {doc}
                 </Link>

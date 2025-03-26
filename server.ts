@@ -137,22 +137,22 @@ export const startServer = async () => {
             message = `${timestamp} \n Your grades for your outline document has been released! View this in your deliverables page.`
             break
           case "extendedAbstractPublished":
-            message = `${timestamp} \n Your grades for your outline document has been released! View this in your deliverables page.`
+            message = `${timestamp} \n Your grades for your extended abstract has been released! View this in your deliverables page.`
             break
           case "finalReportPublished":
-            message = `${timestamp} \n Your grades for your outline document has been released! View this in your deliverables page.`
+            message = `${timestamp} \n Your grades for your final report has been released! View this in your deliverables page.`
             break
           case "SubmitSupervisor":
-            message = `${timestamp} \n ${user.name} has submitted grades and feedback for ${project.title}`
+            message = `${timestamp} \n ${user.name} has submitted provisional grades and feedback for ${project.title}`
             break
           case "SubmitSecondReader":
-            message = `${timestamp} \n ${user.name} has submitted grades and feedback for ${project.title}`
+            message = `${timestamp} \n ${user.name} has submitted provisional grades and feedback for ${project.title}`
             break
           case "SupervisorSigned":
-            message = `${timestamp} \n Your feedback has been signed off by ${user.name}, make sure to sign to completely publish grades.`
+            message = `${timestamp} \n Final grades been signed off by ${user.name}.`
             break
           case "SecondReaderSigned":
-            message = `${timestamp} \n Your feedback has been signed off by ${user.name}, make sure to publish after signing!.`
+            message = `${timestamp} \n Final grades been signed off by ${user.name}.`
             break
           case "LecturerCreated":
             message = `${timestamp} \n ${user.name} is waiting to be approved.`
