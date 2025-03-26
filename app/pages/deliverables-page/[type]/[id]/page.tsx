@@ -28,6 +28,8 @@ export default function DeliverablePage({
     .toLowerCase()
     .replace(/\s(.)/g, (match) => match.toUpperCase())
     .replace(/\s+/g, "");
+  const isFinalReportSecondReaderViewOnly =
+    secondReader && formattedType === "finalReport";
 
   const [feedback, setFeedback] = useState({
     Analysis: "",
@@ -93,13 +95,10 @@ export default function DeliverablePage({
         setFile(deliverable.deliverables?.finalReport.file || null);
       }
     } else if (formattedType === "finalReport") {
-        feedbackSource =
-          deliverable.deliverables?.[formattedType]?.supervisorFeedback;
-        setGrade(
-          deliverable.deliverables?.[formattedType]?.supervisorGrade || 0
-        );
-        setFile(deliverable.deliverables?.[formattedType]?.file || null);
-      
+      feedbackSource =
+        deliverable.deliverables?.[formattedType]?.supervisorFeedback;
+      setGrade(deliverable.deliverables?.[formattedType]?.supervisorGrade || 0);
+      setFile(deliverable.deliverables?.[formattedType]?.file || null);
     } else {
       if (isUserSupervisor) {
         feedbackSource =
@@ -178,7 +177,6 @@ export default function DeliverablePage({
   };
 
   const handleConfirmSubmit = async () => {
-
     try {
       const updateData: any = {};
       const userId = session.user.id;
@@ -299,9 +297,9 @@ export default function DeliverablePage({
             case "extendedAbstract":
               type = "extendedAbstractPublished";
               break;
-              default:
-                type = "";
-                break;
+            default:
+              type = "";
+              break;
           }
         }
       }
@@ -387,6 +385,7 @@ export default function DeliverablePage({
               min="0"
               max="100"
               value={grade}
+              disabled={isFinalReportSecondReaderViewOnly} 
               onChange={(e) => setGrade(Number(e.target.value))}
               className="w-full sm:w-3/4 appearance-none accent-lime-500"
               style={{
@@ -394,7 +393,9 @@ export default function DeliverablePage({
                 height: "8px",
                 borderRadius: "9999px",
                 outline: "none",
-                cursor: "pointer",
+                cursor: isFinalReportSecondReaderViewOnly
+                  ? "not-allowed"
+                  : "pointer",
               }}
             />
             <div className="text-lg font-bold text-lime-600">{grade}/100</div>
@@ -416,6 +417,7 @@ export default function DeliverablePage({
                   value={value}
                   onChange={(e) => handleFeedbackChange(e, field)}
                   rows={4}
+                  readOnly={isFinalReportSecondReaderViewOnly}
                 />
                 <div className="text-right text-sm text-gray-500">
                   {wordCount}/300 words
@@ -426,13 +428,16 @@ export default function DeliverablePage({
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-            <button
-              onClick={() => handleSaveFeedback()}
-              type="button"
-              className="w-full sm:w-auto px-6 py-3 bg-lime-600 text-white rounded-full shadow-md hover:bg-lime-700 transition"
-            >
-              Save Feedback
-            </button>
+            {!isFinalReportSecondReaderViewOnly && (
+              <button
+                onClick={() => handleSaveFeedback()}
+                type="button"
+                className="w-full sm:w-auto px-6 py-3 bg-lime-600 text-white rounded-full shadow-md hover:bg-lime-700 transition"
+              >
+                Save Feedback
+              </button>
+            )}
+
             <button
               onClick={() => handlePublish()}
               type="button"
