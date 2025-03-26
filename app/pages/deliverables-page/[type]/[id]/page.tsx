@@ -17,6 +17,9 @@ export default function DeliverablePage({
   const [error, setError] = useState<string | null>(null);
   const [deliverable, setDeliverables] = useState<IDeliverables | null>(null);
   const [grade, setGrade] = useState<number>(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userName, setUserName] = useState("");
+
   const decodedType = decodeURIComponent(type);
   const [supervisor, isSupervisor] = useState<boolean>(false);
   const [file, setFile] = useState<string | null>(null);
@@ -90,14 +93,13 @@ export default function DeliverablePage({
         setFile(deliverable.deliverables?.finalReport.file || null);
       }
     } else if (formattedType === "finalReport") {
-      if (isUserSupervisor) {
         feedbackSource =
           deliverable.deliverables?.[formattedType]?.supervisorFeedback;
         setGrade(
           deliverable.deliverables?.[formattedType]?.supervisorGrade || 0
         );
         setFile(deliverable.deliverables?.[formattedType]?.file || null);
-      }
+      
     } else {
       if (isUserSupervisor) {
         feedbackSource =
@@ -123,23 +125,19 @@ export default function DeliverablePage({
 
   const handleSaveFeedback = async () => {
     if (!deliverable || !session) return;
-  
+
     try {
       const updateData: any = {};
       const isUserSupervisor = supervisor;
       const isUserSecondReader = secondReader;
-  
+
       if (formattedType === "provisionalReport") {
         if (isUserSupervisor) {
           updateData["finalReport.supervisorInitialFeedback"] = feedback;
           updateData["finalReport.supervisorInitialGrade"] = grade;
-          // updateData["finalReport.supervisorInitialSubmit"] = true;
-  
         } else if (isUserSecondReader) {
           updateData["finalReport.secondReaderInitialFeedback"] = feedback;
           updateData["finalReport.secondReaderInitialGrade"] = grade;
-          // updateData["finalReport.secondReaderInitialSubmit"] = true;
-
         }
       } else if (formattedType === "finalReport") {
         if (isUserSupervisor) {
@@ -152,7 +150,7 @@ export default function DeliverablePage({
           updateData[`${formattedType}.supervisorGrade`] = grade;
         }
       }
-  
+
       const res = await fetch(`/api/deliverables/${id}`, {
         method: "PUT",
         headers: {
@@ -160,20 +158,173 @@ export default function DeliverablePage({
         },
         body: JSON.stringify(updateData),
       });
-  
+
       if (!res.ok) {
         throw new Error("Failed to update deliverables.");
       }
-  
-      const result = await res.json();
       alert("Saved feedback!");
-      // console.log("Updated deliverables:", result);
     } catch (error) {
       console.error(error);
       alert("An error occurred while submitting feedback.");
     }
   };
-  
+
+  const handlePublish = () => {
+    if (formattedType === "finalReport") {
+      setIsModalOpen(true);
+    } else {
+      handleConfirmSubmit();
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+
+    try {
+      const updateData: any = {};
+      const userId = session.user.id;
+      const projectId = id;
+      const isUserSupervisor = supervisor;
+      const isUserSecondReader = secondReader;
+
+      if (formattedType === "provisionalReport") {
+        if (isUserSupervisor) {
+          updateData["finalReport.supervisorInitialSubmit"] = true;
+          const receiversId = [
+            deliverable.deliverables.projectId.projectAssignedTo.secondReaderId
+              ._id,
+          ];
+          const type = "SubmitSupervisor";
+
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,
+              projectId,
+              type,
+            });
+          }
+        } else if (isUserSecondReader) {
+          updateData["finalReport.secondReaderInitialSubmit"] = true;
+          const receiversId = [
+            deliverable.deliverables.projectId.projectAssignedTo.supervisorId
+              ._id,
+          ];
+          const type = "SubmitSecondReader";
+
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,
+              projectId,
+              type,
+            });
+          }
+        }
+      } else if (formattedType === "finalReport") {
+        if (!userName) {
+          alert("Please enter your name to sign.");
+          return;
+        }
+        if (isUserSupervisor) {
+          updateData["finalReport.supervisorSigned"] = true;
+          const userId = session.user.id;
+          const receiversId = [
+            deliverable.deliverables.projectId.projectAssignedTo.secondReaderId
+              ._id,
+          ];
+          const projectId = id;
+          const type = "SupervisorSigned";
+
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,
+              projectId,
+              type,
+            });
+          }
+        } else if (isUserSecondReader) {
+          updateData["finalReport.secondReaderSigned"] = true;
+          const userId = session.user.id;
+          const receiversId = [
+            deliverable.deliverables.projectId.projectAssignedTo.supervisorId
+              ._id,
+          ];
+          const projectId = id;
+          const type = "SecondReaderSigned";
+
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,
+              projectId,
+              type,
+            });
+          }
+        }
+
+        const supervisorSigned =
+          deliverable?.deliverables?.finalReport?.supervisorSigned ||
+          (isUserSupervisor && session.user.name === userName);
+
+        const secondReaderSigned =
+          deliverable?.deliverables?.finalReport?.secondReaderSigned ||
+          (isUserSecondReader && session.user.name === userName);
+
+        if (supervisorSigned && secondReaderSigned) {
+          updateData["finalReport.isPublished"] = true;
+
+          const receiversId =
+            deliverable.deliverables.projectId.projectAssignedTo.studentsId;
+          const type = "finalReportPublished";
+
+          if (socket) {
+            socket.emit("sendNotification", {
+              userId,
+              receiversId,
+              projectId,
+              type,
+            });
+          }
+        }
+      } else {
+        if (isUserSupervisor) {
+          updateData[`${formattedType}.isPublished`] = true;
+          let type = "";
+
+          switch (formattedType) {
+            case "outlineDocument":
+              type = "outlineDocumentPublished";
+              break;
+            case "extendedAbstract":
+              type = "extendedAbstractPublished";
+              break;
+              default:
+                type = "";
+                break;
+          }
+        }
+      }
+
+      const res = await fetch(`/api/deliverables/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to publish feedback.");
+      }
+
+      alert("Feedback successfully published!");
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred during publishing.");
+    }
+  };
 
   const handleFeedbackChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
@@ -283,14 +434,47 @@ export default function DeliverablePage({
               Save Feedback
             </button>
             <button
+              onClick={() => handlePublish()}
               type="button"
               className="w-full sm:w-auto px-6 py-3 bg-lime-800 text-white rounded-full shadow-md hover:bg-lime-900 transition"
             >
-              Submit
+              Publish
             </button>
           </div>
         </form>
       </div>
+      {isModalOpen && formattedType === "finalReport" && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Confirm Submission</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Please type your name to confirm your signature on this final
+              report.
+            </p>
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-lime-500"
+            />
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSubmit}
+                className="bg-lime-600 text-white px-4 py-2 rounded hover:bg-lime-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

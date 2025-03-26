@@ -71,7 +71,6 @@ const finalReportSchema = new Schema({
   secondReaderInitialSubmit: { type: Boolean, default: false },
   secondReaderSigned: {type: Boolean, default: false},
   supervisorSigned: {type: Boolean, default: false},
-  supervisorSubmit: {type:Boolean, default: false},
   isPublished: { type: Boolean, default: false },
 })
 

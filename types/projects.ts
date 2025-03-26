@@ -1,7 +1,6 @@
 import { User } from "./users";
 
 export interface Project {
-    outlineDocument: any;
     deliverables: any;
     _id: string;  
     title: string;
@@ -19,7 +18,6 @@ export interface Project {
     }[];
     abstract: string;
     description: string;
-    files: string;
     createdAt: string;  
     updatedAt: string; 
     expiredAt: string | null; 
