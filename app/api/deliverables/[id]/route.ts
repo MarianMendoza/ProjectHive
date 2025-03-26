@@ -60,43 +60,74 @@ export async function GET(req: Request) {
 
 
 export async function PUT(req: Request) {
-    await connectMongo();
-  
-    const deliverableId = req.url.split("/").pop() as string;
-  
-    if (!deliverableId) {
-      return NextResponse.json(
-        { message: "DeliverableId is required" },
-        { status: 400 }
-      );
-    }
+  await connectMongo();
 
-    try {
-   
-      const body = await req.json();
-  
-      const updatedDeliverables = await Deliverables.findByIdAndUpdate(
-        deliverableId,
+  const deliverableId = req.url.split("/").pop() as string;
+
+  if (!deliverableId) {
+    return NextResponse.json(
+      { message: "DeliverableId is required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const body = await req.json();
+
+    let updatedDeliverables = await Deliverables.findByIdAndUpdate(
+      deliverableId,
+      { $set: body },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedDeliverables) {
+      const fallbackDeliverable = await Deliverables.findOneAndUpdate(
+        { projectId: deliverableId },
         { $set: body },
         { new: true, runValidators: true }
-      );
-  
-      if (!updatedDeliverables) {
+      )
+        .populate({
+          path: "projectId",
+          select: "title projectAssignedTo",
+          populate: [
+            {
+              path: "projectAssignedTo.supervisorId",
+              select: "_id",
+            },
+            {
+              path: "projectAssignedTo.secondReaderId",
+              select: "_id",
+            },
+          ],
+        })
+        .populate(
+          "deadlineId",
+          "outlineDocumentDeadline extendedAbstractDeadline finalReportDeadline"
+        )
+        .lean();
+
+      if (!fallbackDeliverable) {
         return NextResponse.json(
           { message: "Deliverables not found" },
           { status: 404 }
         );
       }
-  
+
       return NextResponse.json(
-        { deliverables: updatedDeliverables },
+        { deliverables: fallbackDeliverable },
         { status: 200 }
       );
-    } catch (error) {
-      console.error("Error updating deliverables:", error);
-      return NextResponse.json(
-        { message: "Error updating deliverables" },
-        { status: 500 }
-      );
     }
+
+    return NextResponse.json(
+      { deliverables: updatedDeliverables },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating deliverables:", error);
+    return NextResponse.json(
+      { message: "Error updating deliverables" },
+      { status: 500 }
+    );
   }
+}

@@ -3,6 +3,7 @@ import { IDeliverables } from "@/types/deliverable";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { FaDownload } from "react-icons/fa";
+import { useSocket } from "@/app/provider";
 
 export default function DeliverablePage({
   params,
@@ -10,6 +11,7 @@ export default function DeliverablePage({
   params: { id: string; type: string };
 }) {
   const { id, type } = params;
+  const socket = useSocket();
   const { data: session } = useSession();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +34,6 @@ export default function DeliverablePage({
     Evaluation: "",
     "Overall Achievement": "",
   });
-
 
   useEffect(() => {
     const fetchDeliverables = async () => {
@@ -74,29 +75,39 @@ export default function DeliverablePage({
 
     if (formattedType === "provisionalReport") {
       if (isUserSupervisor) {
-        feedbackSource = deliverable.deliverables?.finalReport.supervisorInitialFeedback;
-        setGrade(deliverable.deliverables?.finalReport?.supervisorInitialGrade || 0);
+        feedbackSource =
+          deliverable.deliverables?.finalReport.supervisorInitialFeedback;
+        setGrade(
+          deliverable.deliverables?.finalReport?.supervisorInitialGrade || 0
+        );
         setFile(deliverable.deliverables?.finalReport.file || null);
       } else if (isUserSecondReader) {
-        feedbackSource = deliverable.deliverables?.finalReport.secondReaderInitialFeedback;
-        setGrade(deliverable.deliverables?.finalReport?.secondReaderInitialGrade || 0);
+        feedbackSource =
+          deliverable.deliverables?.finalReport.secondReaderInitialFeedback;
+        setGrade(
+          deliverable.deliverables?.finalReport?.secondReaderInitialGrade || 0
+        );
         setFile(deliverable.deliverables?.finalReport.file || null);
       }
     } else if (formattedType === "finalReport") {
       if (isUserSupervisor) {
-        feedbackSource = deliverable.deliverables?.[formattedType]?.supervisorFeedback;
-        setGrade(deliverable.deliverables?.[formattedType]?.supervisorGrade || 0);
+        feedbackSource =
+          deliverable.deliverables?.[formattedType]?.supervisorFeedback;
+        setGrade(
+          deliverable.deliverables?.[formattedType]?.supervisorGrade || 0
+        );
         setFile(deliverable.deliverables?.[formattedType]?.file || null);
       }
     } else {
       if (isUserSupervisor) {
-        feedbackSource = deliverable.deliverables?.[formattedType]?.supervisorFeedback;
-        setGrade(deliverable.deliverables?.[formattedType]?.supervisorGrade || 0);
-
+        feedbackSource =
+          deliverable.deliverables?.[formattedType]?.supervisorFeedback;
+        setGrade(
+          deliverable.deliverables?.[formattedType]?.supervisorGrade || 0
+        );
         setFile(deliverable.deliverables?.[formattedType]?.file || null);
       }
     }
-    
 
     if (feedbackSource) {
       setFeedback({
@@ -109,6 +120,60 @@ export default function DeliverablePage({
       });
     }
   }, [deliverable, session]);
+
+  const handleSaveFeedback = async () => {
+    if (!deliverable || !session) return;
+  
+    try {
+      const updateData: any = {};
+      const isUserSupervisor = supervisor;
+      const isUserSecondReader = secondReader;
+  
+      if (formattedType === "provisionalReport") {
+        if (isUserSupervisor) {
+          updateData["finalReport.supervisorInitialFeedback"] = feedback;
+          updateData["finalReport.supervisorInitialGrade"] = grade;
+          // updateData["finalReport.supervisorInitialSubmit"] = true;
+  
+        } else if (isUserSecondReader) {
+          updateData["finalReport.secondReaderInitialFeedback"] = feedback;
+          updateData["finalReport.secondReaderInitialGrade"] = grade;
+          // updateData["finalReport.secondReaderInitialSubmit"] = true;
+
+        }
+      } else if (formattedType === "finalReport") {
+        if (isUserSupervisor) {
+          updateData[`${formattedType}.supervisorFeedback`] = feedback;
+          updateData[`${formattedType}.supervisorGrade`] = grade;
+        }
+      } else {
+        if (isUserSupervisor) {
+          updateData[`${formattedType}.supervisorFeedback`] = feedback;
+          updateData[`${formattedType}.supervisorGrade`] = grade;
+        }
+      }
+  
+      const res = await fetch(`/api/deliverables/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+  
+      if (!res.ok) {
+        throw new Error("Failed to update deliverables.");
+      }
+  
+      const result = await res.json();
+      alert("Saved feedback!");
+      // console.log("Updated deliverables:", result);
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while submitting feedback.");
+    }
+  };
+  
 
   const handleFeedbackChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
@@ -139,36 +204,32 @@ export default function DeliverablePage({
           {decodedType}
         </h2>
         {file ? (
-            <div className="flex justify-center mb-6">
-              <button
-                onClick={() => handleDownload(file)}
-                className="flex items-center gap-2 px-5 py-2 bg-lime-700 text-white font-medium rounded-full shadow-md hover:bg-lime-800 transition"
-              >
-                <FaDownload className="text-white" />
-                Download Document
-              </button>
-            </div>
-          ) : (
-            <div className="flex justify-center mb-6">
-              <button
-                disabled
-                className="flex items-center gap-2 px-5 py-2 bg-gray-300 text-gray-600 font-medium rounded-full cursor-not-allowed"
-              >
-                <FaDownload />
-                File not available
-              </button>
-            </div>
-          )}
-
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={() => handleDownload(file)}
+              className="flex items-center gap-2 px-5 py-2 bg-lime-700 text-white font-medium rounded-full shadow-md hover:bg-lime-800 transition"
+            >
+              <FaDownload className="text-white" />
+              Download Document
+            </button>
+          </div>
+        ) : (
+          <div className="flex justify-center mb-6">
+            <button
+              disabled
+              className="flex items-center gap-2 px-5 py-2 bg-gray-300 text-gray-600 font-medium rounded-full cursor-not-allowed"
+            >
+              <FaDownload />
+              File not available
+            </button>
+          </div>
+        )}
 
         {/* Grade Slider */}
         <div className="mb-10">
           <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-2 text-center">
             Grade (out of 100)
           </label>
-
-
-          
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:justify-center">
             <input
               type="range"
@@ -188,8 +249,6 @@ export default function DeliverablePage({
             <div className="text-lg font-bold text-lime-600">{grade}/100</div>
           </div>
         </div>
-
-        
 
         {/* Feedback Form */}
         <form className="space-y-10">
@@ -217,6 +276,7 @@ export default function DeliverablePage({
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <button
+              onClick={() => handleSaveFeedback()}
               type="button"
               className="w-full sm:w-auto px-6 py-3 bg-lime-600 text-white rounded-full shadow-md hover:bg-lime-700 transition"
             >
