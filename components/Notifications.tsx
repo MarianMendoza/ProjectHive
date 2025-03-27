@@ -240,7 +240,7 @@ const Notifications = () => {
                 <div className="flex flex-col space-y-2 w-full">
                   {!notification.isRead && (
                     <button
-                      className="px-2 py-2 w-full bg-lime-500 text-sm text-white rounded-lg hover:bg-lime-600 transition duration-200"
+                      className="px-2 py-2 w-full bg-lime-800 text-sm text-white rounded-lg hover:bg-lime-600 transition duration-200"
                       onClick={() => markAsRead(notification._id)}
                     >
                       Mark as Read
@@ -251,7 +251,7 @@ const Notifications = () => {
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
-                          className=" text-sm px-2 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
+                          className=" text-sm px-2 py-2 bg-lime-800 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
                           onClick={() => acceptInvitation(notification)}
                         >
                           Accept
@@ -268,7 +268,7 @@ const Notifications = () => {
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
-                          className=" text-sm px-2 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
+                          className=" text-sm px-2 py-2 bg-lime-800 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
                           onClick={() => acceptInvitation(notification)}
                         >
                           Accept
@@ -285,7 +285,7 @@ const Notifications = () => {
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
-                          className=" px-2 py-2 text-sm bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
+                          className=" px-2 py-2 text-sm bg-lime-800 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
                           onClick={() => acceptInvitation(notification)}
                         >
                           Accept
@@ -302,7 +302,7 @@ const Notifications = () => {
                     !notification.isRead && (
                       <div className="flex space-x-2 w-full">
                         <button
-                          className=" text-sm px-2 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
+                          className=" text-sm px-2 py-2 bg-lime-800 text-white rounded-lg hover:bg-lime-600 transition duration-200 w-full"
                           onClick={() => acceptInvitation(notification)}
                         >
                           Accept

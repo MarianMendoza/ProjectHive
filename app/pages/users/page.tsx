@@ -259,7 +259,7 @@ const UsersPage = () => {
                 Cancel
               </button>
               <button
-                onClick={handleInvite}
+                onClick={() => handleInviteSubmit()}
                 className="bg-lime-500 text-white px-6 py-2 rounded-lg hover:bg-lime-600 transition duration-200 ease-in-out"
               >
                 Send Invitation

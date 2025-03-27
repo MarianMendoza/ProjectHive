@@ -97,6 +97,7 @@ export default function Profile() {
       console.error("Error updating profile:", error);
     }
   };
+
   
       
   const handlePasswordReset = async () => {
@@ -107,7 +108,7 @@ export default function Profile() {
     return <PageNotFound />;
   }
   return (
-    <div className="p-6 max-w-lg mx-auto mt-8 m-10 shadow-lg rounded-md bg-white">
+    <div className="p-6 max-w-6xl mx-auto mt-4 m-3  bg-white">
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">
         Your Profile
       </h2>
@@ -165,12 +166,18 @@ export default function Profile() {
           <label className="block text-gray-700 font-medium mb-1">
             Description
           </label>
+          
           <textarea
+            name = "description"
             value={description}
+            maxLength={150}
             onChange={(e) => setDescription(e.target.value)}
             className="border rounded-md p-2 w-full h-24"
             placeholder="Tell us about yourself"
           ></textarea>
+           <div className="text-right text-sm text-gray-500 mt-2">
+              {description.length}/500 characters
+            </div>
 
           <button
             onClick={handleUpdateProfile}
