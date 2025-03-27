@@ -240,7 +240,6 @@ const ProjectsPage = () => {
       </div>
       <div className="container mx-auto p-4">
         <div className="flex justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-6 bg-white ">
-          {/* Left side: Search Bar */}
           <div className="w-full md:w-1/3">
             <input
               type="text"
@@ -269,13 +268,12 @@ const ProjectsPage = () => {
             <div className="flex space-x-4 w-full md:w-auto">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="bg-lime-600 text-white px-3.5 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out w-full text-center"
+                className="bg-lime-700 text-white px-3.5 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out w-full text-center"
               >
                 {showFilters ? "Hide Filters" : "More Filters"}
               </button>
             </div>
 
-            {/* Create New Project Button */}
             {session && (
               <button>
                 <Link
@@ -290,7 +288,6 @@ const ProjectsPage = () => {
         </div>
 
         <div className="w-full mt-3 bg-white mb-5 ">
-          {/* More Filters Button */}
 
           {showFilters && (
             <div className="p-2 flex gap-3 justify-end w-full ">
@@ -303,7 +300,7 @@ const ProjectsPage = () => {
                     value="All"
                     checked={programmeFilter === "All"}
                     onChange={(e) => setProgrammeFilter(e.target.value)}
-                    className="form-radio text-lime-600"
+                    className="form-radio text-lime-800"
                   />
                   <span>All Programmes</span>
                 </label>
@@ -318,7 +315,7 @@ const ProjectsPage = () => {
                       value={c}
                       checked={programmeFilter === c}
                       onChange={(e) => setProgrammeFilter(e.target.value)}
-                      className="form-radio text-lime-600"
+                      className="form-radio text-lime-800"
                     />
                     <span>{c}</span>
                   </label>
@@ -343,21 +340,21 @@ const ProjectsPage = () => {
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2 text-sm space-x-2">
-                        <span className="px-4 py-1 text-sm rounded-full bg-lime-100 text-lime-600">
+                        <span className="px-4 py-1 text-sm rounded-full bg-lime-100 text-lime-800">
                           {project.programme ? project.programme : "N/A"}
                         </span>
 
                         <span
                           className={`px-3 py-1 text-sm rounded-full ${
                             project.status
-                              ? "bg-green-100 text-green-600"
-                              : "bg-yellow-100 text-yellow-600"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
                           {project.status ? "Open" : "Closed"}
                         </span>
                       </div>
-                      <h2 className="text-xl font-semibold text-lime-600">
+                      <h2 className="text-xl font-semibold text-lime-800">
                         {project.title}
                       </h2>
 
@@ -382,7 +379,7 @@ const ProjectsPage = () => {
           <div className="w-2/3 p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto">
             {selectedProject ? (
               <>
-                <h2 className="text-2xl font-semibold text-lime-600">
+                <h2 className="text-2xl font-semibold text-lime-800">
                   {selectedProject.title}
                 </h2>
                 <div className="author mb-5 text-lg">
@@ -442,7 +439,7 @@ const ProjectsPage = () => {
                             session.user.id
                           )
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-lime-600 text-white hover:bg-lime-700"
+                            : "bg-lime-700 text-white hover:bg-lime-800"
                         }`}
                         disabled={
                           selectedProject.applicants.some(

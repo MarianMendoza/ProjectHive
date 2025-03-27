@@ -338,7 +338,7 @@ export default function StudentDashboard() {
                     }
                   )}
                 </div>
-               
+
                 <div className="mt-8">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
                     Abstract
@@ -359,7 +359,6 @@ export default function StudentDashboard() {
                     📂 Authored Projects
                   </h3>
                   <DataTable
-                    title="Authored Projects"
                     columns={columns}
                     data={authoredProjects}
                     pagination

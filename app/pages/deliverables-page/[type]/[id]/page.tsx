@@ -517,6 +517,7 @@ export default function DeliverablePage({
                   }
                   onChange={(e) => handleFeedbackChange(e, field)}
                   rows={4}
+                  maxLength={300}
                   readOnly={
                     isFinalReportSecondReaderViewOnly || isViewingCounterpart
                   }

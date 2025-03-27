@@ -21,13 +21,13 @@ export default function Home(){
             <p className="mt-4 text-gray-600">
                 Your Final Year Project Manager.
             </p>
-            <Link href="/pages/register" className="mt-2 w-40 flex  justify-center rounded-md bg-lime-600 px-1 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600">Join the Hive!</Link>
+            <Link href="/pages/register" className="mt-2 w-40 flex  justify-center rounded-md bg-[#327F6B] px-1 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#327F6B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#327F6B]">Join the Hive!</Link>
           </div>
   
           
         </section>
 
-        <section className="w-full py-12 bg-lime-600">
+        <section className="w-full py-12 bg-[#327F6B]">
           <h2 className="text-4xl font-bold text-center text-white md:text-5xl lg:text-6xl">
             Welcome to Project Hive
           </h2>
@@ -49,7 +49,7 @@ export default function Home(){
             </p>
             <a
               href="#more-info"
-              className="mt-4 inline-block bg-lime-600 text-white py-2 px-4 rounded-md hover:bg-lime-500"
+              className="mt-4 inline-block bg-[#327F6B] text-white py-2 px-4 rounded-md hover:bg-[#236956]"
             >
               Scroll Down
             </a>
@@ -122,7 +122,7 @@ export default function Home(){
         </section>
 
         {/* Call to Action Section */}
-        <section id="cta" className="w-full py-12 bg-lime-600">
+        <section id="cta" className="w-full py-12 bg-[#327F6B]">
           <div className="max-w-3xl mx-auto text-center">
             <h3 className="text-3xl font-semibold text-white">
               Ready to Get Started?
@@ -130,7 +130,7 @@ export default function Home(){
             <p className="mt-4 text-white">
               Join Project Hive today and experience a more efficient way to manage your final year project. Take the first step towards success now!
             </p>
-            <Link href="/pages/register" className="mt-4 inline-block bg-white text-lime-600 py-2 px-4 rounded-md hover:bg-lime-100">
+            <Link href="/pages/register" className="mt-4 inline-block bg-white text-[#327F6B] py-2 px-4 rounded-md hover:bg-lime-100">
               Sign Up Now
             </Link>
           </div>
@@ -149,7 +149,7 @@ export default function Home(){
                             href="https://github.com/MarianMendoza/ProjectHive" // Replace with your actual GitHub repository link
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center py-2 px-6 bg-lime-600 text-white rounded-md hover:bg-lime-700 transition duration-300"
+                            className="inline-flex items-center justify-center py-2 px-6 bg-[#327F6B] text-white rounded-md hover:bg-lime-700 transition duration-300"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 <path fillRule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 4.419 2.868 8.167 6.839 9.486.5.092.683-.217.683-.482v-1.72c-2.78.604-3.369-1.343-3.369-1.343-.455-1.155-1.11-1.463-1.11-1.463-.91-.623.068-.612.068-.612 1.004.071 1.531 1.039 1.531 1.039.892 1.521 2.341 1.084 2.91.83.091-.646.35-1.083.636-1.334-2.221-.253-4.557-1.111-4.557-4.933 0-1.09.388-1.982 1.03-2.68-.103-.253-.446-1.275.098-2.654 0 0 .84-.269 2.75 1.023a9.552 9.552 0 0 1 2.5-.335c.852 0 1.712.114 2.5.335 1.91-1.292 2.75-1.023 2.75-1.023.545 1.379.201 2.401.098 2.654.643.698 1.03 1.59 1.03 2.68 0 3.83-2.338 4.68-4.56 4.933.39.343.736 1.023.736 2.042v3.008c0 .266.183.577.683.482A9.955 9.955 0 0 0 20 10c0-5.523-4.477-10-10-10z" clipRule="evenodd" />

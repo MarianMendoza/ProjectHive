@@ -7,6 +7,7 @@ import Notifications from "./Notifications";
 
 export default function Navbar() {
   const { data: session } = useSession();
+  const [logo, setLogo] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -32,6 +33,11 @@ export default function Navbar() {
   };
 
   useEffect(() => {
+    const storedLogo = localStorage.getItem("logo");
+    setLogo(storedLogo);
+  }, []);
+
+  useEffect(() => {
     if (session) {
       fetchProfileImage();
     }
@@ -42,16 +48,19 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-gray-200">
       <div className="w-full flex items-center justify-between p-6">
-        {/* UCC Logo */}
         <a
           href="https://findlogovector.com/university-college-cork-ucc-logo-vector-svg/"
           target="_blank"
           className="flex-shrink-0"
         >
           <img
-            src="https://findlogovector.com/wp-content/uploads/2019/04/university-college-cork-ucc-logo-vector.png"
+            src={
+              logo
+               ||
+              "https://findlogovector.com/wp-content/uploads/2019/04/university-college-cork-ucc-logo-vector.png"
+            }
             className="h-16"
-            alt="UCC Logo"
+            alt="Logo"
           />
         </a>
 

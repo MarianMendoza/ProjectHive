@@ -119,8 +119,8 @@ export default function CreateProjectPage() {
               className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
               required
             >
-              <option value="true">Available</option>
-              <option value="false">Unavailable</option>
+              <option value="true">Open</option>
+              <option value="false">Closed</option>
             </select>
           </div>
 
