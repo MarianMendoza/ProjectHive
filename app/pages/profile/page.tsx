@@ -131,7 +131,7 @@ export default function Profile() {
 
         {/* Editable Fields */}
         <div className="w-full px-4">
-          <label className="block text-gray-700 font-medium mb-1">Name</label>
+          <label className="block text-gray-800 font-medium mb-1">Name</label>
           <input
             type="text"
             value={name}
@@ -139,7 +139,7 @@ export default function Profile() {
             className="border rounded-md p-2 w-full mb-3"
             placeholder="Enter your name"
           />
-          <label className="block text-gray-700 font-medium mb-1">Email</label>
+          <label className="block text-gray-800 font-medium mb-1">Email</label>
           <input
             type="text"
             value={email}
@@ -147,9 +147,9 @@ export default function Profile() {
             className="border rounded-md p-2 w-full mb-3"
             placeholder="Enter your name"
           />
-          <label className="block text-gray-700 font-medium mb-1">Role</label>
+          <label className="block text-gray-800 font-medium mb-1">Role</label>
           <p className="border rounded-md p-2 w-full mb-3"> {role}</p>
-          <label className="block text-gray-700 font-medium mb-1">Course</label>
+          <label className="block text-gray-800 font-medium mb-1">Course</label>
           <select
             value={tag}
             onChange={(e) => setTags(e.target.value)}
@@ -163,7 +163,7 @@ export default function Profile() {
             ))}
           </select>
 
-          <label className="block text-gray-700 font-medium mb-1">
+          <label className="block text-gray-800 font-medium mb-1">
             Description
           </label>
           
@@ -181,13 +181,13 @@ export default function Profile() {
 
           <button
             onClick={handleUpdateProfile}
-            className="mt-4 bg-lime-700 text-white py-2 px-4 rounded w-full hover:bg-lime-800"
+            className="mt-4 bg-emerald-800 text-white py-2 px-4 rounded w-full hover:bg-emerald-800"
           >
             Save Changes
           </button>
           <button
             onClick={handlePasswordReset}
-            className="mt-4 bg-orange-500 text-white py-2 px-4 rounded w-full hover:bg-orange-600"
+            className="mt-4 bg-red-600 text-white py-2 px-4 rounded w-full hover:bg-red-700"
           >
             Reset Password
           </button>

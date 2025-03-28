@@ -45,7 +45,7 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({ projectId }) => {
   const buttonText = isApplied ? "Applied" : "Apply";
   const buttonStyles = isApplied
     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-    : "bg-lime-600 text-white hover:bg-lime-700";
+    : "bg-teal-600 text-white hover:bg-teal-700";
 
   const handleApply = async () => {
     if (!userId || !project) return;

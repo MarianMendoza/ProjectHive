@@ -320,7 +320,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             <div>
               <label
                 htmlFor="title"
-                className="block text-lg text-gray-700 mb-2"
+                className="block text-lg text-gray-800 mb-2"
               >
                 Title
               </label>
@@ -330,7 +330,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
                 required
               />
             </div>
@@ -338,7 +338,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             <div>
               <label
                 htmlFor="visibility"
-                className="block text-lg text-gray-700 mb-2"
+                className="block text-lg text-gray-800 mb-2"
               >
                 Visibility
               </label>
@@ -347,7 +347,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 name="visibility"
                 value={formData.visibility}
                 onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
                 required
               >
                 <option value="Private">Private</option>
@@ -358,7 +358,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             <div>
               <label
                 htmlFor="programme"
-                className="block text-gray-700 font-medium mb-2"
+                className="block text-gray-800 font-medium mb-2"
               >
                 Programme
               </label>
@@ -367,7 +367,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 name="programme"
                 value={formData.programme.toString()}
                 onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
                 required
               >
                 <option value="">Select a course</option>
@@ -384,7 +384,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 <div>
                   <label
                     htmlFor="students"
-                    className="block text-lg text-gray-700 mb-2"
+                    className="block text-lg text-gray-800 mb-2"
                   >
                     Select {isGroupProject ? "Students" : "Student"}
                   </label>
@@ -393,7 +393,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                     name="students"
                     value={isGroupProject ? "" : selectedStudents[0] || ""}
                     onChange={handleStudentChange}
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
                   >
                     <option value="">
                       {isGroupProject ? "Select Students" : "Select a Student"}
@@ -413,7 +413,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 <div>
                   <label
                     htmlFor="secondReader"
-                    className="block text-lg text-gray-700 mb-2"
+                    className="block text-lg text-gray-800 mb-2"
                   >
                     Second Reader
                   </label>
@@ -423,7 +423,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                     key={selectedSecondReader}
                     value={selectedSecondReader || ""}
                     onChange={handleSecondReaderChange}
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
                   >
                     <option value="invite">Invite...</option>
                     <option value={selectedSecondReader}>
@@ -459,7 +459,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                           className={`px-4 py-2 rounded-lg ${
                             invitedSecondReaders.includes(lecturer._id)
                               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-lime-500 text-white hover:bg-lime-600"
+                              : "bg-emerald-700 text-white hover:bg-emerald-900"
                           }`}
                           disabled={invitedSecondReaders.includes(lecturer._id)}
                         >
@@ -484,7 +484,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
 
             {isGroupProject && session.user.role == "Lecturer" && (
               <div>
-                <label className="block text-lg text-gray-700 mb-2">
+                <label className="block text-lg text-gray-800 mb-2">
                   Selected Students
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -496,14 +496,14 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                     return student ? (
                       <div
                         key={studentId}
-                        className="flex items-center bg-lime-700 px-4 py-2 rounded-full mb-2"
+                        className="flex items-center bg-emerald-800 px-4 py-2 rounded-full mb-2"
                       >
                         <span className="mr-2 text-white">
                           {student.studentId?.name}
                         </span>
                         <button
                           type="button"
-                          className="text-red-600"
+                          className="text-red-700"
                           onClick={() => removeStudent(studentId)}
                         >
                           ❌
@@ -520,7 +520,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 <div className="col-span-2">
                   <label
                     htmlFor="groupProject"
-                    className="block text-lg text-gray-700 mb-2"
+                    className="block text-lg text-gray-800 mb-2"
                   >
                     Group Project
                   </label>
@@ -538,11 +538,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             <div className="col-span-2">
               <label
                 htmlFor="status"
-                className="block text-lg text-gray-700 mb-2"
+                className="block text-lg text-gray-800 mb-2"
               >
                 Status
                 <span
-                  className="text-lg text-gray-700 ml-2 mb-2"
+                  className="text-lg text-gray-800 ml-2 mb-2"
                   title="Be sure to change this field if you want to close applications notifications."
                 >
                   🛈
@@ -553,7 +553,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
                 name="status"
                 value={formData.status ? "Open" : "Closed"}
                 onChange={handleChange}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
               >
                 <option value="Open">Open</option>
                 <option value="Closed">Closed</option>
@@ -564,7 +564,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           <div className="col-span-2">
             <label
               htmlFor="abstract"
-              className="block text-lg text-gray-700 mb-2"
+              className="block text-lg text-gray-800 mb-2"
             >
               Abstract
             </label>
@@ -573,7 +573,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               name="abstract"
               value={formData.abstract}
               onChange={handleChange}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
               rows={4}
               maxLength={500}
             />
@@ -582,7 +582,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             </div>
             <label
               htmlFor="description"
-              className="block text-lg text-gray-700 mb-2"
+              className="block text-lg text-gray-800 mb-2"
             >
               Description
             </label>
@@ -591,7 +591,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-600"
+              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
               rows={4}
               maxLength={1000}
             />
@@ -603,14 +603,14 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
           <div className="mt-6 flex gap-2 justify-end">
             <Link
               href="/pages/projects"
-              className="bg-gray-300 text-black px-4 py-3 rounded-xl hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-lime-600"
+              className="bg-gray-300 text-black px-4 py-3 rounded-xl hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-700"
             >
               Cancel
             </Link>
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-lime-600 text-white px-4 py-3 rounded-xl hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-600"
+              className="bg-emerald-700 text-white px-4 py-3 rounded-xl hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700"
             >
               Update Project
             </button>
@@ -626,13 +626,13 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             <div className="flex justify-end">
               <button
                 onClick={handleModalClose}
-                className="bg-red-500 text-white px-6 py-2 rounded-md mr-2"
+                className="bg-red-600 text-white px-6 py-2 rounded-md mr-2"
               >
                 Cancel
               </button>
               <button
                 onClick={handleModalConfirm}
-                className="bg-lime-600 text-white px-6 py-2 rounded-md"
+                className="bg-emerald-700 text-white px-6 py-2 rounded-md"
               >
                 Confirm
               </button>

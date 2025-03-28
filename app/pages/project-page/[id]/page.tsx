@@ -155,7 +155,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                   className={`px-6 py-3 rounded-full font-medium shadow-md duration-200 ease-in-out ${
                     isDisabled
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-lime-600 text-white hover:bg-lime-700"
+                      : "bg-emerald-700 text-white hover:bg-emerald-800"
                   }`}
                   onClick={(e) => {
                     if (isDisabled) e.preventDefault(); // prevent navigation if disabled

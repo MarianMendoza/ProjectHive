@@ -352,7 +352,7 @@ export default function DeliverablePage({
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="bg-white  p-6 sm:p-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-lime-800">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-emerald-800">
           {deliverable?.deliverables.projectId?.title}
         </h1>
         <h2 className="text-base sm:text-lg text-center text-gray-500 mb-8">
@@ -365,7 +365,7 @@ export default function DeliverablePage({
             <div className="flex justify-center mb-6">
               <button
                 onClick={() => handleDownload(file)}
-                className="flex items-center gap-2 px-5 py-2 bg-lime-700 text-white font-medium rounded-full shadow-md hover:bg-lime-800 transition"
+                className="flex items-center gap-2 px-5 py-2 bg-emerald-800 text-white font-medium rounded-full shadow-md hover:bg-emerald-800 transition"
               >
                 <FaDownload className="text-white" />
                 Download Document
@@ -375,7 +375,7 @@ export default function DeliverablePage({
             <div className="flex justify-center mb-6">
               <button
                 disabled
-                className="flex items-center gap-2 px-5 py-2 bg-gray-300 text-gray-600 font-medium rounded-full cursor-not-allowed"
+                className="flex items-center gap-2 px-5 py-2 bg-gray-300 text-gray-700 font-medium rounded-full cursor-not-allowed"
               >
                 <FaDownload />
                 File not available
@@ -391,7 +391,7 @@ export default function DeliverablePage({
                   <button
                     className={`px-5 py-2 rounded-full transition font-medium ${
                       isViewingCounterpart
-                        ? "bg-lime-700 hover:bg-lime-800 text-white"
+                        ? "bg-emerald-800 hover:bg-emerald-800 text-white"
                         : "bg-gray-300 hover:bg-gray-400 text-gray-800"
                     }`}
                     onClick={() => {
@@ -424,7 +424,7 @@ export default function DeliverablePage({
                   <button
                     className={`px-5 py-2 rounded-full transition font-medium ${
                       isViewingCounterpart
-                        ? "bg-lime-700 hover:bg-lime-800 text-white"
+                        ? "bg-emerald-800 hover:bg-emerald-800 text-white"
                         : "bg-gray-300 hover:bg-gray-400 text-gray-800"
                     }`}
                     onClick={() => {
@@ -456,7 +456,7 @@ export default function DeliverablePage({
 
         {/* Grade Slider */}
         <div className="mb-10">
-          <label className="block text-base sm:text-lg font-semibold text-gray-700 mb-2 text-center">
+          <label className="block text-base sm:text-lg font-semibold text-gray-800 mb-2 text-center">
             Grade (out of 100)
           </label>
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:justify-center">
@@ -469,7 +469,7 @@ export default function DeliverablePage({
                 isFinalReportSecondReaderViewOnly || isViewingCounterpart
               }
               onChange={(e) => setGrade(Number(e.target.value))}
-              className="w-full sm:w-3/4 appearance-none accent-lime-500"
+              className="w-full sm:w-3/4 appearance-none accent-emerald-500"
               style={{
                 background: `linear-gradient(to right, #84cc16 ${
                   isViewingCounterpart ? counterpartGrade ?? 0 : grade
@@ -485,7 +485,7 @@ export default function DeliverablePage({
                     : "pointer",
               }}
             />
-            <div className="text-lg font-bold text-lime-600">
+            <div className="text-lg font-bold text-emerald-700">
               {isViewingCounterpart ? counterpartGrade ?? 0 : grade}/100
             </div>
           </div>
@@ -505,11 +505,11 @@ export default function DeliverablePage({
 
             return (
               <div key={field} className="space-y-3">
-                <label className="block text-base sm:text-lg font-semibold text-gray-700">
+                <label className="block text-base sm:text-lg font-semibold text-gray-800">
                   {field}
                 </label>
                 <textarea
-                  className="w-full p-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-lime-400 transition"
+                  className="w-full p-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 transition"
                   value={
                     isViewingCounterpart
                       ? counterpartFeedback?.[field] ?? ""
@@ -535,7 +535,7 @@ export default function DeliverablePage({
               <button
                 onClick={() => handleSaveFeedback()}
                 type="button"
-                className="w-full sm:w-auto px-6 py-3 bg-lime-600 text-white rounded-full shadow-md hover:bg-lime-700 transition"
+                className="w-full sm:w-auto px-6 py-3 bg-emerald-700 text-white rounded-full shadow-md hover:bg-emerald-800 transition"
               >
                 Save Feedback
               </button>
@@ -545,7 +545,7 @@ export default function DeliverablePage({
               <button
                 onClick={() => handlePublish()}
                 type="button"
-                className="w-full sm:w-auto px-6 py-3 bg-lime-800 text-white rounded-full shadow-md hover:bg-lime-900 transition"
+                className="w-full sm:w-auto px-6 py-3 bg-teal-700 text-white rounded-full shadow-md hover:bg-teal-800 transition"
               >
                 Publish
               </button>
@@ -557,7 +557,7 @@ export default function DeliverablePage({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-xl font-bold mb-4">Confirm Submission</h2>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-700 mb-4">
               Please type your name to confirm your signature on this final
               report.
             </p>
@@ -566,18 +566,18 @@ export default function DeliverablePage({
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               placeholder="Enter your name"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmSubmit}
-                className="bg-lime-600 text-white px-4 py-2 rounded hover:bg-lime-700"
+                className="bg-emerald-700 text-white px-4 py-2 rounded hover:bg-emerald-800"
               >
                 Confirm
               </button>

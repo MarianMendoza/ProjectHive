@@ -129,14 +129,14 @@ const UsersPage = () => {
           <input
             type="text"
             placeholder="Search by name"
-            className="w-full sm:w-1/2 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-lime-500"
+            className="w-full sm:w-1/2 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-700"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            className="w-full sm:w-1/4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-lime-500"
+            className="w-full sm:w-1/4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-700"
           >
             <option value="All">All Roles</option>
             <option value="student">Student</option>
@@ -192,7 +192,7 @@ const UsersPage = () => {
                   session?.user.id !== user._id) ? (
                   <button
                     onClick={() => handleInviteClick(user)}
-                    className="px-4 py-2 bg-lime-600 text-white text-sm rounded hover:bg-lime-700 transition"
+                    className="px-4 py-2 bg-emerald-700 text-white text-sm rounded hover:bg-emerald-700 transition"
                   >
                     Invite
                   </button>
@@ -202,8 +202,8 @@ const UsersPage = () => {
                 <span
                   className={`px-3 py-2 text-sm rounded-full text-center ${
                     user.approved
-                      ? "bg-green-100 text-green-600"
-                      : "bg-yellow-100 text-yellow-600"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
                   {user.approved ? "Approved" : "Pending Approval"}
@@ -260,7 +260,7 @@ const UsersPage = () => {
               </button>
               <button
                 onClick={() => handleInviteSubmit()}
-                className="bg-lime-500 text-white px-6 py-2 rounded-lg hover:bg-lime-600 transition duration-200 ease-in-out"
+                className="bg-teal-700 text-white px-6 py-2 rounded-lg hover:bg-teal-800 transition duration-200 ease-in-out"
               >
                 Send Invitation
               </button>

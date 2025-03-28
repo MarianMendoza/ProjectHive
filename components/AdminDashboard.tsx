@@ -137,7 +137,7 @@ export default function AdminDashboard() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {Object.entries(deadlines).map(([key, value]) => (
                 <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-gray-800">
                     {key
                       .replace(/([A-Z])/g, " $1")
                       .replace("Date", " Deadline")
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
               ))}
               <button
                 type="submit"
-                className="bg-lime-800 px-4 py-2 text-white rounded-lg hover:bg-lime-900 transition"
+                className="bg-teal-700 px-4 py-2 text-white rounded-lg hover:bg-teal-800 transition"
               >
                 Save Dates
               </button>
@@ -190,7 +190,7 @@ export default function AdminDashboard() {
                 </div>
                 <span className="text-sm text-gray-500">
                   Drag & drop logo here or{" "}
-                  <span className="text-lime-600 font-semibold">browse</span>
+                  <span className="text-emerald-700 font-semibold">browse</span>
                 </span>
               </label>
               <input
@@ -222,19 +222,19 @@ export default function AdminDashboard() {
           <div className="mt-4 grid gap-4">
             <Link
               href={"/pages/admin-users"}
-              className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3"
+              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition duration-300 text-center flex items-center justify-center space-x-3"
             >
               🐝 Manage Users
             </Link>
             <Link
               href={"/pages/admin-projects"}
-              className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3"
+              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition duration-300 text-center flex items-center justify-center space-x-3"
             >
               📁 Manage Projects
             </Link>
             <Link
               href={"/pages/admin-deliverables"}
-              className="w-full bg-lime-600 text-white py-4 rounded-lg hover:bg-lime-700 transition duration-300 text-center flex items-center justify-center space-x-3"
+              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition duration-300 text-center flex items-center justify-center space-x-3"
             >
               📝 Manage Deliverables
             </Link>

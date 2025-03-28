@@ -152,7 +152,7 @@ export default function Register(){
                   id="terms"
                   aria-describedby="terms"
                   type="checkbox"
-                  className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
+                  className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-800 dark:border-gray-700 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
                   required
                 >
                 </input>
@@ -170,12 +170,12 @@ export default function Register(){
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-lime-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600"
+                className="flex w-full justify-center rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
               >
                 Sign Up
               </button>
               {error && (
-                <div className="bg-red-500 text-white w-fit text-sm py-1 rounded-md px-2 mt-2">
+                <div className="bg-red-600 text-white w-fit text-sm py-1 rounded-md px-2 mt-2">
                   {error} 
                 </div>
               )
@@ -187,7 +187,7 @@ export default function Register(){
   
           <p className="mt-10 text-center text-sm text-gray-500">
             Already Have An Account?{''}
-            <a href="/sign-in" className="font-semibold leading-6 text-lime-600 hover:text-lime-500">
+            <a href="/sign-in" className="font-semibold leading-6 text-emerald-600 hover:text-emerald-500">
               Login Here
             </a>
           </p>
