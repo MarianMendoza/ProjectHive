@@ -83,7 +83,7 @@ export default function CreateProjectPage() {
           Create New Project
         </h1>
 
-        {error && <div className="text-center py-4 text-red-500">{error}</div>}
+        {error && <div className="text-center py-4 text-red-600">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -99,7 +99,7 @@ export default function CreateProjectPage() {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             />
           </div>
@@ -116,7 +116,7 @@ export default function CreateProjectPage() {
               name="status"
               value={formData.status.toString()}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             >
               <option value="true">Open</option>
@@ -136,7 +136,7 @@ export default function CreateProjectPage() {
               name="programme"
               value={formData.programme.toString()}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             >
               <option value="">Select a course</option>
@@ -160,7 +160,7 @@ export default function CreateProjectPage() {
               name="visibility"
               value={formData.visibility}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
             >
               <option value="Private">Private</option>
@@ -181,7 +181,7 @@ export default function CreateProjectPage() {
               maxLength={500}
               value={formData.abstract}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               rows={4}
               required
             />
@@ -200,7 +200,7 @@ export default function CreateProjectPage() {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               rows={4}
               required
             />
@@ -212,13 +212,13 @@ export default function CreateProjectPage() {
           <div className="flex justify-end">
             <Link
               href="/pages/projects"
-              className="bg-red-600 text-white px-6 py-2 rounded-lg mx-7 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="bg-red-600 text-white px-6 py-2 rounded-lg mx-7 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               Cancel
             </Link>
             <button
               type="submit"
-              className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-lime-500"
+              className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               Create Project
             </button>

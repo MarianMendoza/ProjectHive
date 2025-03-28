@@ -110,9 +110,9 @@ export default function Register2(){
               value="Student"
               checked={role === 'Student'}
               onChange={handleRoleChange}
-              className="h-4 w-4 text-lime-500 border-gray-300 focus:ring-lime-500"
+              className="h-4 w-4 text-emerald-500 border-gray-300 focus:ring-emerald-500"
             />
-            <label htmlFor="student" className="text-gray-700">Student</label>
+            <label htmlFor="student" className="text-gray-800">Student</label>
           </div>
   
           <div className="flex items-center space-x-4">
@@ -122,9 +122,9 @@ export default function Register2(){
               value="Lecturer"
               checked={role === 'Lecturer'}
               onChange={handleRoleChange}
-              className="h-4 w-4 text-lime-500 border-gray-300 focus:ring-lime-500"
+              className="h-4 w-4 text-emerald-500 border-gray-300 focus:ring-emerald-500"
             />
-            <label htmlFor="lecturer" className="text-gray-700">Lecturer</label>
+            <label htmlFor="lecturer" className="text-gray-800">Lecturer</label>
           </div>
   
           {error && <div className="text-red-500 text-sm">{error}</div>}
@@ -132,7 +132,7 @@ export default function Register2(){
           <div>
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-lime-500 text-white font-semibold rounded-md shadow-md hover:bg-lime-600 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-opacity-50"
+              className="w-full py-2 px-4 bg-emerald-500 text-white font-semibold rounded-md shadow-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50"
             >
               Save Role
             </button>

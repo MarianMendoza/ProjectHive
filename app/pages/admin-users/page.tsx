@@ -260,13 +260,13 @@ export default function AdminDashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => handleEditUser(row)}
-            className="bg-lime-500 text-white px-3 py-1 rounded hover:bg-lime-600"
+            className="bg-emerald-700 text-white px-3 py-1 rounded hover:bg-emerald-700"
           >
             Edit
           </button>
           <button
             onClick={() => handleDeleteUser(row._id)}
-            className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
+            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
           >
             Delete
           </button>
@@ -283,7 +283,7 @@ export default function AdminDashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => handleDeleteDomain(row._id)}
-            className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
+            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
           >
             Delete
           </button>
@@ -313,21 +313,21 @@ export default function AdminDashboard() {
         <div className="flex mt-6 gap-4">
           <button
             onClick={handleDownloadPDF}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Save as PDF
           </button>
 
           <button
             onClick={handleDownloadCSV}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Save as CSV
           </button>
 
           <button
             onClick={handlePrint}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Print
           </button>
@@ -367,13 +367,13 @@ export default function AdminDashboard() {
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveChanges}
-                className="bg-lime-500 text-white px-4 py-2 rounded hover:bg-lime-600"
+                className="bg-emerald-700 text-white px-4 py-2 rounded hover:bg-emerald-700"
               >
                 Confirm Changes
               </button>
@@ -392,11 +392,11 @@ export default function AdminDashboard() {
             placeholder="Enter domain (e.g., example.com)"
             value={newDomain}
             onChange={(e) => setNewDomain(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-300"
+            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
           />
           <button
             onClick={handleAddDomain}
-            className="bg-lime-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500 transition duration-300"
+            className="bg-emerald-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
           >
             Add
           </button>
@@ -424,11 +424,11 @@ export default function AdminDashboard() {
             placeholder="Enter Course e.g Computer Science"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-300"
+            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
           />
           <button
             onClick={handleAddTags}
-            className="bg-lime-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500 transition duration-300"
+            className="bg-emerald-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
           >
             Add
           </button>
@@ -438,12 +438,12 @@ export default function AdminDashboard() {
           {tag.map((tag, index) => (
             <div
               key={index}
-              className="flex items-center bg-lime-500 text-lime-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300"
+              className="flex items-center bg-emerald-100 text-emerald-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300"
             >
               <span>{tag.name}</span>
               <button
                 onClick={() => handleRemoveTags(tag._id)}
-                className="ml-2 text-white hover:text-red-500 transition duration-300"
+                className="ml-2 text-emerald-900 hover:text-red-700 transition duration-300"
               >
                 &times;
               </button>

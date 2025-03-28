@@ -192,7 +192,7 @@ export default function StudentDashboard() {
           <Link
             href={`/pages/update-project/${row._id}`}
             title="Edit Project"
-            className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 text-xs flex justify-center w-[90px]"
+            className="bg-emerald-700 text-white px-3 py-2 rounded-md hover:bg-emerald-800 text-xs flex justify-center w-[90px]"
           >
             ✏️ Edit
           </Link>
@@ -201,7 +201,7 @@ export default function StudentDashboard() {
           <button
             onClick={() => confirmDelete(row._id)}
             title="Delete Project"
-            className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 text-xs flex items-center justify-center w-[90px]"
+            className="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 text-xs flex items-center justify-center w-[90px]"
           >
             🗑️ Delete
           </button>
@@ -228,11 +228,11 @@ export default function StudentDashboard() {
           <div className="md:col-span-3">
             {assignedProject ? (
               <div className="bg-white rounded-xl  p-6">
-                <h2 className="text-2xl font-bold text-lime-700 mb-4">
+                <h2 className="text-2xl font-bold text-emerald-800 mb-4">
                   {assignedProject.title}
                 </h2>
 
-                <div className="mt-6 bg-white p-6 rounded-xl shadow-sm border border-lime-100">
+                <div className="mt-6 bg-white p-6 rounded-xl shadow-sm border border-emerald-100">
                   <h2 className="text-lg font-bold mb-6 text-gray-700 text-center">
                     🍯 Grades Summary
                   </h2>
@@ -260,9 +260,9 @@ export default function StudentDashboard() {
                         const getColor = () => {
                           if (value === null || value === undefined)
                             return "bg-gray-200 text-gray-500";
-                          if (value >= 70) return "bg-pink-300 text-pink-900";
+                          if (value >= 70) return "bg-emerald-300 text-emerald-900";
                           if (value >= 50)
-                            return "bg-yellow-200 text-yellow-800";
+                            return "bg-teal-200 text-teal-800";
                           if (value >= 1)
                             return "bg-orange-200 text-orange-800";
                           return "bg-gray-200 text-gray-500";
@@ -295,13 +295,13 @@ export default function StudentDashboard() {
                 <div className="mt-6 flex flex-wrap gap-4">
                   <Link
                     href={`/pages/deliverables/${assignedProject.deliverables._id}`}
-                    className="bg-lime-700 hover:bg-lime-800 text-white px-6 py-2 rounded-full shadow transition"
+                    className="bg-emerald-800 hover:bg-emerald-800 text-white px-6 py-2 rounded-full shadow transition"
                   >
                     📁 View Deliverables
                   </Link>
                   <WithdrawButton
                     projectId={assignedProject._id}
-                    className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full shadow transition"
+                    className="bg-orange-700 hover:bg-orange-800 text-white px-6 py-2 rounded-full shadow transition"
                   />
                 </div>
 
@@ -376,7 +376,7 @@ export default function StudentDashboard() {
                   </h3>
                   <Link
                     href="/pages/create-project"
-                    className="bg-lime-600 hover:bg-lime-700 text-white px-6 py-3 rounded-lg transition"
+                    className="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-lg transition"
                   >
                     Create New Project
                   </Link>
@@ -402,7 +402,7 @@ export default function StudentDashboard() {
                           key={project._id}
                           className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
                         >
-                          <h4 className="text-lg font-semibold text-lime-600">
+                          <h4 className="text-lg font-semibold text-emerald-700">
                             {project.title}
                           </h4>
                           <p className="text-sm text-gray-700">

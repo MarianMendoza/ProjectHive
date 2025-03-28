@@ -246,7 +246,7 @@ const ProjectsPage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Projects..."
-              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
             />
           </div>
 
@@ -257,7 +257,7 @@ const ProjectsPage = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out w-full"
+                className="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out w-full"
               >
                 <option value="All">All Projects</option>
                 <option value="Open">Open Projects</option>
@@ -268,7 +268,7 @@ const ProjectsPage = () => {
             <div className="flex space-x-4 w-full md:w-auto">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="bg-lime-700 text-white px-3.5 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out w-full text-center"
+                className="bg-emerald-700 text-white px-3.5 rounded-lg hover:bg-emerald-800 transition duration-200 ease-in-out w-full text-center"
               >
                 {showFilters ? "Hide Filters" : "More Filters"}
               </button>
@@ -278,7 +278,7 @@ const ProjectsPage = () => {
               <button>
                 <Link
                   href={`/pages/create-project`}
-                  className="bg-lime-800 text-white p-3.5 rounded-lg hover:bg-lime-900 transition duration-200 ease-in-out w-full md:w-auto text-center"
+                  className="bg-teal-800 text-white p-3.5 rounded-lg hover:bg-teal-900 transition duration-200 ease-in-out w-full md:w-auto text-center"
                 >
                   Create New Project
                 </Link>
@@ -300,7 +300,7 @@ const ProjectsPage = () => {
                     value="All"
                     checked={programmeFilter === "All"}
                     onChange={(e) => setProgrammeFilter(e.target.value)}
-                    className="form-radio text-lime-800"
+                    className="form-radio text-emerald-800"
                   />
                   <span>All Programmes</span>
                 </label>
@@ -315,7 +315,7 @@ const ProjectsPage = () => {
                       value={c}
                       checked={programmeFilter === c}
                       onChange={(e) => setProgrammeFilter(e.target.value)}
-                      className="form-radio text-lime-800"
+                      className="form-radio text-emerald-800"
                     />
                     <span>{c}</span>
                   </label>
@@ -340,7 +340,7 @@ const ProjectsPage = () => {
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2 text-sm space-x-2">
-                        <span className="px-4 py-1 text-sm rounded-full bg-lime-100 text-lime-800">
+                        <span className="px-4 py-1 text-sm rounded-full bg-emerald-100 text-emerald-800">
                           {project.programme ? project.programme : "N/A"}
                         </span>
 
@@ -354,7 +354,7 @@ const ProjectsPage = () => {
                           {project.status ? "Open" : "Closed"}
                         </span>
                       </div>
-                      <h2 className="text-xl font-semibold text-lime-800">
+                      <h2 className="text-xl font-semibold text-emerald-800">
                         {project.title}
                       </h2>
 
@@ -379,7 +379,7 @@ const ProjectsPage = () => {
           <div className="w-2/3 p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto">
             {selectedProject ? (
               <>
-                <h2 className="text-2xl font-semibold text-lime-800">
+                <h2 className="text-2xl font-semibold text-emerald-800">
                   {selectedProject.title}
                 </h2>
                 <div className="author mb-5 text-lg">
@@ -439,7 +439,7 @@ const ProjectsPage = () => {
                             session.user.id
                           )
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-lime-700 text-white hover:bg-lime-800"
+                            : "bg-emerald-800 text-white hover:bg-emerald-900"
                         }`}
                         disabled={
                           selectedProject.applicants.some(
@@ -494,13 +494,13 @@ const ProjectsPage = () => {
                       <>
                         <Link
                           href={`/pages/update-project/${selectedProject._id}`}
-                          className="bg-lime-600 text-white px-6 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out"
+                          className="bg-emerald-700 text-white px-6 py-2 rounded-lg hover:bg-emerald-800 transition duration-200 ease-in-out"
                         >
                           ✏️ Edit
                         </Link>
                         <button
                           onClick={() => confirmDelete(selectedProject._id)}
-                          className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+                          className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out"
                         >
                           🗑️ Delete
                         </button>
@@ -546,7 +546,7 @@ const ProjectsPage = () => {
                   onClick={() => {
                     if (projectToDelete) handleDelete(projectToDelete);
                   }}
-                  className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+                  className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out"
                 >
                   Confirm Delete
                 </button>
@@ -563,20 +563,20 @@ const ProjectsPage = () => {
                 {selectedProject?.projectAssignedTo.supervisorId.name}:
               </h2>
               <textarea
-                className="w-full h-36 p-4 border border-gray-300 rounded-md text-md focus:outline-none focus:ring-2 focus:ring-lime-500 resize-none"
+                className="w-full h-36 p-4 border border-gray-300 rounded-md text-md focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Enter your message"
               />
               <div className="mt-6 flex justify-end space-x-4">
                 <button
-                  className="bg-red-600 text-white px-6 py-3 rounded-md font-medium  focus:bg-red-500"
+                  className="bg-red-600 text-white px-6 py-3 rounded-md font-medium  focus:bg-red-700"
                   onClick={() => setshowConfirmModal(false)}
                 >
                   Cancel
                 </button>
                 <button
-                  className="bg-lime-600 text-white px-6 py-3 rounded-md font-medium focus:bg-lime-500"
+                  className="bg-emerald-700 text-white px-6 py-3 rounded-md font-medium focus:bg-emerald-500"
                   onClick={() => handleConfirmModal(selectedProject?._id)}
                 >
                   Submit

@@ -101,7 +101,7 @@ export default function SignIn() {
               <div className="text-sm">
                 <a
                   href="/pages/forgot-password"
-                  className="font-semibold text-lime-600 hover:text-lime-500"
+                  className="font-semibold text-emerald-700 hover:text-emerald-500"
                 >
                   Forgot password?
                 </a>
@@ -123,7 +123,7 @@ export default function SignIn() {
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-lime-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600"
+              className="flex w-full justify-center rounded-md bg-emerald-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
             >
               Sign in
             </button>
@@ -139,7 +139,7 @@ export default function SignIn() {
           Don't Have An Account?{" "}
           <Link
             href="/pages/register"
-            className="font-semibold leading-6 text-lime-600 hover:text-lime-500"
+            className="font-semibold leading-6 text-emerald-700 hover:text-emerald-500"
           >
             Sign Up Here!
           </Link>

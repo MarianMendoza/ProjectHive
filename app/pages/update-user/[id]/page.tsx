@@ -98,11 +98,11 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
 
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6 ">
-      <h1 className="text-2xl rounded-full font-semibold text-gray-700 text-center mb-6">
+      <h1 className="text-2xl rounded-full font-semibold text-gray-800 text-center mb-6">
         Edit Profile
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4 items-center">
@@ -125,7 +125,7 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
         </div>
 
         <div>
-          <label htmlFor="name" className="block text-gray-600 font-medium">
+          <label htmlFor="name" className="block text-gray-700 font-medium">
             Name
           </label>
           <input
@@ -135,12 +135,12 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full p-2 border rounded-md focus:ring focus:ring-lime-500"
+            className="w-full p-2 border rounded-md focus:ring focus:ring-emerald-500"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-gray-600 font-medium">
+          <label htmlFor="email" className="block text-gray-700 font-medium">
             Email
           </label>
           <input
@@ -150,13 +150,13 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full p-2 border rounded-md focus:ring focus:ring-lime-500"
+            className="w-full p-2 border rounded-md focus:ring focus:ring-emerald-500"
             disabled={isAdmin}
           />
         </div>
 
         <div>
-          <label htmlFor="role" className="block text-gray-600 font-medium">
+          <label htmlFor="role" className="block text-gray-700 font-medium">
             Role
           </label>
           <select
@@ -164,7 +164,7 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
             id="role"
             value={formData.role}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md focus:ring focus:ring-lime-500"
+            className="w-full p-2 border rounded-md focus:ring focus:ring-emerald-500"
             disabled={isAdmin}
           >
             <option value="Student">Student</option>
@@ -174,7 +174,7 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
         </div>
 
         <div>
-          <label htmlFor="course" className="block text-gray-600 font-medium">
+          <label htmlFor="course" className="block text-gray-700 font-medium">
             Course
           </label>
           <input
@@ -184,14 +184,14 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
             value={formData.course}
             onChange={handleChange}
             placeholder="Enter course (optional)"
-            className="w-full p-2 border rounded-md focus:ring focus:ring-lime-500"
+            className="w-full p-2 border rounded-md focus:ring focus:ring-emerald-500"
           />
         </div>
 
         <div>
           <label
             htmlFor="description"
-            className="block text-gray-600 font-medium"
+            className="block text-gray-700 font-medium"
           >
             Description
           </label>
@@ -201,7 +201,7 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
             value={formData.description}
             onChange={handleChange}
             placeholder="Enter a short description (optional)"
-            className="w-full p-2 border rounded-md focus:ring focus:ring-lime-500"
+            className="w-full p-2 border rounded-md focus:ring focus:ring-emerald-500"
           />
         </div>
 
@@ -209,13 +209,13 @@ const UpdateUserPage = ({ params }: { params: { id: string } }) => {
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
           >
             ❌ Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-lime-500 text-white rounded-md hover:bg-lime-600"
+            className="px-4 py-2 bg-emerald-500 text-white rounded-md hover:bg-emerald-700"
           >
             ✅ Confirm
           </button>

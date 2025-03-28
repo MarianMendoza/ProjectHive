@@ -98,12 +98,12 @@ export default function ForgotPassword() {
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-lime-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600"
+              className="flex w-full justify-center rounded-md bg-emerald-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
             >
               Submit
             </button>
             {error && (
-              <div className="bg-red-500 text-white w-fit text-sm py-1 rounded-md px-2 mt-2">
+              <div className="bg-red-600 text-white w-fit text-sm py-1 rounded-md px-2 mt-2">
                 {error}
               </div>
             )}
@@ -115,7 +115,7 @@ export default function ForgotPassword() {
             Remembered your password?{" "}
             <Link
               href="/pages/signin"
-              className="font-semibold leading-6 text-lime-600 hover:text-lime-500"
+              className="font-semibold leading-6 text-emerald-700 hover:text-emerald-500"
             >
               Sign In
             </Link>
@@ -127,7 +127,7 @@ export default function ForgotPassword() {
             Remembered your password?{" "}
             <Link
               href="/pages/profile"
-              className="font-semibold leading-6 text-lime-600 hover:text-lime-500"
+              className="font-semibold leading-6 text-emerald-700 hover:text-emerald-500"
             >
               Go Back
             </Link>
@@ -147,7 +147,7 @@ export default function ForgotPassword() {
             </p>
             <button
               onClick={closeModal}
-              className="flex w-full justify-center rounded-md bg-lime-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-lime-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-600"
+              className="flex w-full justify-center rounded-md bg-emerald-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
             >
               Close
             </button>

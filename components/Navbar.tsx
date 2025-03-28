@@ -149,35 +149,30 @@ export default function Navbar() {
 
         {/* DESKTOP: Navigation Links */}
         <div className="hidden md:flex items-center space-x-12">
-          <Link href="/" className="text-black hover:text-lime-600">
+          <Link href="/" className="text-black hover:text-emerald-700">
             Home
           </Link>
-          <Link
-            href="/pages/open-day"
-            className="text-black hover:text-lime-600"
-          >
-            Open Day
-          </Link>
+          
           <Link
             href="/pages/projects"
-            className="text-black hover:text-lime-600"
+            className="text-black hover:text-emerald-700"
           >
             Projects
           </Link>
           <Link
             href="/pages/past-projects"
-            className="text-black hover:text-lime-600"
+            className="text-black hover:text-emerald-700"
           >
             Past Projects
           </Link>
-          <Link href="/pages/users" className="text-black hover:text-lime-600">
+          <Link href="/pages/users" className="text-black hover:text-emerald-700">
             Users
           </Link>
 
           {session ? (
             <Link
               href="/pages/dashboard"
-              className="text-black hover:text-lime-600"
+              className="text-black hover:text-emerald-700"
             >
               Dashboard
             </Link>
@@ -185,13 +180,13 @@ export default function Navbar() {
             <>
               <Link
                 href="/pages/register"
-                className="text-black hover:text-lime-600"
+                className="text-black hover:text-emerald-700"
               >
                 Register
               </Link>
               <Link
                 href="/pages/sign-in"
-                className="text-black hover:text-lime-600"
+                className="text-black hover:text-emerald-700"
               >
                 Login
               </Link>

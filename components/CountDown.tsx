@@ -52,44 +52,43 @@ const Countdown = (): JSX.Element => {
 
   return (
     <section className="w-full py-12 bg-white-100">
-      {/* Conditionally render UI based on whether the countdown has ended */}
       {hasEnded ? (
-        <div className="text-center py-5 text-xl text-lime-700">
+        <div className="text-center py-5 text-xl text-teal-700">
           <h3 className="font-bold text-2xl">The Hive is Open!</h3>
           <p className="mt-3">Our busy bee days have ended! 🐝🎉</p>
         </div>
       ) : (
         <>
-        <h2 className="text-2xl font-bold text-center text-lime-700 md:text-3xl lg:text-4xl">
+        <h2 className="text-2xl font-bold text-center text-teal-700 md:text-3xl lg:text-4xl">
             Days till we open our Hive
           </h2>
-          <p className="text-center py-3 text-lime-600">
+          <p className="text-center py-3 text-teal-600">
             Our busy bee days end in 🐝:
           </p>
         <div className="mt-8 flex justify-center gap-10 text-center">
           <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-lime-700 bg-lime-200 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
               {timeLeft.days}
             </div>
-            <span className="text-lime-700 text-lg">Days</span>
+            <span className="text-teal-700 text-lg">Days</span>
           </div>
           <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-lime-700 bg-lime-200 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
               {timeLeft.hours}
             </div>
-            <span className="text-lime-700 text-lg">Hours</span>
+            <span className="text-teal-700 text-lg">Hours</span>
           </div>
           <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-lime-700 bg-lime-200 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
               {timeLeft.minutes}
             </div>
-            <span className="text-lime-700 text-lg">Minutes</span>
+            <span className="text-teal-700 text-lg">Minutes</span>
           </div>
           <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-lime-700 bg-lime-200 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
               {timeLeft.seconds}
             </div>
-            <span className="text-lime-700 text-lg">Seconds</span>
+            <span className="text-teal-700 text-lg">Seconds</span>
           </div>
         </div>
         </>

@@ -37,14 +37,14 @@ export default function ViewFeedbackPage({
 
   return (
     <div className="container w-full mx-auto p-6">
-      <h3 className="text-2xl font-bold mb-6 text-center text-lime-700">
+      <h3 className="text-2xl font-bold mb-6 text-center text-emerald-800">
         View Feedback
       </h3>
 
       {/* Show feedback if available */}
       {filteredDeliverable ? (
-        <div className="w-full p-4 rounded-lg text-gray-700">
-          <h3 className="text-lg font-semibold text-lime-800 mb-3">
+        <div className="w-full p-4 rounded-lg text-gray-800">
+          <h3 className="text-lg font-semibold text-emerald-800 mb-3">
             {feedbackType === "supervisorInitialFeedback" &&
               "Supervisor's Initial Feedback"}
             {feedbackType === "supervisorFeedback" &&
@@ -58,7 +58,7 @@ export default function ViewFeedbackPage({
             {Object.entries(filteredDeliverable).map(([section, feedback]) => (
               <div key={section} className="border-b pb-2">
                 <strong className="text-gray-800">{section}:</strong>
-                <p className="mt-1 text-gray-700">
+                <p className="mt-1 text-gray-800">
                   {feedback?.trim() ? (
                     feedback
                   ) : (
@@ -78,7 +78,7 @@ export default function ViewFeedbackPage({
                 </h3>
                 <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
                   <div
-                    className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center"
+                    className="h-full bg-emerald-700 text-center text-white text-sm font-semibold flex items-center justify-center"
                     style={{
                       width: `${deliverables.finalReport.supervisorGrade}%`,
                     }}

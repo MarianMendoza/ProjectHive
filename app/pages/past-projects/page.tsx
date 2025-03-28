@@ -83,7 +83,7 @@ export default function PastProjects() {
                 key={project._id}
                 className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300"
               >
-                <h3 className="text-xl mt-5 font-semibold text-lime-600">
+                <h3 className="text-xl mt-5 font-semibold text-emerald-700">
                   {project.title}
                 </h3>
 

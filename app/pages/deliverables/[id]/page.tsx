@@ -271,7 +271,7 @@ export default function DeliverablesPage({
   const isStudent = session?.user?.role === "Student";
 
   if (loading)
-    return <p className="text-center text-lg text-gray-600">Loading...</p>;
+    return <p className="text-center text-lg text-gray-700">Loading...</p>;
 
   return (
     <>
@@ -288,7 +288,7 @@ export default function DeliverablesPage({
         </h3>
 
         <div className="w-full max-w-4xl p-6">
-          <p className="text-gray-600 text-center mb-6">
+          <p className="text-gray-700 text-center mb-6">
             Upload and manage the necessary documents for your project. Ensure
             all files are submitted before their deadlines.
           </p>
@@ -296,20 +296,20 @@ export default function DeliverablesPage({
           {Object.entries(deliverables).map(
             ([key, { file, uploadedAt, description, isPublished }]) => (
               <div key={key} className="p-4 mb-4 bg-white rounded-lg shadow-lg">
-                <h4 className="text-lg font-semibold capitalize text-lime-600">
+                <h4 className="text-lg font-semibold capitalize text-emerald-700">
                   {key.replace(/([A-Z])/g, " $1")}
                 </h4>
 
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-700">
                   <strong>Deadline:</strong>{" "}
                   {deadlines?.[key + "Deadline"] ?? "Not set"}
                 </p>
 
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-700">
                   <strong>Last Uploaded:</strong>{" "}
                   {uploadedAt ? new Date(uploadedAt).toLocaleString() : "Never"}
                 </p>
-                <p className="text-sm text-gray-600 mb-4">{description}</p>
+                <p className="text-sm text-gray-700 mb-4">{description}</p>
 
                 {isPublished == true && (
                   <div className="mt-4 mb-4">
@@ -320,7 +320,7 @@ export default function DeliverablesPage({
                     {deliverables?.[key]?.supervisorGrade ? (
                       <div className="relative w-full bg-gray-200 rounded-lg h-6 overflow-hidden">
                         <div
-                          className="h-full bg-lime-600 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
+                          className="h-full bg-emerald-700 text-center text-white text-sm font-semibold flex items-center justify-center transition-all"
                           style={{
                             width: `${deliverables[key].supervisorGrade}%`,
                           }}
@@ -335,7 +335,7 @@ export default function DeliverablesPage({
                     )}
 
                     <div className="w-full p-4 border bg-white rounded-lg shadow-md mt-4 text-gray-800">
-                      <h3 className="text-lg font-bold text-lime-700 mb-2">
+                      <h3 className="text-lg font-bold text-emerald-800 mb-2">
                         📋 Supervisor Feedback
                       </h3>
 
@@ -348,13 +348,13 @@ export default function DeliverablesPage({
                               key={category}
                               className="p-3 border rounded-md bg-gray-50"
                             >
-                              <span className="text-sm font-semibold text-lime-600">
+                              <span className="text-sm font-semibold text-emerald-700">
                                 {category}
                               </span>
                               <p
                                 className={`mt-1 text-sm ${
                                   feedback
-                                    ? "text-gray-700"
+                                    ? "text-gray-800"
                                     : "text-gray-500 italic"
                                 }`}
                               >
@@ -377,7 +377,7 @@ export default function DeliverablesPage({
                   new Date(deadlines[key + "Deadline"]) >= new Date() && (
                     <div
                       onDrop={(e) => handleDrop(e, key)}
-                      className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-lime-600 text-center"
+                      className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-emerald-700 text-center"
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                     >
@@ -396,7 +396,7 @@ export default function DeliverablesPage({
                         </div>
                         <span className="text-sm text-gray-500">
                           Drag & drop files here or{" "}
-                          <span className="text-lime-600 font-semibold">
+                          <span className="text-emerald-700 font-semibold">
                             browse
                           </span>
                         </span>
@@ -415,8 +415,8 @@ export default function DeliverablesPage({
                   disabled={!file}
                   className={`flex items-center gap-2 mt-2 px-4 py-2 rounded-lg transition w-full text-center ${
                     !file
-                      ? "bg-gray-400 text-gray-700 cursor-not-allowed "
-                      : "bg-lime-700 text-white hover:bg-lime-800"
+                      ? "bg-gray-400 text-gray-800 cursor-not-allowed "
+                      : "bg-emerald-800 text-white hover:bg-emerald-800"
                   }`}
                   onClick={() => handleDownload(file)}
                 >

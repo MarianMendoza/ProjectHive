@@ -175,7 +175,7 @@ export default function LecturerDashboard() {
 
   if (status === "unauthenticated") {
     return (
-      <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-red-600">
+      <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-red-700">
         You are not logged in. Please sign in to access your dashboard.
       </h2>
     );
@@ -255,7 +255,7 @@ export default function LecturerDashboard() {
           <Link
             href={`/pages/project-page/${row._id}`}
             title="View Deliverables"
-            className="bg-lime-800 text-white px-3 py-2 rounded-md hover:bg-lime-900 text-xs flex items-center justify-center w-[90px]"
+            className="bg-emerald-800 text-white px-3 py-2 rounded-md hover:bg-emerald-900 text-xs flex items-center justify-center w-[90px]"
           >
             📝 View
           </Link>
@@ -264,21 +264,21 @@ export default function LecturerDashboard() {
           <Link
             href={`/pages/update-project/${row._id}`}
             title="Edit Project"
-            className="bg-lime-600 text-white px-3 py-2 rounded-md hover:bg-lime-700 text-xs flex justify-center w-[90px]"
+            className="bg-emerald-700 text-white px-3 py-2 rounded-md hover:bg-emerald-700 text-xs flex justify-center w-[90px]"
           >
             ✏️ Edit
           </Link>
 
           <WithdrawButton
             projectId={row._id}
-            className="bg-amber-500  text-white px-3 py-2 flex rounded-md hover:bg-amber-600 text-xs items-center justify-center w-[90px]"
+            className="bg-orange-700  text-white px-3 py-2 flex rounded-md hover:bg-orange-800 text-xs items-center justify-center w-[90px]"
           />
 
           {/* Delete */}
           <button
             onClick={() => confirmDelete(row._id)}
             title="Delete Project"
-            className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 text-xs flex items-center justify-center w-[90px]"
+            className="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-800 text-xs flex items-center justify-center w-[90px]"
           >
             🗑️ Delete
           </button>
@@ -305,7 +305,7 @@ export default function LecturerDashboard() {
               <div className="w-full bg-white p-6">
                 <div className="col-span-3 flex justify-between items-center ">
                   <div className="flex justify-between gap-3">
-                    <button className="bg-lime-600 text-sm text-white px-2 py-2 rounded-lg hover:bg-lime-700 transition duration-200 ease-in-out">
+                    <button className="bg-emerald-700 text-sm text-white px-2 py-2 rounded-lg hover:bg-emerald-700 transition duration-200 ease-in-out">
                       <Link href="/pages/create-project">
                         Create New Project
                       </Link>
@@ -331,7 +331,7 @@ export default function LecturerDashboard() {
                         }}
                         className={`px-1 py-1 rounded-lg text-sm transition duration-200 ${
                           showArchived
-                            ? "bg-lime-700 text-white"
+                            ? "bg-emerald-700 text-white"
                             : "bg-gray-200 text-black"
                         }`}
                       >
@@ -345,7 +345,7 @@ export default function LecturerDashboard() {
                         }}
                         className={`px-1 py-2 rounded-lg text-sm transition duration-200 ${
                           showSecondReader
-                            ? "bg-lime-700 text-white"
+                            ? "bg-emerald-700 text-white"
                             : "bg-gray-200 text-black"
                         }`}
                       >
@@ -358,7 +358,7 @@ export default function LecturerDashboard() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search Projects..."
-                      className="w-1/3 px-1 py-0.5 mt-1 mb-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-200 ease-in-out"
+                      className="w-1/3 px-1 py-0.5 mt-1 mb-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
                     />
                   </div>
                   <DataTable
@@ -374,7 +374,7 @@ export default function LecturerDashboard() {
             </div>
           </>
         ) : (
-          <h2 className="text-2xl font-bold leading-9 tracking-tight text-red-600">
+          <h2 className="text-2xl font-bold leading-9 tracking-tight text-red-700">
             Waiting for admin approval. Please check back later.
           </h2>
         )}
@@ -399,7 +399,7 @@ export default function LecturerDashboard() {
                   onClick={() => {
                     if (projectToDelete) handleDelete(projectToDelete);
                   }}
-                  className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200 ease-in-out"
+                  className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out"
                 >
                   Confirm Delete
                 </button>

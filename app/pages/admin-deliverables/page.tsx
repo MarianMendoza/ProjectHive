@@ -320,7 +320,7 @@ export default function DeliverableDashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => downloadDeliverables(row.projectId._id)}
-            className="bg-lime-800 text-white px-3 py-1 rounded hover:bg-lime-900"
+            className="bg-emerald-800 text-white px-3 py-1 rounded hover:bg-emerald-900"
           >
             Download
           </button>
@@ -343,21 +343,21 @@ export default function DeliverableDashboard() {
         <div className="flex mt-6 gap-4">
           <button
             onClick={handleDownloadPDF}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Save as PDF
           </button>
 
           <button
             onClick={handleDownloadCSV}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Save as CSV
           </button>
 
           <button
             onClick={handlePrint}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Print
           </button>

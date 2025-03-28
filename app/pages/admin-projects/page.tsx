@@ -381,19 +381,19 @@ export default function ProjectDashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => downloadDeliverables(row._id)}
-            className="bg-lime-800 text-white px-3 py-1 rounded hover:bg-lime-900"
+            className="bg-emerald-800 text-white px-3 py-1 rounded hover:bg-emerald-900"
           >
             Download
           </button>
           <button
             onClick={() => handleEdit(row)}
-            className="bg-lime-500 text-white px-3 py-1 rounded hover:bg-lime-600"
+            className="bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700"
           >
             Edit
           </button>
           <button
             onClick={() => handleDelete(row._id)}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
           >
             Delete
           </button>
@@ -421,21 +421,21 @@ export default function ProjectDashboard() {
         <div className="flex mt-6 gap-4">
           <button
             onClick={handleDownloadPDF}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800"
           >
             Save as PDF
           </button>
 
           <button
             onClick={handleDownloadCSV}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800"
           >
             Save as CSV
           </button>
 
           <button
             onClick={handlePrint}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+            className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800"
           >
             Print
           </button>
@@ -452,11 +452,11 @@ export default function ProjectDashboard() {
             placeholder="Enter Programmes e.g. BSc"
             value={newProgramme}
             onChange={(e) => setNewProgramme(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-lime-600 transition duration-300"
+            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
           />
           <button
             onClick={handleAddProgrammes}
-            className="bg-lime-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-500 transition duration-300"
+            className="bg-emerald-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 transition duration-300"
           >
             Add
           </button>
@@ -466,12 +466,12 @@ export default function ProjectDashboard() {
           {programme.map((programme, index) => (
             <div
               key={index}
-              className="flex items-center bg-lime-500 text-lime-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300"
+              className="flex items-center bg-emerald-200 text-emerald-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300"
             >
               <span>{programme.name}</span>
               <button
                 onClick={() => handleRemoveProgrammes(programme._id)}
-                className="ml-2 text-white hover:text-red-500 transition duration-300"
+                className="ml-2 text-emerald-900 hover:text-red-600 transition duration-300"
               >
                 &times;
               </button>
@@ -539,13 +539,13 @@ export default function ProjectDashboard() {
             <div className="flex justify-end gap-4 mt-4">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded"
+                className="bg-gray-600 text-white px-4 py-2 rounded"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveChanges}
-                className="bg-lime-500 text-white px-4 py-2 rounded"
+                className="bg-emerald-600 text-white px-4 py-2 rounded"
               >
                 Save Changes
               </button>
