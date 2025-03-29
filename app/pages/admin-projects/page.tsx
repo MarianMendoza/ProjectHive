@@ -14,6 +14,8 @@ import Papa from "papaparse";
 export default function ProjectDashboard() {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [lecturers, setLecturers] = useState<User[]>([]);
   const [students, setStudents] = useState<User[]>([]);
@@ -28,8 +30,20 @@ export default function ProjectDashboard() {
       try {
         const res = await fetch("/api/projects");
         const data = await res.json();
-        console.log(data);
-        setProjects(data);
+        const filteredProjects = data.filter((project: Project) => {
+       
+          const matchesSearchQuery =
+            searchQuery === "" ||
+            project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.projectAssignedTo?.authorId?.name
+              ?.toLowerCase()
+              .includes(searchQuery.toLowerCase());
+            
+              return matchesSearchQuery;
+
+        });
+        
+        setProjects(filteredProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
@@ -57,7 +71,7 @@ export default function ProjectDashboard() {
     fetchProgramme();
     fetchProjects();
     fetchUsers();
-  }, []);
+  }, [searchQuery]);
 
   const handleAddProgrammes = async () => {
     try {
@@ -95,7 +109,9 @@ export default function ProjectDashboard() {
         method: "DELETE",
       });
       if (res.ok) {
-        setProgramme(programme.filter((currentProgramme) => currentProgramme._id !== id));
+        setProgramme(
+          programme.filter((currentProgramme) => currentProgramme._id !== id)
+        );
         alert("Programme deleted successfully");
       } else {
         alert("Failed to delete tag");
@@ -409,9 +425,17 @@ export default function ProjectDashboard() {
   return (
     <div className="p-6 flex gap-4">
       <div className="bg-white h-full w-3/4 p-4 rounded-lg">
+      <h1 className="text-xl mb-2">Project Management</h1>
+
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search Projects..."
+          className="w-1/2 p-2 mb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
+        />
         <DataTable
           className="h-full overflow-auto w-3/4"
-          title="Project Management"
           columns={columns}
           data={projects}
           pagination

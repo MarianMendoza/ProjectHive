@@ -11,15 +11,30 @@ const UsersPage = () => {
   const [lecturers, setLecturers] = useState<User[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedLecturer, setSelectedLecturer] = useState<User | null>(null);
+  const [courseFilter, setCourseFilter] = useState<string>("All");
+  const [course, setCourses] = useState<string[]>([]);
+
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [message, setMessage] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("All");
   const [showConfirmModal, setshowConfirmModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
+  const [showFilters, setShowFilters] = useState(false);
+
   const socket = useSocket();
 
   useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch("/api/tags");
+        const data = await res.json();
+        const courseName = data.map((tag: { name: string }) => tag.name);
+        setCourses(courseName);
+      } catch (error) {
+        console.error("Error fetching tags", error);
+      }
+    };
     const fetchUsers = async () => {
       try {
         const usersResponse = await fetch("/api/users");
@@ -53,8 +68,9 @@ const UsersPage = () => {
       }
     };
 
+    fetchCourses();
     fetchUsers();
-  }, []);
+  }, [searchQuery, courseFilter]);
 
   const handleInviteClick = (lecturer: User) => {
     setSelectedLecturer(lecturer);
@@ -118,7 +134,9 @@ const UsersPage = () => {
     const matchesRole =
       selectedRole === "All" ||
       user.role.toLowerCase() === selectedRole.toLowerCase();
-    return matchesSearchQuery && matchesRole;
+    const matchesCourse = courseFilter === "All" || user.tag === courseFilter;
+
+    return matchesSearchQuery && matchesRole && matchesCourse;
   });
 
   return (
@@ -133,15 +151,62 @@ const UsersPage = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="w-full sm:w-1/4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-700"
-          >
-            <option value="All">All Roles</option>
-            <option value="student">Student</option>
-            <option value="lecturer">Lecturer</option>
-          </select>
+
+          <div className="w-1/2 gap-3 flex justify-end">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-emerald-700 sm:w-1/4 w-10 text-white p-2 rounded-lg hover:bg-emerald-800 transition duration-200 ease-in-out text-center"
+            >
+              {showFilters ? "Hide Filters" : "More Filters"}
+            </button>
+
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="w-full sm:w-1/4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-700"
+            >
+              <option value="All">All Roles</option>
+              <option value="student">Student</option>
+              <option value="lecturer">Lecturer</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="w-full mt-3 bg-white mb-5 ">
+          {showFilters && (
+            <div className="p-2 flex gap-3 w-full ">
+              <h3 className="text-lg font-semibold">Select Program</h3>
+              <div className="flex gap-4">
+                <label className="inline-flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="courseFilter"
+                    value="All"
+                    checked={courseFilter === "All"}
+                    onChange={(e) => setCourseFilter(e.target.value)}
+                    className="form-radio text-emerald-800"
+                  />
+                  <span>All Programs</span>
+                </label>
+                {course.map((c, index) => (
+                  <label
+                    key={index}
+                    className="inline-flex items-center space-x-2"
+                  >
+                    <input
+                      type="radio"
+                      name="courseFilter"
+                      value={c}
+                      checked={courseFilter === c}
+                      onChange={(e) => setCourseFilter(e.target.value)}
+                      className="form-radio text-emerald-800"
+                    />
+                    <span>{c}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* User List */}
