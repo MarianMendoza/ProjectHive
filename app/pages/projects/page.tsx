@@ -302,7 +302,7 @@ const ProjectsPage = () => {
                     onChange={(e) => setProgrammeFilter(e.target.value)}
                     className="form-radio text-emerald-800"
                   />
-                  <span>All Programmes</span>
+                  <span>All Programs</span>
                 </label>
                 {programme.map((c, index) => (
                   <label
@@ -469,7 +469,7 @@ const ProjectsPage = () => {
                 </p>
 
                 <p>
-                  <strong>Programme:</strong>
+                  <strong>Program: </strong>
 
                   {selectedProject.programme
                     ? selectedProject.programme

@@ -105,6 +105,8 @@ export default function DeliverableDashboard() {
 
     const filteredDeliverables = deliverables.map((row) => ({
       "Project Title": row.projectId?.title || "N/A",
+      Supervisor:
+      row.projectId?.projectAssignedTo?.supervisorId || "No Supervisor",
       Students:
         row.projectId?.projectAssignedTo?.studentsId
           ?.map((s) => s.name)
@@ -185,6 +187,7 @@ export default function DeliverableDashboard() {
     const doc = new jsPDF();
     const columns = [
       "Project Title",
+      "Supervisor",
       "Students",
       "StudentsId",
       "Outline Document Grade",
@@ -196,6 +199,7 @@ export default function DeliverableDashboard() {
 
     const rows = deliverables.map((deliverable) => [
       deliverable.projectId?.title,
+      deliverable.projectId?.projectAssignedTo?.supervisorId || "No Supervisor",
       deliverable.projectId?.projectAssignedTo?.studentsId
         ?.map((student: string) => student.name)
         .join(",") || "No Students",
@@ -226,6 +230,11 @@ export default function DeliverableDashboard() {
       selector: (row: Deliverable) => row.projectId.title,
       sortable: true,
       width: "180px",
+    },
+    {
+      name: "Supervisor",
+      selector: (row: Project) => row.projectId.projectAssignedTo?.supervisorId.name,
+      width: "170px",
     },
     {
       name: "Students",
@@ -283,34 +292,34 @@ export default function DeliverableDashboard() {
     {
       name: "Outline Document Grade",
       selector: (row: Deliverable) =>
-        row.outlineDocument.supervisorGrade || "N/A",
+        row.outlineDocument?.supervisorGrade || "N/A",
       sortable: true,
       width: "90px",
     },
     {
       name: "Extended Document Grade",
       selector: (row: Deliverable) =>
-        row.extendedAbstract.supervisorGrade || "N/A",
+        row.extendedAbstract?.supervisorGrade || "N/A",
       sortable: true,
       width: "90px",
     },
     {
       name: "Second-Reader Final Provisional Grade",
       selector: (row: Deliverable) =>
-        row.finalReport.secondReaderInitialGrade || "N/A",
+        row.finalReport?.secondReaderInitialGrade || "N/A",
       sortable: true,
       width: "90px",
     },
     {
       name: "Supervisor Final Provisional Grade",
       selector: (row: Deliverable) =>
-        row.finalReport.supervisorInitialGrade || "N/A",
+        row.finalReport?.supervisorInitialGrade || "N/A",
       sortable: true,
       width: "90px",
     },
     {
       name: "Final Grade",
-      selector: (row: Deliverable) => row.finalReport.supervisorGrade || "N/A",
+      selector: (row: Deliverable) => row.finalReport?.supervisorGrade || "N/A",
       sortable: true,
       width: "90px",
     },

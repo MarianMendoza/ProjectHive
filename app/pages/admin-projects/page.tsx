@@ -342,10 +342,10 @@ export default function ProjectDashboard() {
     {
       name: "Outline Document",
       selector: (row: Project) =>
-        row.deliverables.outlineDocument?.file ? "✅" : "❌",
+        row.deliverables?.outlineDocument?.file ? "✅" : "❌",
       cell: (row: any) => (
         <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%" }}>
-          {row.deliverables.outlineDocument?.file ? "✅" : "❌"}
+          {row.deliverables?.outlineDocument?.file ? "✅" : "❌"}
         </div>
       ),
       center: true,
@@ -354,10 +354,10 @@ export default function ProjectDashboard() {
     {
       name: "Extended Abstract",
       selector: (row: Project) =>
-        row.deliverables.extendedAbstract?.file ? "✅" : "❌",
+        row.deliverables?.extendedAbstract?.file ? "✅" : "❌",
       cell: (row: any) => (
         <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%" }}>
-          {row.deliverables.extendedAbstract?.file ? "✅" : "❌"}
+          {row.deliverables?.extendedAbstract?.file ? "✅" : "❌"}
         </div>
       ),
       center: true,
@@ -366,10 +366,10 @@ export default function ProjectDashboard() {
     {
       name: "Final Report",
       selector: (row: Project) =>
-        row.deliverables.finalReport?.file ? "✅" : "❌",
+        row.deliverables?.finalReport?.file ? "✅" : "❌",
       cell: (row: any) => (
         <div style={{ textAlign: "center", fontSize: "1.5rem", width: "100%" }}>
-          {row.deliverables.finalReport?.file ? "✅" : "❌"}
+          {row.deliverables?.finalReport?.file ? "✅" : "❌"}
         </div>
       ),
       center: true,

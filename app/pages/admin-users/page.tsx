@@ -109,7 +109,7 @@ export default function AdminDashboard() {
   const handleAddDomain = async () => {
     try {
       // Send the domain to the backend API
-      const res = await fetch("/api/alloweddomains", {
+      const res = await fetch("/api/allowed-domains", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ domain: newDomain }),
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
       return;
     }
     try {
-      const res = await fetch(`/api/alloweddomains/${id}`, {
+      const res = await fetch(`/api/allowed-domains/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -254,6 +254,8 @@ export default function AdminDashboard() {
     { name: "Username", selector: (row: any) => row.name, sortable: true },
     { name: "Email", selector: (row: any) => row.email, sortable: true },
     { name: "Role", selector: (row: any) => row.role, sortable: true },
+    { name: "Course", selector: (row: any) => row.tag, sortable: true },
+
     {
       name: "Actions",
       cell: (row: User) => (
