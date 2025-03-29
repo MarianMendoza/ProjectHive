@@ -15,7 +15,6 @@ const ProjectsPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -291,7 +290,7 @@ const ProjectsPage = () => {
 
           {showFilters && (
             <div className="p-2 flex gap-3 justify-end w-full ">
-              <h3 className="text-lg font-semibold">Select Programme</h3>
+              <h3 className="text-lg font-semibold">Select Program</h3>
               <div className="flex gap-4">
                 <label className="inline-flex items-center space-x-2">
                   <input

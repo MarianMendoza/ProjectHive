@@ -14,6 +14,7 @@ import { User } from "@/types/users";
 
 export default function DeliverableDashboard() {
   const { data: session } = useSession();
+  const [searchQuery, setSearchQuery]= useState<string>("");
   const [selectedDeliverable, setSelectedDeliverable] =
     useState<Deliverable | null>(null);
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
@@ -25,8 +26,16 @@ export default function DeliverableDashboard() {
       try {
         const res = await fetch("/api/deliverables");
         const data = await res.json();
-        console.log(data);
-        setDeliverables(data);
+
+        const filteredDeliverables = data.filter((deliverable: Deliverable) => {
+         
+          const matchesSearchQuery =
+            searchQuery === "" ||
+            deliverable.projectId.title.toLowerCase().includes(searchQuery.toLowerCase()) 
+
+            return matchesSearchQuery;
+        })
+        setDeliverables(filteredDeliverables);
       } catch (error) {
         console.error("Error fetching deliverables:", error);
       }
@@ -47,8 +56,9 @@ export default function DeliverableDashboard() {
       try {
         const res = await fetch("/api/projects");
         const data = await res.json();
-        console.log(data);
-        setProjects(data);
+
+       
+        setProjects(filteredProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
@@ -56,7 +66,7 @@ export default function DeliverableDashboard() {
     fetchDeliverables();
     fetchUsers();
     fetchProjects();
-  }, []);
+  }, [searchQuery]);
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
@@ -106,7 +116,7 @@ export default function DeliverableDashboard() {
     const filteredDeliverables = deliverables.map((row) => ({
       "Project Title": row.projectId?.title || "N/A",
       Supervisor:
-      row.projectId?.projectAssignedTo?.supervisorId || "No Supervisor",
+        row.projectId?.projectAssignedTo?.supervisorId || "No Supervisor",
       Students:
         row.projectId?.projectAssignedTo?.studentsId
           ?.map((s) => s.name)
@@ -233,7 +243,8 @@ export default function DeliverableDashboard() {
     },
     {
       name: "Supervisor",
-      selector: (row: Project) => row.projectId.projectAssignedTo?.supervisorId.name,
+      selector: (row: Project) =>
+        row.projectId.projectAssignedTo?.supervisorId.name,
       width: "170px",
     },
     {
@@ -341,8 +352,16 @@ export default function DeliverableDashboard() {
   return (
     <div className="p-6 gap-4">
       <div className="bg-white justify-center mx-auto h-full items-center p-4 rounded-lg">
+        <h1 className="text-xl mb-2">Deliverables Management</h1>
+
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search Deliverables..."
+          className="w-1/2 p-2 mb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
+        />
         <DataTable
-          title="Deliverable Management"
           columns={columns}
           data={deliverables}
           pagination

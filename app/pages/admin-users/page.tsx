@@ -16,6 +16,8 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const tableRef = useRef<HTMLTableElement>(null);
   const [tag, setTag] = useState<Tag[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const [newTag, setNewTag] = useState("");
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -33,12 +35,18 @@ export default function AdminDashboard() {
       try {
         const res = await fetch("/api/users");
         const data = await res.json();
-        setUsers(data);
+
+        const filteredUsers = data.filter((user: User) => {
+          const matchesSearchQuery = searchQuery === "" || user.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesSearchQuery;
+
+        });
+        setUsers(filteredUsers);
+
       } catch (error) {
         console.error("Error fetching users:", error);
-      };
+      }
     };
-    fetchUsers();
 
     const fetchDomains = async () => {
       try {
@@ -61,7 +69,9 @@ export default function AdminDashboard() {
       }
     };
     fetchTags();
-  }, []);
+    fetchUsers();
+
+  }, [searchQuery]);
 
   const handleAddTags = async () => {
     try {
@@ -201,21 +211,18 @@ export default function AdminDashboard() {
     }
   };
 
-
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     const columns = ["Name", "Email", "Role"]; // Simple array of headers
 
     const rows = users.map((user) => [user.name, user.email, user.role]);
 
-
     autoTable(doc, {
-      head: [columns], 
-      body: rows,  
+      head: [columns],
+      body: rows,
     });
-  
-    doc.save("user-list.pdf");
 
+    doc.save("user-list.pdf");
   };
 
   const handleDownloadCSV = () => {
@@ -224,7 +231,7 @@ export default function AdminDashboard() {
       email,
       role,
     }));
-  
+
     const csv = Papa.unparse(filteredUsers); // Convert to CSV format
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
@@ -236,25 +243,28 @@ export default function AdminDashboard() {
   const handlePrint = () => {
     const doc = new jsPDF();
     const columns = ["Name", "Email", "Role"]; // Simple array of headers
-  
+
     const rows = users.map((user) => [user.name, user.email, user.role]);
-  
+
     autoTable(doc, {
-      head: [columns],  // Column headers
-      body: rows,  
+      head: [columns], // Column headers
+      body: rows,
     });
-  
+
     // Open the PDF in a new tab for printing
     const pdfUrl = doc.output("bloburl");
     window.open(pdfUrl, "_blank"); // Open in a new tab
   };
-  
 
   const columns = [
     { name: "Username", selector: (row: any) => row.name, sortable: true },
     { name: "Email", selector: (row: any) => row.email, sortable: true },
     { name: "Role", selector: (row: any) => row.role, sortable: true },
-    { name: "Course", selector: (row: any) => row.tag, sortable: true },
+    {
+      name: "Course",
+      selector: (row: any) => row.tag || "N/A",
+      sortable: true,
+    },
 
     {
       name: "Actions",
@@ -301,10 +311,20 @@ export default function AdminDashboard() {
   return (
     <div className="p-6 h-max flex gap-4">
       <div className="bg-white h-full mb-4 p-4 w-1/2">
+        <div className="w-full md:w-1/3"></div>
+        <h1 className="text-xl mb-2">User Management</h1>
+
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search Users..."
+          className="w-1/2 p-2 mb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
+        />
+
         <div ref={tableRef}>
           <DataTable
             className="h-full"
-            title="User Management"
             columns={columns}
             data={users}
             pagination
