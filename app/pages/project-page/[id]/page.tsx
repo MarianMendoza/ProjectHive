@@ -169,7 +169,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         </div>
         <div className="mt-6 bg-white p-6 rounded-xl">
           <h2 className="text-lg font-bold mb-6 text-gray-800 text-center">
-          🍯 Grades Summary
+          Grades Summary
           </h2>
 
           <div className="flex flex-col md:flex-row flex-wrap gap-6 justify-center items-center">
@@ -207,8 +207,8 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                 const getColor = () => {
                   if (value === null || value === undefined)
                     return "bg-gray-200 text-gray-500";
-                  if (value >= 70) return "bg-amber-300 text-amber-900";
-                  if (value >= 50) return "bg-yellow-200 text-yellow-800"; 
+                  if (value >= 70) return "bg-emerald-300 text-emerald-900";
+                  if (value >= 50) return "bg-teal-200 text-teal-800"; 
                   if (value >= 1) return "bg-orange-200 text-orange-800"; 
                   return "bg-gray-200 text-gray-500";
                 };
