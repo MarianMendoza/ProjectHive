@@ -28,7 +28,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchProjects = async () => {
       if (!session?.user?.id) {
-        console.log("Session user ID is not available.");
+        // console.log("Session user ID is not available.");
         setLoading(false);
         return;
       }
@@ -38,7 +38,6 @@ export default function StudentDashboard() {
         const data = await res.json();
 
         if (res.ok) {
-          console.log(data);
           const appliedProjects = data.filter((project: Project) =>
             project.applicants.some(
               (applicant) => applicant.studentId?._id === session.user.id
@@ -60,7 +59,7 @@ export default function StudentDashboard() {
             (project: Project) =>
               project.projectAssignedTo.authorId._id === session.user.id
           );
-          console.log(authored);
+          // console.log(authored);
           setAuthoredProjects(authored);
         } else {
           console.error("Failed to fetch projects.");
@@ -71,25 +70,29 @@ export default function StudentDashboard() {
         setLoading(false);
       }
     };
-
     fetchProjects();
+  }, [session?.user?.id]);
 
+  useEffect(() => {
     const fetchDeliverables = async () => {
+      if (!assignedProject?._id) return;
+
       try {
-        const res = await fetch(`/api/deliverables/${assignedProject?._id}`);
+        const res = await fetch(`/api/deliverables/${assignedProject._id}`);
         const data = await res.json();
 
         if (!res.ok) {
-          setLoading(false);
           return;
         }
 
-        setDeliverables(data);
-
+        setDeliverables(data.deliverables);
         setGrades({
-          outlineDocumentGrade: deliverable?.outlineDocument?.supervisorGrade ?? null,
-          extendedAbstractGrade: deliverable?.extendedAbstract?.supervisorGrade ?? null,
-          finalReportGrade: deliverable?.finalReport?.supervisorGrade ?? null,
+          outlineDocumentGrade:
+            data.deliverables?.outlineDocument?.supervisorGrade || null,
+          extendedAbstractGrade:
+            data.deliverables?.extendedAbstract?.supervisorGrade || null,
+          finalReportGrade:
+            data.deliverables?.finalReport?.supervisorGrade || null,
         });
       } catch (err) {
         console.error("Error fetching deliverable:", err);
@@ -99,7 +102,7 @@ export default function StudentDashboard() {
     };
 
     fetchDeliverables();
-  }, [session?.user?.id]);
+  }, [assignedProject?._id]);
 
   const closeModal = () => {
     setShowModal(false);
@@ -233,18 +236,18 @@ export default function StudentDashboard() {
 
                 <div className="mt-6 bg-white p-6 rounded-xl shadow-sm border border-emerald-100">
                   <h2 className="text-lg font-bold mb-6 text-gray-700 text-center">
-                     Grades Summary
+                    Grades Summary
                   </h2>
                   <div className="flex flex-col md:flex-row flex-wrap gap-6 justify-center items-center">
                     {[
                       {
                         label: "Outline Document",
-                        value: grades.outlineGrade,
+                        value: grades.outlineDocumentGrade,
                         show: true,
                       },
                       {
                         label: "Extended Abstract",
-                        value: grades.abstractGrade,
+                        value: grades.extendedAbstractGrade,
                         show: true,
                       },
                       {
@@ -259,9 +262,9 @@ export default function StudentDashboard() {
                         const getColor = () => {
                           if (value === null || value === undefined)
                             return "bg-gray-200 text-gray-500";
-                          if (value >= 70) return "bg-emerald-300 text-emerald-900";
-                          if (value >= 50)
-                            return "bg-teal-200 text-teal-800";
+                          if (value >= 70)
+                            return "bg-emerald-300 text-emerald-900";
+                          if (value >= 50) return "bg-teal-200 text-teal-800";
                           if (value >= 1)
                             return "bg-orange-200 text-orange-800";
                           return "bg-gray-200 text-gray-500";
@@ -368,18 +371,19 @@ export default function StudentDashboard() {
                 </div>
               </div>
             ) : (
-              <div>
-                <div className="flex justify-between items-center mb-4">
+              <div className="w-full">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                   <h3 className="text-xl font-bold text-gray-800">
                     📂 Authored Projects
                   </h3>
                   <Link
                     href="/pages/create-project"
-                    className="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-lg transition"
+                    className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-lg text-center transition"
                   >
                     Create New Project
                   </Link>
                 </div>
+
                 <DataTable
                   columns={columns}
                   data={authoredProjects}

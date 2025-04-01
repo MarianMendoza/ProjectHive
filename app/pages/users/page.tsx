@@ -12,6 +12,8 @@ const UsersPage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedLecturer, setSelectedLecturer] = useState<User | null>(null);
   const [courseFilter, setCourseFilter] = useState<string>("All");
+  const [loading, setLoading] = useState<boolean>(true);
+
   const [course, setCourses] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -38,6 +40,7 @@ const UsersPage = () => {
       try {
         const usersResponse = await fetch("/api/users");
         const usersData = await usersResponse.json();
+
         setLecturers(
           usersData.filter(
             (user: User) => user.role === "Lecturer" && !user.approved
@@ -62,6 +65,7 @@ const UsersPage = () => {
           };
         });
         setUsers(usersWithProjects);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -137,11 +141,12 @@ const UsersPage = () => {
 
     return matchesSearchQuery && matchesRole && matchesCourse;
   });
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="container mx-auto p-4 flex flex-col lg:flex-row">
       <div className="w-full lg:pr-4">
-      <div className="bg-white flex justify-start w-full rounded-lg p-3 text-center">
+        <div className="bg-white flex justify-start w-full rounded-lg p-3 text-center">
           <h2 className="text-md font-semibold text-gray-800">
             Total Users: {users.length}
           </h2>
@@ -259,7 +264,7 @@ const UsersPage = () => {
                 {(user.role === "Lecturer" &&
                   session?.user.role === "Lecturer" &&
                   session?.user.id !== user._id) ||
-                (user.role === "Lecturer" &&
+                (user.role === "Student" &&
                   session?.user.role === "Student" &&
                   session?.user.id !== user._id) ? (
                   <button

@@ -423,7 +423,7 @@ const ProjectsPage = () => {
                     session?.user.id !==
                       selectedProject.projectAssignedTo.authorId._id &&
                     selectedProject.status == true &&
-                    selectedProject.visibility !== "Private" && (
+                    selectedProject.visibility !== "Private" &&  (
                       <button
                         onClick={() => handleApply(selectedProject?._id)}
                         className={`px-4 py-2 rounded-lg ${
@@ -443,7 +443,7 @@ const ProjectsPage = () => {
                               applicant.studentId?._id === session.user.id
                           ) ||
                           appliedStudents[selectedProject._id]?.includes(
-                            session.user.id
+                            session.user.id || session.user.assigned
                           )
                         }
                       >
@@ -452,7 +452,7 @@ const ProjectsPage = () => {
                             applicant.studentId?._id === session.user.id
                         ) ||
                         appliedStudents[selectedProject._id]?.includes(
-                          session.user.id
+                          session.user.id || session.user.assigned
                         )
                           ? "Applied"
                           : "Apply"}

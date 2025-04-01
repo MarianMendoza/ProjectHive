@@ -30,6 +30,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           course: user.course,
           description: user.description,
+          assigned: user.assigned,
           name: user.name,
           role: user.role,
           approved: user.approved,
@@ -43,6 +44,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.role = user.role;
+        token.assigned = user.assigned;
         token.approved = user.approved;
       }
       return token;

@@ -25,10 +25,10 @@ export default function CreateProjectPage() {
     try {
       const res = await fetch("/api/programmes");
       const data = await res.json();
-      console.log(data);
-        const programmeName = data.map((programme: { name: string }) => programme.name);
-        setProgrammes(programmeName);
-  
+      const programmeName = data.map(
+        (programme: { name: string }) => programme.name
+      );
+      setProgrammes(programmeName);
     } catch (error) {
       console.error("Error fetching tags", error);
     }
@@ -67,7 +67,7 @@ export default function CreateProjectPage() {
       const data = await response.json();
 
       if (response.ok) {
-        router.push("/pages/projects");
+        router.back();
       } else {
         setError(data.message);
       }
@@ -210,12 +210,10 @@ export default function CreateProjectPage() {
           </div>
 
           <div className="flex justify-end">
-            <Link
-              href="/pages/projects"
-              className="bg-red-600 text-white px-6 py-2 rounded-lg mx-7 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              Cancel
-            </Link>
+            <button className="bg-red-600 text-white px-6 py-2 rounded-lg mx-7 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <Link href="/pages/projects">Cancel</Link>
+            </button>
+
             <button
               type="submit"
               className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -227,5 +225,4 @@ export default function CreateProjectPage() {
       </div>
     </div>
   );
-};
-
+}
