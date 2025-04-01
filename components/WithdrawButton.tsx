@@ -40,19 +40,10 @@ const WithdrawButton: React.FC<WithdrawButtonProps> = ({
   }, [projectId]);
 
   // Check if the user can withdraw
-  const canWithdraw =
-    project?.projectAssignedTo &&
-    project &&
-    (userId === project.projectAssignedTo.supervisorId._id ||
-      userId === project.projectAssignedTo.secondReaderId._id ||
-      project.projectAssignedTo.studentsId?.some(
-        (student) => student._id === userId
-      )); // Use .some to check if any student has the matching _id
+  
 
   // Handle withdrawal
   const handleWithdraw = async () => {
-    // if (!canWithdraw) return;
-
     try {
       const res = await fetch(`/api/projects/${projectId}`, {
         method: "POST",
@@ -63,7 +54,6 @@ const WithdrawButton: React.FC<WithdrawButtonProps> = ({
 
       if (res.ok) {
         alert("Successfully withdrew from the project");
-        // You can also redirect or update UI here
       } else {
         console.error("Failed to withdraw");
       }

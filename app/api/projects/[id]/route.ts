@@ -96,8 +96,6 @@ export async function PUT(req: Request) {
             updatedAt: new Date(),
         };
 
-
-
         // Need to handle what happens if something
         if (projectAssignedTo) {
             updatedProjectData.projectAssignedTo = {
@@ -198,23 +196,23 @@ export async function POST(req: Request) {
         const userId = session.user.id;
 
         if (session.user.role === "Student") {
-            // Ensure applicants and projectAssignedTo.studentsId are initialized and are arrays
             const applicants = project.applicants || [];
 
             const assignedStudents = project.projectAssignedTo?.studentsId || [];
             console.log("Project Assigned Students", assignedStudents);
 
-            // Check if the student is in the applicants list
             const isInApplicants = applicants.some(
-                (applicant) => applicant.studentId?.toString() === userId
+                (applicant: string) => applicant.studentId?.toString() === userId
             );
 
-            // Check if the student is in the assigned students list
-            const isAssigned = assignedStudents.some(
-                (id) => id === userId
+            const isAssigned = assignedStudents.some((student) =>
+                (typeof student === "string" ? student : student?._id?.toString()) === userId
             );
 
-            console.log(isAssigned)
+            if (!isAssigned) {
+                project.projectAssignedTo.studentsId.push(userId);
+              }
+              
 
             if (!isInApplicants && !isAssigned) {
                 project.applicants.push({ studentId: userId });
@@ -223,55 +221,28 @@ export async function POST(req: Request) {
             }
 
             if (isInApplicants && isAssigned) {
-                console.log(userId);
-
-                project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId || [];
-                if (!userId) {
-                    return NextResponse.json({ message: "Invalid user ID." }, { status: 400 });
-                }
-                project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId.filter(
-                    (id) => id !== userId
-                );
-
-                if (project.projectAssignedTo.studentsId.length === 0) {
-                    console.log("No students are assigned to this project anymore.");
-                }
-
-                await project.save();
-
-                return NextResponse.json({ message: "You have successfully withdrawn from the project as an assigned student, but remain in applicants." }, { status: 200 });
-            }
-
-
-            if (isInApplicants && isAssigned) {
                 project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId.filter(
                     (student) =>
                         (typeof student === "string" ? student : student?._id?.toString()) !== userId
                 );
 
-                await User.findByIdAndUpdate(userId, { assigned: false });
+                await User.updateOne({ _id: userId }, { $set: { assigned: false } });
                 await project.save();
+
                 return NextResponse.json({ message: "You have successfully withdrawn from the project." }, { status: 200 });
             }
 
-            // If the student is in applicants but not assigned, assign them to the project
+            // If student is in applicants but not assigned → Assign them
             if (isInApplicants && !isAssigned) {
-                // Remove from applicants
-                project.applicants = project.applicants.filter(
-                    (applicant) => applicant.studentId?.toString() !== userId
-                );
-
-                // Add the student to the assigned students list
+                // Add to assigned list
                 project.projectAssignedTo.studentsId.push(userId);
+                await User.findByIdAndUpdate(userId, { assigned: true });
 
                 await project.save();
                 return NextResponse.json({ message: "You have successfully been assigned to the project." }, { status: 200 });
             }
+
         }
-
-
-
-
 
         if (session.user.role === "Lecturer") {
             // If the user is a supervisor or second reader, handle both adding and withdrawing

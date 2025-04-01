@@ -1,11 +1,12 @@
 // next-auth.d.ts
 import NextAuth from 'next-auth';
-import { IUser } from './models/User'; // Import your IUser interface
+import { IUser } from '@/models/User'; // Import your IUser interface
 
 
 declare module 'next-auth' {
   interface Session {
     user: {
+      assigned: boolean;
       id: string; // Custom field to store the user ID
       imageUrl: string;
       course: string;
