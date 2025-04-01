@@ -23,7 +23,6 @@ const ProjectsPage = () => {
   const [showConfirmModal, setshowConfirmModal] = useState<boolean>(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [message, setMessage] = useState("");
-
   const [appliedStudents, setAppliedStudents] = useState<{
     [projectId: string]: string[];
   }>({});
@@ -239,7 +238,13 @@ const ProjectsPage = () => {
           className="w-full h-64 object-cover rounded-b-lg"
         />
       </div>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-2">
+        <div className="bg-white flex justify-start w-full rounded-lg p-3 text-center">
+          <h2 className="text-md font-semibold text-gray-800">
+            Total Projects: {projects.length}
+          </h2>
+        </div>
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4">
           {/* Search Input */}
           <div className="w-full md:w-1/3">
@@ -609,7 +614,7 @@ const ProjectsPage = () => {
                             Apply
                           </button>
                         )}
-                        
+
                       {session &&
                         selectedProject.projectAssignedTo.authorId._id ===
                           session.user.id && (
