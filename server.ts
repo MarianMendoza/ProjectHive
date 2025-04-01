@@ -4,15 +4,16 @@ import Notification from "./app/models/Notification"; // Ensure this path is cor
 import dotenv from "dotenv";
 import User from "./app/models/User";
 import Projects from "./app/models/Projects";
+import Deadline from "./app/models/Deadlines";
+import Deliverables from "./app/models/Deliverables";
 import mongoose from "mongoose";
-
-
-
 
 
 // Load environment variables
 dotenv.config();
 console.log(process.env.MONGODB_URI); // Debug log
+
+
 
 // Wrap the MongoDB connection and server startup in an async function
 export const startServer = async () => {
@@ -25,6 +26,58 @@ export const startServer = async () => {
       origin: "*",
     },
   });
+
+
+  const checkUpcomingDeadlines = async (io: Server) => {
+    try {
+      await connectMongo();
+      const deadline = await Deadline.findOne();
+      if (!deadline) return;
+
+      const today = new Date();
+
+      const checkAndNotify = async (deadlineDate: Date, key: string) => {
+        const diffTime = deadlineDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 7 || diffDays===0) {
+          const deliverables = await Deliverables.find().populate("projectId");
+          for (const d of deliverables) {
+            const project = d.projectId;
+            for (const studentId of project.projectAssignedTo.studentsId) {
+              const socketId = getUserSocketId(studentId.toString());
+              const message = ` Reminder: Your ${key} is due in 7 days. Please upload before ${deadlineDate.toDateString()}`;
+
+              const notification = new Notification({
+                userId: studentId,
+                receiversId: [studentId],
+                message,
+                messageUser: null,
+                type: "DeadlineReminders",
+                relatedProjectId: project._id,
+                timestamp: new Date().toLocaleString(),
+              });
+
+              await notification.save();
+
+              if (socketId) {
+                io.to(socketId).emit("getNotification", {
+                  notification,
+                });
+              }
+            }
+          }
+        }
+      };
+
+      await checkAndNotify(deadline.outlineDocumentDeadline, "Outline Document");
+      await checkAndNotify(deadline.extendedAbstractDeadline, "Extended Abstract");
+      await checkAndNotify(deadline.finalReportDeadline, "Final Report");
+
+    } catch (error) {
+      console.error("Error checking deadlines:", error);
+    }
+  };
 
   // Map to track online users
   let onlineUsers = new Map<string, string>();
@@ -72,7 +125,7 @@ export const startServer = async () => {
           // console.log(receiversId)
         }
 
-        
+
         // console.log(receiversId);
         console.log(userId.name);
 
@@ -87,13 +140,13 @@ export const startServer = async () => {
         const project = await Projects.findById(projectId, 'title');
         if (!project) {
           console.log(`Project not found for projectId: ${projectId}`);
-        } else{
+        } else {
           console.log("No project.")
         }
 
         const now = new Date();
-        const date = now.toLocaleDateString(); 
-        const time = now.toLocaleTimeString(); 
+        const date = now.toLocaleDateString();
+        const time = now.toLocaleTimeString();
         const timestamp = `${date} ${time}`;
 
 
@@ -163,6 +216,9 @@ export const startServer = async () => {
           case "DeclineLecturer":
             message = `${timestamp} \n You have been declined access to Lecturers permissions.`
             break
+          case "System":
+            message = "System Message:"
+            break
         }
 
         const notification = new Notification({
@@ -205,6 +261,21 @@ export const startServer = async () => {
 
   // Start the server
   io.listen(5000);
+
+  // Run every 24 hours
+  // setInterval(() => {
+  //   checkUpcomingDeadlines(io);
+  // }, 1000 * 60 * 60 * 24); // every 24 hours
+
+  // Run every 10 minutes
+  // setInterval(() => {
+  //   checkUpcomingDeadlines(io);
+  // }, 1000 * 60 * 10); // 1000 ms * 60 sec * 10 min
+
+  setInterval(() => {
+    checkUpcomingDeadlines(io);
+  }, 1000 * 60); // 1000ms * 60s = 1 minute
+  
 };
 
 

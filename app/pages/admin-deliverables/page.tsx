@@ -351,7 +351,7 @@ export default function DeliverableDashboard() {
 
   return (
     <div className="p-4 sm:p-6">
-      <div className="bg-white w-full lg:max-w-none p-6 rounded-lg shadow">
+      <div className="bg-white w-full lg:max-w-none p-6 rounded-lg">
         <h1 className="text-2xl font-semibold text-gray-800 mb-4">Deliverables Management</h1>
   
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
