@@ -31,18 +31,16 @@ export default function ProjectDashboard() {
         const res = await fetch("/api/projects");
         const data = await res.json();
         const filteredProjects = data.filter((project: Project) => {
-       
           const matchesSearchQuery =
             searchQuery === "" ||
             project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             project.projectAssignedTo?.authorId?.name
               ?.toLowerCase()
               .includes(searchQuery.toLowerCase());
-            
-              return matchesSearchQuery;
 
+          return matchesSearchQuery;
         });
-        
+
         setProjects(filteredProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -421,42 +419,43 @@ export default function ProjectDashboard() {
   if (!session || session.user.role !== "Admin") {
     return <PageNotFound />;
   }
-
   return (
-    <div className="p-6 flex gap-4">
-      <div className="bg-white h-full w-3/4 p-4 rounded-lg">
-      <h1 className="text-xl mb-2">Project Management</h1>
+    <div className="p-6 flex flex-col lg:flex-row gap-6">
+      <div className="bg-white w-full lg:w-3/4 p-4 rounded-lg shadow">
+        <h1 className="text-xl font-semibold mb-4 text-gray-800">
+          Project Management
+        </h1>
 
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search Projects..."
-          className="w-1/2 p-2 mb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
-        />
-        <DataTable
-          className="h-full overflow-auto w-3/4"
-          columns={columns}
-          data={projects}
-          pagination
-          highlightOnHover
+          className="w-full lg:w-1/2 p-2 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700"
         />
 
-        <div className="flex mt-6 gap-4">
+        <div className="overflow-auto">
+          <DataTable
+            columns={columns}
+            data={projects}
+            pagination
+            highlightOnHover
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-4 mt-6">
           <button
             onClick={handleDownloadPDF}
             className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800"
           >
             Save as PDF
           </button>
-
           <button
             onClick={handleDownloadCSV}
             className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800"
           >
             Save as CSV
           </button>
-
           <button
             onClick={handlePrint}
             className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800"
@@ -465,37 +464,39 @@ export default function ProjectDashboard() {
           </button>
         </div>
       </div>
-      {/* Save PDF,CSV */}
 
-      <div className="bg-white h-full mb-4 p-4 w-1/4">
-        <h2 className="text-lg mb-4 mt-8 text-gray-800">Add Programmes</h2>
+      {/* RIGHT: Programmes */}
+      <div className="bg-white p-4 rounded-lg w-full lg:w-1/4">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          Add Programmes
+        </h2>
 
-        <div className="flex justify-between gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <input
             type="text"
             placeholder="Enter Programmes e.g. BSc"
             value={newProgramme}
             onChange={(e) => setNewProgramme(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
+            className="p-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-emerald-700"
           />
           <button
             onClick={handleAddProgrammes}
-            className="bg-emerald-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 transition duration-300"
+            className="bg-emerald-800 text-white px-4 py-2 rounded-lg hover:bg-emerald-900"
           >
             Add
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2">
           {programme.map((programme, index) => (
             <div
               key={index}
-              className="flex items-center bg-emerald-200 text-emerald-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300"
+              className="flex items-center bg-emerald-200 text-emerald-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition"
             >
               <span>{programme.name}</span>
               <button
                 onClick={() => handleRemoveProgrammes(programme._id)}
-                className="ml-2 text-emerald-900 hover:text-red-600 transition duration-300"
+                className="ml-2 text-emerald-900 hover:text-red-600"
               >
                 &times;
               </button>
@@ -504,9 +505,10 @@ export default function ProjectDashboard() {
         </div>
       </div>
 
+      {/* MODAL: Edit Project */}
       {isModalOpen && editedProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Edit Project</h2>
 
             <label className="block mt-2 mb-2">Supervisor:</label>
@@ -524,7 +526,7 @@ export default function ProjectDashboard() {
               ))}
             </select>
 
-            <label className="block mt-2 mb-2">Second Reader:</label>
+            <label className="block mt-4 mb-2">Second Reader:</label>
             <select
               name="secondReaderId"
               value={editedProject.projectAssignedTo?.secondReaderId || ""}
@@ -539,7 +541,7 @@ export default function ProjectDashboard() {
               ))}
             </select>
 
-            <label className="block mt-2 mb-2">Students:</label>
+            <label className="block mt-4 mb-2">Students:</label>
             <select
               multiple
               name="studentsId"
@@ -552,7 +554,7 @@ export default function ProjectDashboard() {
               className="w-full p-2 border rounded"
             >
               {students
-                .filter((student) => student && student._id) // Ensure student is valid and has _id
+                .filter((student) => student && student._id)
                 .map((student) => (
                   <option key={student._id} value={student._id}>
                     {student.name}
@@ -560,7 +562,7 @@ export default function ProjectDashboard() {
                 ))}
             </select>
 
-            <div className="flex justify-end gap-4 mt-4">
+            <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="bg-gray-600 text-white px-4 py-2 rounded"
