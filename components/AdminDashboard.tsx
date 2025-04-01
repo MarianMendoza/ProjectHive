@@ -120,12 +120,10 @@ export default function AdminDashboard() {
         />
       </div>
 
-      <div className="flex justify-between mb-6 col-span-3">
+      <div className="flex flex-col md:flex-row justify-between gap-6 px-4 mb-6">
         {/* Console Section */}
-        <div className="w-2/3 bg-white p-6 space-y-6">
+        <div className="w-full md:w-2/3 bg-white p-6 space-y-6 rounded-lg ">
           <h3 className="text-xl font-semibold text-gray-900">Admin Console</h3>
-
-          {/* Navigation buttons */}
 
           {/* Deadline Fields */}
           <div className="space-y-4 mt-6">
@@ -133,7 +131,6 @@ export default function AdminDashboard() {
               Set Deadlines
             </h3>
 
-            {/* Deadline input fields */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {Object.entries(deadlines).map(([key, value]) => (
                 <div key={key}>
@@ -168,73 +165,72 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="w-1/3 mt-20 p-3">
-          <div className="mt-6 mb-10">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Upload University Logo
-            </h3>
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 text-center"
+        {/* Right Sidebar */}
+        <div className="w-full md:w-1/3 mt-6 md:mt-20 p-3 bg-white rounded-lg ">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Upload University Logo
+          </h3>
+
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className="w-full p-4 border border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 text-center"
+          >
+            <label
+              htmlFor="logo-upload"
+              className="cursor-pointer flex flex-col items-center justify-center"
             >
-              <label
-                htmlFor="logo-upload"
-                className="cursor-pointer flex flex-col items-center justify-center"
-              >
-                <div className="flex flex-col items-center mb-2">
-                  <span role="img" aria-label="file" className="text-2xl">
-                    📁
-                  </span>
-                </div>
-                <span className="text-sm text-gray-500">
-                  Drag & drop logo here or{" "}
-                  <span className="text-emerald-700 font-semibold">browse</span>
-                </span>
-              </label>
-              <input
-                type="file"
-                id="logo-upload"
-                className="hidden"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </div>
-
-            {logoPreview ? (
-              <div>
-                <p className="flex text-gray-500 text-sm justify-center mt-4">Uploaded Logo</p>
-
-                <div className="m-2 flex justify-center">
-                  <img
-                    src={logoPreview}
-                    alt="Uploaded Logo"
-                    className="h-20 object-contain"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="text-gray-500 text-sm">No logo uploaded yet.</div>
-            )}
+              <span className="text-2xl mb-2">📁</span>
+              <span className="text-sm text-gray-500">
+                Drag & drop logo here or{" "}
+                <span className="text-emerald-700 font-semibold">browse</span>
+              </span>
+            </label>
+            <input
+              type="file"
+              id="logo-upload"
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
           </div>
 
-          <div className="mt-4 grid gap-4">
+          {logoPreview ? (
+            <div>
+              <p className="text-gray-500 text-sm text-center mt-4">
+                Uploaded Logo
+              </p>
+              <div className="m-2 flex justify-center">
+                <img
+                  src={logoPreview}
+                  alt="Uploaded Logo"
+                  className="h-20 object-contain"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-500 text-sm mt-4 text-center">
+              No logo uploaded yet.
+            </div>
+          )}
+
+          <div className="mt-6 grid gap-4">
             <Link
               href={"/pages/admin-users"}
-              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition duration-300 text-center flex items-center justify-center space-x-3"
+              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition text-center"
             >
               🐝 Manage Users
             </Link>
             <Link
               href={"/pages/admin-projects"}
-              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition duration-300 text-center flex items-center justify-center space-x-3"
+              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition text-center"
             >
               📁 Manage Projects
             </Link>
             <Link
               href={"/pages/admin-deliverables"}
-              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition duration-300 text-center flex items-center justify-center space-x-3"
+              className="w-full bg-emerald-700 text-white py-4 rounded-lg hover:bg-emerald-800 transition text-center"
             >
               📝 Manage Deliverables
             </Link>

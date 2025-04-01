@@ -28,6 +28,7 @@ export default function AdminDashboard() {
     name: "",
     email: "",
     role: "",
+    assigned: "",
   });
 
   useEffect(() => {
@@ -309,19 +310,19 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="p-6 h-max flex gap-4">
-      <div className="bg-white h-full mb-4 p-4 w-1/2">
-        <div className="w-full md:w-1/3"></div>
-        <h1 className="text-xl mb-2">User Management</h1>
-
+    <div className="p-6 flex flex-col lg:col-span-2 lg:flex-row gap-6">
+      {/* LEFT: User Management Table */}
+      <div className="bg-white p-4 rounded-lg shadow w-full lg:w-1/2">
+        <h1 className="text-xl font-semibold mb-4 text-gray-800">User Management</h1>
+  
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search Users..."
-          className="w-1/2 p-2 mb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
+          className="w-full p-2 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition"
         />
-
+  
         <div ref={tableRef}>
           <DataTable
             className="h-full"
@@ -331,22 +332,20 @@ export default function AdminDashboard() {
             highlightOnHover
           />
         </div>
-        {/* Save PDF,CSV */}
-        <div className="flex mt-6 gap-4">
+  
+        <div className="flex flex-wrap gap-4 mt-6">
           <button
             onClick={handleDownloadPDF}
             className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Save as PDF
           </button>
-
           <button
             onClick={handleDownloadCSV}
             className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
           >
             Save as CSV
           </button>
-
           <button
             onClick={handlePrint}
             className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
@@ -355,77 +354,28 @@ export default function AdminDashboard() {
           </button>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center  z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Edit User</h2>
-            <label className="block mb-2">Username:</label>
-            <textarea
-              name="name"
-              value={editedUser.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-            <label className="block mt-2 mb-2">Email:</label>
-            <textarea
-              name="email"
-              value={editedUser.email}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-            <label className="block mt-2 mb-2">Role:</label>
-            <select
-              name="role"
-              value={editedUser.role}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            >
-              <option value="Lecturer">Lecturer</option>
-              <option value="Admin">Admin</option>
-              <option value="Student">Student</option>
-            </select>
-            <div className="flex justify-end gap-4 mt-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveChanges}
-                className="bg-emerald-700 text-white px-4 py-2 rounded hover:bg-emerald-700"
-              >
-                Confirm Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Allowed Email Domains + Tags Section */}
-      <div className="mt-6 p-4 w-full sm:w-1/3 lg:w-1/2 h-full flex-1 bg-white ">
-        <h2 className="text-lg mb-4 text-gray-800">Add Email Domains</h2>
-
-        <div className="flex justify-between gap-1 mb-6">
+  
+      {/* RIGHT: Domains & Tags */}
+      <div className="bg-white p-4 rounded-lg shadow w-full lg:w-1/2">
+        <h2 className="text-lg mb-4 font-semibold text-gray-800">Add Email Domains</h2>
+  
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <input
             type="text"
             placeholder="Enter domain (e.g., example.com)"
             value={newDomain}
             onChange={(e) => setNewDomain(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
+            className="p-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-emerald-700"
           />
           <button
             onClick={handleAddDomain}
-            className="bg-emerald-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
+            className="bg-emerald-800 text-white px-4 py-2 rounded-lg hover:bg-emerald-900"
           >
             Add
           </button>
         </div>
-
-        {/* List of Allowed Domains */}
-        <div className="border rounded-lg overflow-hidden shadow-sm">
+  
+        <div className="border rounded-lg overflow-hidden shadow-sm mb-8">
           <div className="bg-white p-4">
             <DataTable
               className="h-full"
@@ -436,36 +386,35 @@ export default function AdminDashboard() {
             />
           </div>
         </div>
-
-        {/* Tags Section */}
-        <h2 className="text-lg mb-4 mt-8 text-gray-800">Add Tags</h2>
-
-        <div className="flex justify-between gap-3 mb-6">
+  
+        <h2 className="text-lg mb-4 font-semibold text-gray-800 mt-4">Add Tags</h2>
+  
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <input
             type="text"
             placeholder="Enter Course e.g Computer Science"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg w-full sm:w-2/3 h-10 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
+            className="p-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-emerald-700"
           />
           <button
             onClick={handleAddTags}
-            className="bg-emerald-800 h-10 text-sm text-white w-1/3 sm:w-1/4 px-4 py-2 rounded-lg hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-300"
+            className="bg-emerald-800 text-white px-4 py-2 rounded-lg hover:bg-emerald-900"
           >
             Add
           </button>
         </div>
-
+  
         <div className="flex flex-wrap gap-2 mb-4">
           {tag.map((tag, index) => (
             <div
               key={index}
-              className="flex items-center bg-emerald-100 text-emerald-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300"
+              className="flex items-center bg-emerald-100 text-emerald-900 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition"
             >
               <span>{tag.name}</span>
               <button
                 onClick={() => handleRemoveTags(tag._id)}
-                className="ml-2 text-emerald-900 hover:text-red-700 transition duration-300"
+                className="ml-2 text-emerald-900 hover:text-red-700"
               >
                 &times;
               </button>
@@ -473,6 +422,70 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
+  
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Edit User</h2>
+  
+            <label className="block mb-2">Username:</label>
+            <textarea
+              name="name"
+              value={editedUser.name}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+  
+            <label className="block mt-4 mb-2">Email:</label>
+            <textarea
+              name="email"
+              value={editedUser.email}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+  
+            <label className="block mt-4 mb-2">Role:</label>
+            <select
+              name="role"
+              value={editedUser.role}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            >
+              <option value="Lecturer">Lecturer</option>
+              <option value="Admin">Admin</option>
+              <option value="Student">Student</option>
+            </select>
+  
+            <label className="block mt-4 mb-2">Assigned:</label>
+            <select
+              name="assigned"
+              value={editedUser.assigned}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            >
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+  
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveChanges}
+                className="bg-emerald-700 text-white px-4 py-2 rounded hover:bg-emerald-800"
+              >
+                Confirm Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+  
 }
