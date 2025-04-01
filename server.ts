@@ -14,7 +14,7 @@ import sgMail from "@sendgrid/mail"
 // Load environment variables
 dotenv.config();
 console.log(process.env.MONGODB_URI); // Debug log
-console.log(process.env.SENDRID_API_KEY); // Debug log
+console.log(process.env.SENDGRID_API_KEY); // Debug log
 
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
@@ -243,7 +243,7 @@ export const startServer = async () => {
         for (const receiverId of receiversId) {
 
           const receiver = await User.findById(receiverId);
-
+          console.log(receiver?.emailNotifications);
           if (receiver?.emailNotifications) {
             const emailMsg = {
               to: receiver.email,
@@ -252,20 +252,19 @@ export const startServer = async () => {
               text: `${messageUser ? messageUser + "\n\n" : ""}${message}`,
               html: `
             <div style="font-family: Arial, sans-serif; padding: 20px;">
-              <h2 style="color: #047857;">📢 Project Hive Notification</h2>
+              <h2 style="color: #047857;">Project Hive Notification</h2>
+              <p style="margin-top: 20px;"><strong>Details:</strong><br>${message.replace(/\n/g, "<br />")}</p>
 
               ${messageUser
                             ? `<p><strong>Message:</strong><br>${messageUser.replace(/\n/g, "<br />")}</p>`
                             : ""}
 
-              <p style="margin-top: 20px;"><strong>Details:</strong><br>${message.replace(/\n/g, "<br />")}</p>
 
               <p style="margin-top: 30px; font-size: 0.9em; color: #555;">
                 You received this email because you have enabled email notifications.
               </p>
             </div>
           `
-
             };
 
             try {
