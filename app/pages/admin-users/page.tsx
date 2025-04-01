@@ -311,7 +311,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-6 flex flex-col lg:col-span-2 lg:flex-row gap-6">
-      {/* LEFT: User Management Table */}
       <div className="bg-white p-4 rounded-lg shadow w-full lg:w-1/2">
         <h1 className="text-xl font-semibold mb-4 text-gray-800">User Management</h1>
   
@@ -355,7 +354,6 @@ export default function AdminDashboard() {
         </div>
       </div>
   
-      {/* RIGHT: Domains & Tags */}
       <div className="bg-white p-4 rounded-lg shadow w-full lg:w-1/2">
         <h2 className="text-lg mb-4 font-semibold text-gray-800">Add Email Domains</h2>
   
@@ -423,7 +421,6 @@ export default function AdminDashboard() {
         </div>
       </div>
   
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">

@@ -1,10 +1,16 @@
 "use client";
 import Notification from "./Notifications";
+import { useSession } from "next-auth/react";
+import { useSocket } from "@/app/provider";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
+  const { data:session} = useSession();
+  const socket = useSocket();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [systemModal, setSystemModal] = useState<boolean>(false);
+  const [systemMessage, setSystemMessage] = useState<string>("");
   const [deadlines, setDeadlines] = useState({
     outlineDocumentDeadline: "",
     extendedAbstractDeadline: "",
@@ -67,6 +73,14 @@ export default function AdminDashboard() {
     }
   };
 
+  const openSystemModal = () => {
+    setSystemModal(true);
+  };
+
+  const closeSystemModal = () => {
+    setSystemModal(false);
+  };
+
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
@@ -110,6 +124,30 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSubmitSystemMessage = async () =>{
+    const userId = session?.user.id;
+    const messageUser = systemMessage;
+    const type = "System";
+    try {
+      const res = await fetch("/api/users");
+      const data = await res.json();
+      const receiversId: string[] = data.map((user:any) => user._id);
+
+      if (socket){
+        socket.emit("sendNotification", {
+          userId,
+          receiversId,
+          messageUser,
+          type
+        })
+      }
+      setSystemMessage("");
+      setSystemModal(false);
+    } catch (error) {
+      console.error("Error sending system error.", error)
+    }
+  };
+
   return (
     <>
       <div className="mb-6">
@@ -123,7 +161,18 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row justify-between gap-6 px-4 mb-6">
         {/* Console Section */}
         <div className="w-full md:w-2/3 bg-white p-6 space-y-6 rounded-lg ">
-          <h3 className="text-xl font-semibold text-gray-900">Admin Console</h3>
+          <div className="flex flex-col md:flex-row justify-between">
+            <h3 className="text-xl font-semibold text-gray-900">
+              Admin Console
+            </h3>
+
+            <button
+              onClick={() => openSystemModal()}
+              className="bg-teal-700 p-2 w-full lg:w-1/4 text-white rounded-lg hover:bg-teal-800 transition"
+            >
+              Send System Notification
+            </button>
+          </div>
 
           {/* Deadline Fields */}
           <div className="space-y-4 mt-6">
@@ -236,6 +285,37 @@ export default function AdminDashboard() {
             </Link>
           </div>
         </div>
+        {systemModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
+            <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">
+                Send System Notification
+              </h2>
+
+              <textarea
+                value={systemMessage}
+                onChange={(e) => setSystemMessage(e.target.value)}
+                placeholder="Type your message here..."
+                className="w-full p-4 border border-gray-300 rounded-lg resize-none h-40 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+              />
+
+              <div className="flex justify-end gap-4 mt-6">
+                <button
+                  onClick={() => closeSystemModal()}
+                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleSubmitSystemMessage()}
+                  className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

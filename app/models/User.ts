@@ -11,8 +11,6 @@ export interface IUser extends Document {
   approved: boolean; // Indicates whether the user is approved
   assigned: boolean;
   pfpurl: string;
-  
-
 }
 
 const UserSchema: Schema = new Schema({
