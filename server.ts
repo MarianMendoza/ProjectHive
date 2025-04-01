@@ -7,12 +7,17 @@ import Projects from "./app/models/Projects";
 import Deadline from "./app/models/Deadlines";
 import Deliverables from "./app/models/Deliverables";
 import mongoose from "mongoose";
+import sgMail from "@sendgrid/mail"
+
 
 
 // Load environment variables
 dotenv.config();
 console.log(process.env.MONGODB_URI); // Debug log
+console.log(process.env.SENDRID_API_KEY); // Debug log
 
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
 
 // Wrap the MongoDB connection and server startup in an async function
@@ -40,7 +45,7 @@ export const startServer = async () => {
         const diffTime = deadlineDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays === 7 || diffDays===0) {
+        if (diffDays === 7 || diffDays === 0) {
           const deliverables = await Deliverables.find().populate("projectId");
           for (const d of deliverables) {
             const project = d.projectId;
@@ -236,6 +241,41 @@ export const startServer = async () => {
 
 
         for (const receiverId of receiversId) {
+
+          const receiver = await User.findById(receiverId);
+
+          if (receiver?.emailNotifications) {
+            const emailMsg = {
+              to: receiver.email,
+              from: process.env.SENDGRID_FROM_EMAIL as string,
+              subject: `New Notification - Project Hive`,
+              text: `${messageUser ? messageUser + "\n\n" : ""}${message}`,
+              html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+              <h2 style="color: #047857;">📢 Project Hive Notification</h2>
+
+              ${messageUser
+                            ? `<p><strong>Message:</strong><br>${messageUser.replace(/\n/g, "<br />")}</p>`
+                            : ""}
+
+              <p style="margin-top: 20px;"><strong>Details:</strong><br>${message.replace(/\n/g, "<br />")}</p>
+
+              <p style="margin-top: 30px; font-size: 0.9em; color: #555;">
+                You received this email because you have enabled email notifications.
+              </p>
+            </div>
+          `
+
+            };
+
+            try {
+              await sgMail.send(emailMsg);
+              console.log(`Email sent to ${receiver.email}`);
+            } catch (err) {
+              console.error("Error sending email:", err);
+            }
+          }
+
           if (!mongoose.Types.ObjectId.isValid(receiverId) || receiverId.length !== 24) {
             throw new Error(`Invalid receiverId: ${receiverId}`);
           }
@@ -275,7 +315,7 @@ export const startServer = async () => {
   setInterval(() => {
     checkUpcomingDeadlines(io);
   }, 1000 * 60); // 1000ms * 60s = 1 minute
-  
+
 };
 
 
