@@ -240,7 +240,8 @@ const ProjectsPage = () => {
         />
       </div>
       <div className="container mx-auto p-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-6 bg-white">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4">
+          {/* Search Input */}
           <div className="w-full md:w-1/3">
             <input
               type="text"
@@ -251,14 +252,14 @@ const ProjectsPage = () => {
             />
           </div>
 
-          {/* Right side: Filters and Create Project Button */}
-          <div className="flex flex-col md:flex-row md:mb-2 space-x-4 w-full md:w-auto">
+          {/* Filters and Actions */}
+          <div className="flex flex-col md:flex-row w-full md:w-auto gap-4">
             {/* Status Filter */}
             <div className="w-full md:w-48">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out w-full"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
               >
                 <option value="All">All Projects</option>
                 <option value="Open">Open Projects</option>
@@ -266,10 +267,11 @@ const ProjectsPage = () => {
               </select>
             </div>
 
-            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full">
+            {/* More Filters and Create Button */}
+            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`text-white p-2 rounded-lg hover:bg-opacity-80 transition duration-200 ease-in-out w-full md:w-auto text-center ${
+                className={`text-white p-3 rounded-lg transition duration-200 ease-in-out w-full md:w-auto ${
                   showFilters
                     ? "bg-emerald-700 hover:bg-emerald-800"
                     : "bg-gray-700 hover:bg-gray-800"
@@ -278,11 +280,13 @@ const ProjectsPage = () => {
                 {showFilters ? "Hide Filters" : "More Filters"}
               </button>
 
-              {/* Conditional Create Project Button */}
               {session && (
-                <button className="bg-teal-800 p-2 text-white rounded-lg hover:bg-teal-900 transition duration-200 ease-in-out w-full md:w-auto text-center">
-                  <Link href={`/pages/create-project`}>Create New Project</Link>
-                </button>
+                <Link
+                  href="/pages/create-project"
+                  className="text-center bg-teal-800 hover:bg-teal-900 text-white p-3 rounded-lg transition duration-200 ease-in-out w-full md:w-auto"
+                >
+                  Create New Project
+                </Link>
               )}
             </div>
           </div>
@@ -400,20 +404,7 @@ const ProjectsPage = () => {
                       "Not assigned"}
                   </div>
                   <div className="assignment-item flex flex-col">
-                    <div className="flex">
-                      <strong>Students:</strong>{" "}
-                      {session?.user.role === "Lecturer" &&
-                        session?.user.id ===
-                          selectedProject.projectAssignedTo.authorId._id && (
-                          <button
-                            // onClick={() => setAssignShowModal(true)}
-                            className="px-3"
-                          >
-                            ✏️
-                          </button>
-                        )}
-                    </div>
-
+                    <strong>Students:</strong>{" "}
                     {selectedProject.projectAssignedTo?.studentsId?.length > 0
                       ? selectedProject.projectAssignedTo.studentsId
                           .map((student: any) => student.name)
@@ -573,6 +564,25 @@ const ProjectsPage = () => {
                         "Not assigned"}
                     </p>
                     <p className="text-lg">
+                      <strong>Supervisor</strong>{" "}
+                      {selectedProject.projectAssignedTo?.supervisorId?.name ||
+                        "Not assigned"}
+                    </p>
+                    <p className="text-lg">
+                      <strong>Second Reader:</strong>{" "}
+                      {selectedProject.projectAssignedTo?.secondReaderId
+                        ?.name || "Not assigned"}
+                    </p>
+                    <p className="text-lg">
+                      <strong>Students:</strong>
+                      {""}
+                      {selectedProject.projectAssignedTo?.studentsId?.length > 0
+                        ? selectedProject.projectAssignedTo.studentsId
+                            .map((student: any) => student.name)
+                            .join(", ")
+                        : "No Student Assigned"}
+                    </p>
+                    <p className="text-lg">
                       <strong>Status:</strong>{" "}
                       {selectedProject.status ? "Open" : "Closed"}
                     </p>
@@ -598,6 +608,27 @@ const ProjectsPage = () => {
                           >
                             Apply
                           </button>
+                        )}
+                        
+                      {session &&
+                        selectedProject.projectAssignedTo.authorId._id ===
+                          session.user.id && (
+                          <>
+                            <button className="bg-emerald-700 text-white w-full p-2 rounded-lg hover:bg-emerald-800 transition duration-200 ease-in-out">
+                              <Link
+                                href={`/pages/update-project/${selectedProject._id}`}
+                              >
+                                ✏️ Edit
+                              </Link>
+                            </button>
+
+                            <button
+                              onClick={() => confirmDelete(selectedProject._id)}
+                              className="bg-red-600 text-white p-2 w-full rounded-lg hover:bg-red-700 transition duration-200 ease-in-out"
+                            >
+                              🗑️ Delete
+                            </button>
+                          </>
                         )}
                     </div>
                   </div>
