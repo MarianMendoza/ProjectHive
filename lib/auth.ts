@@ -52,6 +52,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.assigned = token.assigned as boolean;
         session.user.role = token.role as 'Student' | 'Lecturer' | 'Admin';
         session.user.approved = token.approved as boolean;
       }

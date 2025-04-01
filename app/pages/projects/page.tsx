@@ -29,6 +29,7 @@ const ProjectsPage = () => {
 
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const socket = useSocket();
+  console.log(session?.user.assigned)
 
   useEffect(() => {
     const fetchProgrammes = async () => {
@@ -433,7 +434,7 @@ const ProjectsPage = () => {
                           ) ||
                           appliedStudents[selectedProject._id]?.includes(
                             session.user.id
-                          )
+                          ) || (session.user.assigned)
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-emerald-800 text-white hover:bg-emerald-900"
                         }`}
@@ -443,8 +444,8 @@ const ProjectsPage = () => {
                               applicant.studentId?._id === session.user.id
                           ) ||
                           appliedStudents[selectedProject._id]?.includes(
-                            session.user.id || session.user.assigned
-                          )
+                            session.user.id
+                          ) || (session.user.assigned)
                         }
                       >
                         {selectedProject.applicants.some(
@@ -452,8 +453,8 @@ const ProjectsPage = () => {
                             applicant.studentId?._id === session.user.id
                         ) ||
                         appliedStudents[selectedProject._id]?.includes(
-                          session.user.id || session.user.assigned
-                        )
+                          session.user.id
+                        ) || (session.user.assigned)
                           ? "Applied"
                           : "Apply"}
                       </button>

@@ -34,7 +34,6 @@ export async function POST(req: Request) {
         } 
         if (userRole == "Student"){
             await User.findByIdAndUpdate(userId, { assigned: true });
-
             studentId = userId;
         } 
         
