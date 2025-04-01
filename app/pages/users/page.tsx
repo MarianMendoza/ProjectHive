@@ -141,8 +141,14 @@ const UsersPage = () => {
   return (
     <div className="container mx-auto p-4 flex flex-col lg:flex-row">
       <div className="w-full lg:pr-4">
+      <div className="bg-white flex justify-start w-full rounded-lg p-3 text-center">
+          <h2 className="text-md font-semibold text-gray-800">
+            Total Users: {users.length}
+          </h2>
+        </div>
+
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row md:justify-between gap-4 mb-4">
           <input
             type="text"
             placeholder="Search by name"
@@ -159,18 +165,18 @@ const UsersPage = () => {
             <option value="student">Student</option>
             <option value="lecturer">Lecturer</option>
           </select>
-        </div>
-        <div className="w-full gap-3 flex flex-col sm:w-1/2 sm:flex-row justify-end">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`text-white p-2 rounded-sm hover:bg-opacity-80 transition duration-200 ease-in-out w-full text-center ${
-                  showFilters
-                    ? "bg-emerald-700 hover:bg-emerald-800"
-                    : "bg-gray-700 hover:bg-gray-800"
-                }`}
-          >
-            {showFilters ? "Hide Filters" : "More Filters"}
-          </button>
+          <div className="w-full gap-3 flex flex-col sm:w-1/2 md:w-1/3  md:flex-row justify-end">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`text-white p-2 rounded-sm hover:bg-opacity-80 transition duration-200 ease-in-out w-full text-center ${
+                showFilters
+                  ? "bg-emerald-700 hover:bg-emerald-800"
+                  : "bg-gray-700 hover:bg-gray-800"
+              }`}
+            >
+              {showFilters ? "Hide Filters" : "More Filters"}
+            </button>
+          </div>
         </div>
 
         <div className="w-full mt-3 bg-white mb-5 ">
