@@ -13,7 +13,7 @@ const Notifications = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await fetch("../api/notifications", { method: "GET" });
+        const res = await fetch("/api/notifications", { method: "GET" });
         if (res.ok) {
           const data: Notification[] = await res.json();
           setNotifications(data);
