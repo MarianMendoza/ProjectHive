@@ -48,12 +48,12 @@ export async function PUT(req: Request) {
     await connectMongo();
 
     const  id  = req.url.split("/").pop() as string; 
-    const { imageUrl, name, email, tag, description, password, role, approved, pfpurl  } = await req.json();
+    const { imageUrl, name, email, tag, description, password, role, approved, pfpurl, emailNotifications  } = await req.json();
 
     try {
         const updatedUser = await User.findByIdAndUpdate(
             id,
-            {imageUrl, name, email, tag, description, password, role, approved, pfpurl },
+            {imageUrl, name, email, tag, description, password, role, approved, pfpurl, emailNotifications },
             { new: true, runValidators: true }
         );
 
