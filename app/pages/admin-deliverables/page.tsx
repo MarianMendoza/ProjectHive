@@ -350,42 +350,47 @@ export default function DeliverableDashboard() {
   ];
 
   return (
-    <div className="p-6 gap-4">
-      <div className="bg-white justify-center mx-auto h-full items-center p-4 rounded-lg">
-        <h1 className="text-xl mb-2">Deliverables Management</h1>
-
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search Deliverables..."
-          className="w-1/2 p-2 mb-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
-        />
-        <DataTable
-          columns={columns}
-          data={deliverables}
-          pagination
-          highlightOnHover
-        />
-
-        <div className="flex mt-6 gap-4">
+    <div className="p-4 sm:p-6">
+      <div className="bg-white w-full lg:max-w-none p-6 rounded-lg shadow">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-4">Deliverables Management</h1>
+  
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search Deliverables..."
+            className="w-full sm:w-1/2 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition"
+          />
+        </div>
+  
+        <div className="overflow-x-auto">
+          <DataTable
+            columns={columns}
+            data={deliverables}
+            pagination
+            highlightOnHover
+          />
+        </div>
+  
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 mt-6">
           <button
             onClick={handleDownloadPDF}
-            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800 w-full sm:w-auto text-center"
           >
             Save as PDF
           </button>
-
+  
           <button
             onClick={handleDownloadCSV}
-            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800 w-full sm:w-auto text-center"
           >
             Save as CSV
           </button>
-
+  
           <button
             onClick={handlePrint}
-            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800"
+            className="bg-teal-700 text-white px-4 py-2 rounded-lg hover:bg-teal-800 w-full sm:w-auto text-center"
           >
             Print
           </button>
@@ -393,4 +398,6 @@ export default function DeliverableDashboard() {
       </div>
     </div>
   );
+  
+  
 }
