@@ -209,18 +209,9 @@ export async function POST(req: Request) {
                 (typeof student === "string" ? student : student?._id?.toString()) === userId
             );
 
-            if (!isAssigned) {
-                project.projectAssignedTo.studentsId.push(userId);
-              }
-              
-
-            if (!isInApplicants && !isAssigned) {
-                project.applicants.push({ studentId: userId });
-                await project.save();
-                return NextResponse.json({ message: "You have successfully applied to the project." }, { status: 200 });
-            }
 
             if (isInApplicants && isAssigned) {
+                // Withdraw from project
                 project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId.filter(
                     (student) =>
                         (typeof student === "string" ? student : student?._id?.toString()) !== userId
@@ -232,15 +223,30 @@ export async function POST(req: Request) {
                 return NextResponse.json({ message: "You have successfully withdrawn from the project." }, { status: 200 });
             }
 
-            // If student is in applicants but not assigned → Assign them
             if (isInApplicants && !isAssigned) {
-                // Add to assigned list
-                project.projectAssignedTo.studentsId.push(userId);
-                await User.findByIdAndUpdate(userId, { assigned: true });
+                // Assign student to project
+                if (!project.projectAssignedTo.studentsId.includes(userId)) {
+                    project.projectAssignedTo.studentsId.push(userId);
+                    await User.findByIdAndUpdate(userId, { assigned: true });
+                    await project.save();
+                }
 
-                await project.save();
                 return NextResponse.json({ message: "You have successfully been assigned to the project." }, { status: 200 });
             }
+
+            if (!isInApplicants && !isAssigned) {
+                // Apply to project
+                project.applicants.push({ studentId: userId });
+                await project.save();
+
+                return NextResponse.json({ message: "You have successfully applied to the project." }, { status: 200 });
+            }
+
+            // Optional: Catch-all fallback
+            return NextResponse.json({ message: "No action was taken." }, { status: 400 });
+
+
+
 
         }
 

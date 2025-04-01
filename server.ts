@@ -237,7 +237,7 @@ export const startServer = async () => {
         });
 
         await notification.save();
-        console.log("Type", type);
+        // console.log("Type", type);
 
 
         for (const receiverId of receiversId) {
@@ -256,8 +256,8 @@ export const startServer = async () => {
               <p style="margin-top: 20px;"><strong>Details:</strong><br>${message.replace(/\n/g, "<br />")}</p>
 
               ${messageUser
-                            ? `<p><strong>Message:</strong><br>${messageUser.replace(/\n/g, "<br />")}</p>`
-                            : ""}
+                  ? `<p><strong>Message:</strong><br>${messageUser.replace(/\n/g, "<br />")}</p>`
+                  : ""}
 
 
               <p style="margin-top: 30px; font-size: 0.9em; color: #555;">
@@ -307,13 +307,13 @@ export const startServer = async () => {
   // }, 1000 * 60 * 60 * 24); // every 24 hours
 
   // Run every 10 minutes
-  // setInterval(() => {
-  //   checkUpcomingDeadlines(io);
-  // }, 1000 * 60 * 10); // 1000 ms * 60 sec * 10 min
-
   setInterval(() => {
     checkUpcomingDeadlines(io);
-  }, 1000 * 60); // 1000ms * 60s = 1 minute
+  }, 1000 * 60 * 10); // 1000 ms * 60 sec * 10 min
+
+  // setInterval(() => {
+  //   checkUpcomingDeadlines(io);
+  // }, 1000 * 60); // 1000ms * 60s = 1 minute
 
 };
 

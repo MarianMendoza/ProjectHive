@@ -3,7 +3,7 @@ export default function Footer() {
       <footer className="bg-teal-700 w-full">
         <div className="w-full mx-auto max-w-screen-xl p-12 md:flex md:items-center md:justify-between">
           <span className="text-sm text-white sm:text-center">
-            © 2025{" "}
+            ©  {new Date().getFullYear()}{" "}
             <a href="" className="hover:underline">
               Marian Mendoza
             </a>
