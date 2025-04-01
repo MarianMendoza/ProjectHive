@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
 import Deliverables from "@/app/models/Deliverables";
+import User from "@/app/models/User";
 
 // GET: Retrieve a project by ID.
 export async function GET(req: Request) {
@@ -23,7 +24,7 @@ export async function GET(req: Request) {
             path: "projectAssignedTo.secondReaderId",
             select: "name"
         }).populate({
-            path:"projectAssignedTo.studentsId",
+            path: "projectAssignedTo.studentsId",
             select: "name"
         });
         if (!project) {
@@ -77,7 +78,7 @@ export async function PUT(req: Request) {
     await connectMongo();
 
     const id = req.url.split("/").pop() as string; // Extract project ID from the URL
-    const { title, status, programme, visibility,abstract, description, files, projectAssignedTo, applicants } = await req.json();
+    const { title, status, programme, visibility, abstract, description, files, projectAssignedTo, applicants } = await req.json();
 
     try {
         const assignedStudentsIds = projectAssignedTo?.studentsId || [];
@@ -95,37 +96,37 @@ export async function PUT(req: Request) {
             updatedAt: new Date(),
         };
 
-    
+
 
         // Need to handle what happens if something
         if (projectAssignedTo) {
-            updatedProjectData.projectAssignedTo = { 
-                ...projectAssignedTo, 
-                studentsId: normalizedAssignedIds 
+            updatedProjectData.projectAssignedTo = {
+                ...projectAssignedTo,
+                studentsId: normalizedAssignedIds
             };
-        
+
             // Update studentId only if a new value is provided
             if (projectAssignedTo.studentId == undefined) {
-                updatedProjectData.projectAssignedTo.studentId = 
-                    mongoose.Types.ObjectId.isValid(projectAssignedTo.studentId) 
-                        ? new mongoose.Types.ObjectId(projectAssignedTo.studentId) 
+                updatedProjectData.projectAssignedTo.studentId =
+                    mongoose.Types.ObjectId.isValid(projectAssignedTo.studentId)
+                        ? new mongoose.Types.ObjectId(projectAssignedTo.studentId)
                         : null;
 
             }
-        
+
             // Update supervisorId only if a new value is provided
             if (projectAssignedTo.supervisorId == undefined) {
-                updatedProjectData.projectAssignedTo.supervisorId = 
-                    mongoose.Types.ObjectId.isValid(projectAssignedTo.supervisorId) 
-                        ? new mongoose.Types.ObjectId(projectAssignedTo.supervisorId) 
+                updatedProjectData.projectAssignedTo.supervisorId =
+                    mongoose.Types.ObjectId.isValid(projectAssignedTo.supervisorId)
+                        ? new mongoose.Types.ObjectId(projectAssignedTo.supervisorId)
                         : null;
             }
-        
+
             // Update secondReaderId only if a new value is provided
             if (projectAssignedTo.secondReaderId == undefined) {
-                updatedProjectData.projectAssignedTo.secondReaderId = 
-                    mongoose.Types.ObjectId.isValid(projectAssignedTo.secondReaderId) 
-                        ? new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId) 
+                updatedProjectData.projectAssignedTo.secondReaderId =
+                    mongoose.Types.ObjectId.isValid(projectAssignedTo.secondReaderId)
+                        ? new mongoose.Types.ObjectId(projectAssignedTo.secondReaderId)
                         : null;
 
             }
@@ -135,7 +136,7 @@ export async function PUT(req: Request) {
                 studentsId: normalizedAssignedIds,
             };
         }
-        
+
 
 
         // If applicants are provided, update them accordingly
@@ -199,30 +200,31 @@ export async function POST(req: Request) {
         if (session.user.role === "Student") {
             // Ensure applicants and projectAssignedTo.studentsId are initialized and are arrays
             const applicants = project.applicants || [];
+
             const assignedStudents = project.projectAssignedTo?.studentsId || [];
             console.log("Project Assigned Students", assignedStudents);
-        
+
             // Check if the student is in the applicants list
             const isInApplicants = applicants.some(
                 (applicant) => applicant.studentId?.toString() === userId
             );
-        
+
             // Check if the student is in the assigned students list
             const isAssigned = assignedStudents.some(
                 (id) => id === userId
             );
 
             console.log(isAssigned)
-        
+
             if (!isInApplicants && !isAssigned) {
                 project.applicants.push({ studentId: userId });
                 await project.save();
                 return NextResponse.json({ message: "You have successfully applied to the project." }, { status: 200 });
             }
-        
+
             if (isInApplicants && isAssigned) {
                 console.log(userId);
-            
+
                 project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId || [];
                 if (!userId) {
                     return NextResponse.json({ message: "Invalid user ID." }, { status: 400 });
@@ -230,44 +232,46 @@ export async function POST(req: Request) {
                 project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId.filter(
                     (id) => id !== userId
                 );
-            
+
                 if (project.projectAssignedTo.studentsId.length === 0) {
                     console.log("No students are assigned to this project anymore.");
                 }
-            
+
                 await project.save();
-            
+
                 return NextResponse.json({ message: "You have successfully withdrawn from the project as an assigned student, but remain in applicants." }, { status: 200 });
             }
-            
-        
-            if (isInApplicants && !isAssigned) {
-                // If the student is in applicants but not assigned, and presses withdraw, remove them from applicants
-                project.applicants = project.applicants.filter(
-                    (applicant) => applicant.studentId?.toString() !== userId
+
+
+            if (isInApplicants && isAssigned) {
+                project.projectAssignedTo.studentsId = project.projectAssignedTo.studentsId.filter(
+                    (student) =>
+                        (typeof student === "string" ? student : student?._id?.toString()) !== userId
                 );
+
+                await User.findByIdAndUpdate(userId, { assigned: false });
                 await project.save();
                 return NextResponse.json({ message: "You have successfully withdrawn from the project." }, { status: 200 });
             }
-        
+
             // If the student is in applicants but not assigned, assign them to the project
             if (isInApplicants && !isAssigned) {
                 // Remove from applicants
                 project.applicants = project.applicants.filter(
                     (applicant) => applicant.studentId?.toString() !== userId
                 );
-        
+
                 // Add the student to the assigned students list
                 project.projectAssignedTo.studentsId.push(userId);
-        
+
                 await project.save();
                 return NextResponse.json({ message: "You have successfully been assigned to the project." }, { status: 200 });
             }
         }
-        
-        
-        
-        
+
+
+
+
 
         if (session.user.role === "Lecturer") {
             // If the user is a supervisor or second reader, handle both adding and withdrawing

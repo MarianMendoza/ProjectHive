@@ -7,7 +7,7 @@ import Projects from "../../models/Projects"
 import Deliverables from "@/app/models/Deliverables";
 import Deadlines from "@/app/models/Deadlines";
 import { Project } from "@/types/projects";
-
+import User from "@/app/models/User";
 // POST: Create a new project
 export async function POST(req: Request) {
     await connectMongo();
@@ -33,6 +33,8 @@ export async function POST(req: Request) {
             supervisorId = userId;
         } 
         if (userRole == "Student"){
+            await User.findByIdAndUpdate(userId, { assigned: true });
+
             studentId = userId;
         } 
         
