@@ -15,7 +15,7 @@ export default function Home(){
             </div>
           </div>
           <div className="w-full md:w-1/2 mb-8 md:mb-0">
-            <h1 className="text-4xl font-semibold text-gray-800">
+            <h1 className="text-4xl font-semibold mt-4 text-gray-800">
               Project Hive
             </h1>
             <p className="mt-4 text-gray-600">

@@ -20,8 +20,8 @@ export default function StudentDashboard() {
   const [deliverable, setDeliverables] = useState<IDeliverables | null>(null);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [grades, setGrades] = useState({
-    outlineGrade: null,
-    abstractGrade: null,
+    outlineDocumentGrade: null,
+    extendedAbstractGrade: null,
     finalReportGrade: null,
   });
 
@@ -84,13 +84,12 @@ export default function StudentDashboard() {
           return;
         }
 
-        const fetched = data.deliverables;
-        setDeliverables(fetched);
+        setDeliverables(data);
 
         setGrades({
-          outlineGrade: fetched?.outlineDocument?.supervisorGrade ?? null,
-          abstractGrade: fetched?.extendedAbstract?.supervisorGrade ?? null,
-          finalReportGrade: fetched?.finalReport?.supervisorGrade ?? null,
+          outlineDocumentGrade: deliverable?.outlineDocument?.supervisorGrade ?? null,
+          extendedAbstractGrade: deliverable?.extendedAbstract?.supervisorGrade ?? null,
+          finalReportGrade: deliverable?.finalReport?.supervisorGrade ?? null,
         });
       } catch (err) {
         console.error("Error fetching deliverable:", err);
@@ -234,7 +233,7 @@ export default function StudentDashboard() {
 
                 <div className="mt-6 bg-white p-6 rounded-xl shadow-sm border border-emerald-100">
                   <h2 className="text-lg font-bold mb-6 text-gray-700 text-center">
-                    🍯 Grades Summary
+                     Grades Summary
                   </h2>
                   <div className="flex flex-col md:flex-row flex-wrap gap-6 justify-center items-center">
                     {[

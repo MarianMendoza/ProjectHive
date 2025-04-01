@@ -1,0 +1,198 @@
+title,name
+Risk prediction models and recalibration,Luke Kelly
+Modelling Reaction Times of Elite Sprinters,Luke Kelly
+Markov Chain Monte Carlo algorithms and Bayesian Statistics,Luke Kelly
+Studies on factors affecting HbA1c results for Type 1 Diabetics,Jian Huang
+METHODS OF CLUSTERING,Rabia Naqvi
+Assessing the Performance of Performance Indicators in Professional Football,Michael Cronin
+Analysis of Factors that Impact Test-Score Performance of Students,Jian Huang
+A Statistical Analysis of Celtic Language Preservation,Benjamin Taylor
+Bayesian inference in hierarchical models,Luke Kelly
+Stable Marriage Problem - GPU Approach,Sabin Tabirca
+Building Tools for Public Education about Just and Fair AI,Krishnendu Guha
+Does quality matter? Examining the impact of media quality on peoples' susceptibility to deepfake misinformation,Rosane Minghim
+Design for Environmental Safety,Laura Maye
+Sustainability of Consumer Electronics Devices,Dirk Pesch
+Clippy 2.0: Modern Generative AI Assistants,Klaas-Jan Stol
+Problematic Smartphone Use (PSU),Vijayakumar Nanjappan
+Web-based Annotator for Medieval Irish Text,Enkhbold Nyamsuren
+Quantum Algorithm Partitioning and Scheduling,Krishnendu Guha
+Differential location privacy,Paolo Palmieri
+Micro authentication schemes for ultra-low power devices,Paolo Palmieri
+Homomorphic Encryption for Reconfigurable Hardware (FPGA) Platforms,Krishnendu Guha
+AI-Driven Remote Sensing and AR for Forest Conservation,Md Noor-A-Rahim
+Quantum AI algorithm development,Krishnendu Guha
+Hardware Acceleration and Implementation of Advanced Cryptography Algorithms,Krishnendu Guha
+Allergy Management with Mobile App,Dirk Pesch
+Solar Output Forecast,Utz Roedig
+Sound-Based Activity Recognition,Utz Roedig
+Interactive Platform for Introducing Rust to Python Programmers,Kieran Herley
+Implementation of Python Agrep Package,Kieran Herley
+Development and testing of a real world cooperative perception system,Aisling O'Driscoll
+Simulation of Redundancy Strategies for a Cooperative Perception Service,Aisling O'Driscoll
+A distributed smartphone-based solution for managing an active shooter emergency,Cormac Sreenan
+Timeline Generation,Rosane Minghim
+Comparing Methods for Multi-Objective Optimisation,Steven Prestwich
+LLM Fairness Assessment,Andrea Visentin
+PCA-Based Explainable AI for Spectroscopy Signals,Andrea Visentin
+Evaluating the performance of collaborative throughput prediction in 5G networks,Cormac Sreenan
+Performance Analysis of Sustainable Platooning on Irish Motorways,Md Noor-A-Rahim
+Augmented Reality Integration For Intelligent Drone Operations,Aisling O'Driscoll
+Assessing Player Experience in Serious Games,Vijayakumar Nanjappan
+Serious Games for Cognitive Rehabilitation,Vijayakumar Nanjappan
+Final Year Project 3,Barry O'Sullivan
+Final Year Project 2,Barry O'Sullivan
+Final Year Project 1,Barry O'Sullivan
+Algorithm Analysis Tool,Kieran Herley
+Demonstration of Web Based Cyper Attacks,Frank Boehme
+Measuring Building WiFi activity,Cormac Sreenan
+Adaptive Learning App: Leveraging AI for Personalised Learning Based on Individual Styles,Sabin Tabirca
+Indoor Sound Classification,Utz Roedig
+Collaborative Web Platform for Audio Professionals,Adrian O'Riordan
+Pre-ECU motorcycle modernisation and accident warning system,John Morrison
+Acamedic: Enhancing Medical Education with Interactive Learning,Harry Nguyen
+AI Trainer,Ahmed Zahran
+Predictive Models for Football Match Outcomes,Adrian O'Riordan
+Multi-Agent Pathfinding for Autonomous Marine Vessels,Ken Brown
+Simulating Cyber Attacks and Real-Time Detection in a Virtualized Windows Environment,Paolo Palmieri
+Dynamic Programming II,Michel Schellekens
+Football analyser,Ahmed Zahran
+IoT Testbed for Split AI Computing,Krishnendu Guha
+AI-driven House Maintenance,Ahmed Zahran
+Speech Therapy Portal Development,Andrea Visentin
+Fantasy Football and ML - GR02 Student Specified Project,Gavin Russell
+GoalVision,Aisling O'Driscoll
+Multi-drone path-finding in 3D space,Ken Brown
+WattsWatch: A Low Power Solution to Energy Theft,Krishnendu Guha
+Digital Hardware Design for AI based Applications (recognizing Irish Sign Language finger spelling),Krishnendu Guha
+Mental Health Education and Explainable Artificial Intelligence,Harry Nguyen
+Language-Specific Neurons in Multilingual Large Language Models,Harry Nguyen
+Screening Deafness Using Multimodal AI,Harry Nguyen
+Carbon Trading Simulator Game,Harry Nguyen
+Text-to-SQL with a Focus on the Irish Language,Harry Nguyen
+Freehand Drawing Tool with Reinforcement Learning for Classroom Teaching,Frank Boehme
+A Distributed IoT testbed of Edge Clusters to perform Split Federated Learning,Krishnendu Guha
+Design and implementation of an Internet of Things testbed,Dirk Pesch
+SQL Learning Environment,Kieran Herley
+Code Plagiarism Detection and Generative AI,Kieran Herley
+Virtual Reality Games for Cognitive Rehabilitation,Vijayakumar Nanjappan
+Code Animation and Visualisation for Linked Structures,Kieran Herley
+Using LLMs to Generate Reward Functions from Natural Language in RL Environments,Gregory Provan
+Deep Generative Approach for Virtual Fluorescent Images Based on Unstained Images of Blood Cells,Andrea Visentin
+Smart Metaverse,David Murphy
+Speech Deepfake,Utz Roedig
+Privacy of Home Automation,Utz Roedig
+Optimizing Transmission Strategy for LoRa-Based Satellite Communication,Md Noor-A-Rahim
+Wireless Throughput Prediction under Non-Stationary Network Conditions,Gregory Provan
+Component Based Quantum Machine Learning (QML) Explainability,Krishnendu Guha
+Evaluating Augmented Reality Applications over Wireless Networks,Ahmed Zahran
+Bus Monitor,Ahmed Zahran
+Increasing On-Farm Profits and Sustainability Using the Commercial Beef Value,Gavin Russell
+Machine Learning for dynamic energy management of IoT devices,Dirk Pesch
+Graph Database Benchmarking,Ahmed Zahran
+Real time vulnerable road user representation in Carla (autonomous driving simulator),Aisling O'Driscoll
+DIY CNC Plotter,John Morrison
+Smart Irrigation System for Agriculture,John Morrison
+Simple Forth-Based Arduino Operating System,John Morrison
+Home Security System with Real-Time Alerts,John Morrison
+Enhancing Vulnerable Road User (VRU) Safety using a Bluetooth Low Energy (BLE) enabled Smartphone,Aisling O'Driscoll
+DGB3. Murder on the Dancefloor,Derek Bridge
+DGB2. Six Degrees of Everything,Derek Bridge
+DGB1. Can kNN Explain NN?,Derek Bridge
+Segmentation and Classification of Neurofils from Unstained Blood Smears,Andrea Visentin
+Mental Health Condition and Big Five Personality Traits Detection Using Wearable Sensors,Andrea Visentin
+Create a Stock Management system using Computer Vision,Sabin Tabirca
+Reinforcement Learning Trading for Irish Electricity Market Arbitrage,Andrea Visentin
+FYP Management System,Klaas-Jan Stol
+Delphi: An automated system for programming assignment evaluation,Klaas-Jan Stol
+Doorstep Charity Campaign Verification,Frank Boehme
+Shopping mall smart retail app,Cormac Sreenan
+Using edit logs to infer the use of AI-generated text in documents,Cormac Sreenan
+Secure System to Record and Verify Bids in Property Auctions,Cormac Sreenan
+Fountain-Based Error Correction Code Design for Underwater Multimedia Transmission,Md Noor-A-Rahim
+Feasibility Study of Vehicle Platooning on Irish Motorways,Md Noor-A-Rahim
+Resource Allocation for LEO Satellite-Based Edge Computing,Md Noor-A-Rahim
+Cooperative Fountain Code for Enhanced UAV Video Transmission,Md Noor-A-Rahim
+Beyond the Helix: Error Analysis and Mitigation Strategies for DNA-Based Data Storage,Md Noor-A-Rahim
+Intelligent Remote Sensing for Forest Monitoring,Md Noor-A-Rahim
+Detecting an Active Shooter emergency using Mobile Phones,Cormac Sreenan
+Integrating Language Models and Semantic Web,Enkhbold Nyamsuren
+Evaluating Democratization of Language Models,Enkhbold Nyamsuren
+Block-based Language for Programming Drones,Enkhbold Nyamsuren
+LLM as Game AI: Leveraging Isomorphism of Tic-Tac-Toe,Enkhbold Nyamsuren
+LLM-assisted Landmark Scavenger Hunt App,Enkhbold Nyamsuren
+Generating a Corpus for Training and Testing Tools for Detecting AI-generated Text in Educational Context,Enkhbold Nyamsuren
+Teaching Large Language Models to Learn Mathematics,Gregory Provan
+Deep Learning for Financial Time-Series Forecasting,Gregory Provan
+A Hub for Rehearsing and Sharing Dance Routines,Frank Boehme
+Modelling Skin Fold Thickness (SFT) in Cows using Ultrasound Data,Rabia Naqvi
+Automatic Synthesis of Chipless Radio Frequency Identification Tag Designs,Rabia Naqvi
+Modelling the Distribution of Reaction Times of Elite Sprinters,Rabia Naqvi
+Q-learning in agent-based models of evolutionary game dynamics,Rabia Naqvi
+Financial Market Applications of Sentiment Analysis Methods,Cillian Williamson
+Loss functions and calibration methods in insurance pricing models,Cillian Williamson
+Omics modelling for the detection of severe forms of autism in infancy,Rabia Naqvi
+Modelling the mediating role of brain function between childhood trauma and major adult psychiatric disorders,Rabia Naqvi
+Raman spectroscopy analysis [Assigned],Ahmed Zahran
+Walkie: The chatbot companion for older adults,Rosane Minghim
+Determine risk factors associated with injury in masters (age 35+) weightlifters,Adrian O'Riordan
+An Exploration of Validation Procedures,John O'Mullane
+Embedable Multi-modal Cellular Throughput Prediction,Ahmed Zahran
+Optimal control and backpropagation,Michel Schellekens
+Easy Querying and Exploration of Knowledge Graphs,Adrian O'Riordan
+Markov Chain Monte Carlo and Bayesian Statistics.,Benjamin Taylor
+Optimal control and backpropagation for BScDA,Michel Schellekens
+Frepy: a Python Framework for Approximate Search using Regular Expressions,Kieran Herley
+Conversational AI for Healthcare Professional Training,Harry Nguyen
+Improving Blind Super Resolution for Image Recovery using Generative Adversarial Networks,Krishnendu Guha
+"Node Classification of ML Models for Threat Analysis, Security and Optimization",Krishnendu Guha
+Multi-Objective Optimisation by Scalarisation,Steven Prestwich
+Numerical Optimisation by Evolutionary Algorithm,Steven Prestwich
+Solving Mathematical Puzzles by SAT Methods,Steven Prestwich
+Learning Analytics for Medical Training,Harry Nguyen
+Bring Your Data,Rosane Minghim
+Crop Disease Detection using embedded AI on FPGA based Platforms,Krishnendu Guha
+Optimizing Laplacian Pyramid Translation Network,Krishnendu Guha
+Using reinforcement learning to teach robots how to walk.,Gregory Provan
+Training agents to walk with safety guarantees,Gregory Provan
+Building Tools to Educate about Responsible Software Design and Engineering,John O'Mullane
+ML based capacity prediction and link selection for reliable train connectivity over multiple cellular networks.,Holger Claussen
+Execution Environment for Algorithm Pseudocode,Kieran Herley
+Quantum Circuit Partitioning: Novel partitioning of quantum circuits with Quantum-Classical Hybrid Execution,Krishnendu Guha
+"Hey, talk to me",Michel Schellekens
+Boolean Function Analyzer,Frank Boehme
+Analysis of mobile network coverage for vehicular traffic on Irish roads,Cormac Sreenan
+Machine Learning (ML) to Quantum Machine Learning (QML) analysis for Critical Systems,Krishnendu Guha
+Computationally tractable data structures (Mathematica project) BScDSA,Michel Schellekens
+Learning to Defend Against Cyber-Security Attacks,Gregory Provan
+Teaching Walking Robots to Adapt to Changing Environments,Gregory Provan
+Predicting Milk Composition for the Entire Day using a Milk Sample from Just the Morning or Evening,John O'Mullane
+Predicting Methane Emissions from Milk,John O'Mullane
+Are more computationally expensive approaches to sentiment analysis worth the cost?,Adrian O'Riordan
+Blockchain for e-Supply Chain Security,Krishnendu Guha
+AI in Hardware,Krishnendu Guha
+Mindful Computing: Digital Well-being Dashboard,John Morrison
+Traffic Control with SUMO and VISSIM,Dirk Pesch
+High-Performance Wireless Network Simulation,Holger Claussen
+Content-aware Field of View Prediction for Immersive Video using Deep Learning,Ahmed Zahran
+Orchestration of Open-RAN applications in wireless networks,Holger Claussen
+Generalised lowerbounds for comparison-based computation,Michel Schellekens
+OBD-II Vehicle Diagnostics and Monitoring System,John Morrison
+Projects for BSc DSA students,Ken Brown
+A Quality of Life Visualizer,Rosane Minghim
+Turing Machines/Unlimited Register Machines (URMs): an online teaching tool,Michel Schellekens
+Augmented Reality Diet Tracker,Ahmed Zahran
+Adaptive Panoramic Video Streaming,Ahmed Zahran
+Introduction to reversible Markov chains: an online teaching tool in Mathematica,Michel Schellekens
+Discrete Event Simulation in Julia,Dirk Pesch
+Storytelling/interactive application for sharing migrant stories,Laura Maye
+Application to bring Cork city's heritage back to place,Laura Maye
+Evaluating and developind features for community radio technology (in Ireland),Laura Maye
+Representing local and community heritage using radio technologies,Laura Maye
+Frequent Itemset Mining with Constraints,Barry O'Sullivan
+Projects for BSc students,Ken Brown
+Decision trees,Michel Schellekens
+Greedy algorithms,Michel Schellekens
+Dynamic Programming I,Michel Schellekens
+Computationally tractable data structures (Mathematica project),Michel Schellekens
+Risk prediction models and recalibration,Luke Kelly
