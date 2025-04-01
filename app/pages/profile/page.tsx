@@ -14,13 +14,13 @@ export default function Profile() {
   const [tag, setTags] = useState<string>(""); // State to store selected course
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
+  const [emailNotifications, setEmailNotifications] = useState<boolean>(false);
   const [description, setDescription] = useState("");
 
   const router = useRouter();
 
   // Fetch user data
   const fetchProfileData = async () => {
-
     if (session?.user?.id) {
       try {
         const response = await fetch(`/api/users/${session.user.id}`);
@@ -32,6 +32,7 @@ export default function Profile() {
         setRole(data.user.role || "");
         setEmail(data.user.email || "");
         setTags(data.user.tag || "");
+        setEmailNotifications(data.user.emailNotifications || false);
         setDescription(data.user.description || "");
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -58,7 +59,6 @@ export default function Profile() {
   }, [session]);
 
   const handleImageChange = async (
-    
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
@@ -88,7 +88,7 @@ export default function Profile() {
       const response = await fetch(`/api/users/${session?.user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, tag, description }),
+        body: JSON.stringify({ name, email, tag, description, emailNotifications }),
       });
 
       if (!response.ok) throw new Error("Failed to update profile");
@@ -98,10 +98,8 @@ export default function Profile() {
     }
   };
 
-  
-      
   const handlePasswordReset = async () => {
-    router.push("forgot-password")
+    router.push("forgot-password");
   };
 
   if (!session) {
@@ -166,18 +164,27 @@ export default function Profile() {
           <label className="block text-gray-800 font-medium mb-1">
             Description
           </label>
-          
+
           <textarea
-            name = "description"
+            name="description"
             value={description}
             maxLength={150}
             onChange={(e) => setDescription(e.target.value)}
             className="border rounded-md p-2 w-full h-24"
             placeholder="Tell us about yourself"
           ></textarea>
-           <div className="text-right text-sm text-gray-500 mt-2">
-              {description.length}/500 characters
-            </div>
+          <div className="text-right text-sm text-gray-500 mt-2">
+            {description.length}/500 characters
+          </div>
+          <label className="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              checked={emailNotifications}
+              onChange={(e) => setEmailNotifications(e.target.checked)}
+              className="form-checkbox h-5 w-5 text-emerald-700 transition duration-150 ease-in-out"
+            />
+            <span className="text-gray-800">Receive Email Notifications</span>
+          </label>
 
           <button
             onClick={handleUpdateProfile}

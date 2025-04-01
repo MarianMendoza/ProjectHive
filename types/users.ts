@@ -9,6 +9,8 @@ export interface User {
     approved: boolean;
     assigned: boolean;
     pfpurl: string;
+    emailNotification: boolean;
+
 
   }
   

@@ -10,6 +10,7 @@ export interface IUser extends Document {
   role: "Student" | "Lecturer" | "Admin"; // Use a union type for better type safety
   approved: boolean; // Indicates whether the user is approved
   assigned: boolean;
+  emailNotifications: boolean;
   pfpurl: string;
 }
 
@@ -22,6 +23,7 @@ const UserSchema: Schema = new Schema({
   role: { type: String, enum: ["Student", "Lecturer", "Admin"], default: "Student" },
   assigned: {type:Boolean, default: false},
   approved: { type: Boolean, default: false }, 
+  emailNotifications: {type: Boolean, default: false},
   pfpurl: {type: String, default: ""},
 });
 
