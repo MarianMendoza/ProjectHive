@@ -62,6 +62,7 @@ export default function DeliverablesPage({
     },
   });
 
+
   const [loading, setLoading] = useState<boolean>(true);
   const [studentsId, setStudentsId] = useState<string[]>([]);
 
@@ -270,6 +271,7 @@ export default function DeliverablesPage({
 
   const isStudent = session?.user?.role === "Student";
 
+  
   if (loading)
     return <p className="text-center text-lg text-gray-700">Loading...</p>;
 
@@ -293,7 +295,10 @@ export default function DeliverablesPage({
             all files are submitted before their deadlines.
           </p>
 
-          {Object.entries(deliverables).map(
+          {Object.entries(deliverables).sort(([a],[b]) => {
+            const order = ["outlineDocument", "extendedAbstract","finalReport"];
+            return order.indexOf(a) - order.indexOf(b);
+          }).map(
             ([key, { file, uploadedAt, description, isPublished }]) => (
               <div key={key} className="p-4 mb-4 bg-white rounded-lg shadow-lg">
                 <h4 className="text-lg font-semibold capitalize text-emerald-700">
