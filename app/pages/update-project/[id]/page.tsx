@@ -14,7 +14,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const { data: session } = useSession();
   const [project, setProject] = useState<IProjects | null>(null);
   const [programme, setProgrammes] = useState<string[]>([]);
-
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [formData, setFormData] = useState({
@@ -41,11 +41,9 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
   const [invitedSecondReaders, setInvitedSecondReaders] = useState<string[]>(
     []
   );
-
-  const [invitedSecondReader, setInvitedSecondReader] = useState<User | null>(
-    null
+  const filteredLecturers = lecturers.filter((lecturer) =>
+    lecturer.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
   const [isGroupProject, setIsGroupProject] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -309,18 +307,19 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
     return <div className="text-center py-8 text-red-500">{error}</div>;
 
   return (
-    <div className="container mx-auto p-10 flex items-center justify-center">
-      <div className="w-full">
+    <div className="container mx-auto px-4 py-10">
+      <div className="max-w-6xl mx-auto rounded-lg p-6 sm:p-10">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
           Update Project
         </h1>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+          <div className="md:grid col-span-1 md:grid-cols-2 gap-6 gap-y-2">
+            {/* Title */}
+            <div className="w-full">
               <label
                 htmlFor="title"
-                className="block text-lg text-gray-800 mb-2"
+                className="block text-lg w-full text-gray-800 mb-2"
               >
                 Title
               </label>
@@ -335,10 +334,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               />
             </div>
 
-            <div>
+            {/* Visibility */}
+            <div className="w-full">
               <label
                 htmlFor="visibility"
-                className="block text-lg text-gray-800 mb-2"
+                className="block text-lg w-full text-gray-800 mb-2"
               >
                 Visibility
               </label>
@@ -355,10 +355,11 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               </select>
             </div>
 
-            <div>
+            {/* Programme */}
+            <div className="w-full">
               <label
                 htmlFor="programme"
-                className="block text-gray-800 font-medium mb-2"
+                className="block text-lg text-gray-800 mb-2"
               >
                 Programme
               </label>
@@ -379,162 +380,90 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               </select>
             </div>
 
-            {session.user.role == "Lecturer" && (
-              <>
-                <div>
-                  <label
-                    htmlFor="students"
-                    className="block text-lg text-gray-800 mb-2"
-                  >
-                    Select {isGroupProject ? "Students" : "Student"}
-                  </label>
-                  <select
-                    id="students"
-                    name="students"
-                    value={isGroupProject ? "" : selectedStudents[0] || ""}
-                    onChange={handleStudentChange}
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
-                  >
-                    <option value="">
-                      {isGroupProject ? "Select Students" : "Select a Student"}
-                    </option>
-                    {project?.applicants.map((applicant) => (
-                      <option value={applicant.studentId?._id}>
-                        {applicant.studentId?.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </>
-              )}
-
-            {session.user.role == "Lecturer" ||
-              (session.user.role == "Admin" && (
-                <div>
-                  <label
-                    htmlFor="secondReader"
-                    className="block text-lg text-gray-800 mb-2"
-                  >
-                    Second Reader
-                  </label>
-                  <select
-                    id="secondReader"
-                    name="secondReader"
-                    key={selectedSecondReader}
-                    value={selectedSecondReader || ""}
-                    onChange={handleSecondReaderChange}
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
-                  >
-                    <option value="invite">Invite...</option>
-                    <option value={selectedSecondReader}>
-                      Assigned:{" "}
-                      {lecturers.find(
-                        (lecturers) => lecturers._id === selectedSecondReader
-                      )?.name || "No one has been assigned"}
-                    </option>
-                    {selectedSecondReader && (
-                      <option value="">Unassign...</option>
-                    )}
-                  </select>
-                </div>
-              ))}
-
-            {showInviteSecondReaderModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-                  <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
-                    Invite a SecondReader
-                  </h2>
-                  <div className="space-y-4">
-                    {lecturers.map((lecturer) => (
-                      <div
-                        key={lecturer._id}
-                        className="flex justify-between items-center bg-gray-100 p-4 rounded-lg"
-                      >
-                        <span>{lecturer.name}</span>
-                        <button
-                          onClick={() =>
-                            handleInviteSecondReaderClick(lecturer)
-                          }
-                          className={`px-4 py-2 rounded-lg ${
-                            invitedSecondReaders.includes(lecturer._id)
-                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-emerald-700 text-white hover:bg-emerald-900"
-                          }`}
-                          disabled={invitedSecondReaders.includes(lecturer._id)}
-                        >
-                          {invitedSecondReaders.includes(lecturer._id)
-                            ? "Invited"
-                            : "Invite"}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-end mt-4">
-                    <button
-                      onClick={() => setShowInviteSecondReaderModal(false)}
-                      className="bg-gray-300 text-black px-4 py-2 rounded-lg"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isGroupProject && session.user.role == "Lecturer" && (
+            {/* Second Reader (Lecturer or Admin) */}
+            {(session.user.role === "Lecturer" ||
+              session.user.role === "Admin") && (
               <div>
-                <label className="block text-lg text-gray-800 mb-2">
-                  Selected Students
+                <label
+                  htmlFor="secondReader"
+                  className="block text-lg text-gray-800 mb-2"
+                >
+                  Second Reader
                 </label>
-                <div className="flex flex-wrap gap-2">
-                  {selectedStudents.map((studentId) => {
-                    const student = project?.applicants.find(
-                      (applicant) =>
-                        applicant.studentId._id.toString() === studentId
-                    );
-                    return student ? (
-                      <div
-                        key={studentId}
-                        className="flex items-center bg-emerald-800 px-4 py-2 rounded-full mb-2"
-                      >
-                        <span className="mr-2 text-white">
-                          {student.studentId?.name}
-                        </span>
-                        <button
-                          type="button"
-                          className="text-red-700"
-                          onClick={() => removeStudent(studentId)}
-                        >
-                          ❌
-                        </button>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
+                <select
+                  id="secondReader"
+                  name="secondReader"
+                  key={selectedSecondReader}
+                  value={selectedSecondReader || ""}
+                  onChange={handleSecondReaderChange}
+                  className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                >
+                  <option value="invite">Invite...</option>
+                  <option value={selectedSecondReader}>
+                    Assigned:{" "}
+                    {lecturers.find((l) => l._id === selectedSecondReader)
+                      ?.name || "No one has been assigned"}
+                  </option>
+                  {selectedSecondReader && (
+                    <option value="">Unassign...</option>
+                  )}
+                </select>
               </div>
             )}
 
-            {session.user.role == "Lecturer" ||
-              (session.user.role == "Admin" && (
-                <div className="col-span-2">
-                  <label
-                    htmlFor="groupProject"
-                    className="block text-lg text-gray-800 mb-2"
-                  >
-                    Group Project
-                  </label>
-                  <input
-                    type="checkbox"
-                    id="groupProject"
-                    name="groupProject"
-                    checked={isGroupProject}
-                    onChange={handleGroupToggle}
-                    className="w-5 h-5"
-                  />
-                </div>
-              ))}
+            {/* Students (Lecturer only) */}
+            {session.user.role === "Lecturer" && (
+              <div className="w-full ">
+                <label
+                  htmlFor="students"
+                  className="block text-lg text-gray-800 mb-2"
+                >
+                  Select {isGroupProject ? "Students" : "Student"}
+                </label>
+                <select
+                  id="students"
+                  name="students"
+                  value={isGroupProject ? "" : selectedStudents[0] || ""}
+                  onChange={handleStudentChange}
+                  className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                >
+                  <option value="">
+                    {isGroupProject ? "Select Students" : "Select a Student"}
+                  </option>
+                  {project?.applicants.map((applicant) => (
+                    <option
+                      key={applicant.studentId?._id}
+                      value={applicant.studentId?._id}
+                    >
+                      {applicant.studentId?.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
+            {/* Group toggle */}
+            {(session.user.role === "Lecturer" ||
+              session.user.role === "Admin") && (
+              <div className="col-span-2">
+                <label
+                  htmlFor="groupProject"
+                  className="block text-lg text-gray-800 mb-2"
+                >
+                  Group Project
+                </label>
+                <input
+                  type="checkbox"
+                  id="groupProject"
+                  name="groupProject"
+                  checked={isGroupProject}
+                  onChange={handleGroupToggle}
+                  className="w-5 h-5"
+                />
+              </div>
+            )}
+
+            {/* Status */}
             <div className="col-span-2">
               <label
                 htmlFor="status"
@@ -542,7 +471,7 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               >
                 Status
                 <span
-                  className="text-lg text-gray-800 ml-2 mb-2"
+                  className="ml-2 text-base"
                   title="Be sure to change this field if you want to close applications notifications."
                 >
                   🛈
@@ -561,7 +490,8 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
 
-          <div className="col-span-2">
+          {/* Abstract & Description */}
+          <div className="mt-6">
             <label
               htmlFor="abstract"
               className="block text-lg text-gray-800 mb-2"
@@ -573,16 +503,17 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               name="abstract"
               value={formData.abstract}
               onChange={handleChange}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
               rows={4}
               maxLength={500}
+              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
             />
             <div className="text-right text-sm text-gray-500 mt-2">
               {formData.abstract?.length}/500 characters
             </div>
+
             <label
               htmlFor="description"
-              className="block text-lg text-gray-800 mb-2"
+              className="block text-lg text-gray-800 mt-6 mb-2"
             >
               Description
             </label>
@@ -591,26 +522,58 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
               rows={4}
               maxLength={1000}
+              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700"
             />
             <div className="text-right text-sm text-gray-500 mt-2">
               {formData.description?.length}/1000 characters
             </div>
           </div>
 
-          <div className="mt-6 flex gap-2 justify-end">
+          {/* Selected students display */}
+          {isGroupProject && session.user.role === "Lecturer" && (
+            <div className="mt-6">
+              <label className="block text-lg text-gray-800 mb-2">
+                Selected Students
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {selectedStudents.map((studentId) => {
+                  const student = project?.applicants.find(
+                    (applicant) =>
+                      applicant.studentId._id.toString() === studentId
+                  );
+                  return student ? (
+                    <div
+                      key={studentId}
+                      className="flex items-center bg-emerald-800 px-4 py-2 rounded-full text-white"
+                    >
+                      <span className="mr-2">{student.studentId?.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeStudent(studentId)}
+                        className="text-red-300 hover:text-red-500"
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="mt-8 flex flex-col sm:flex-row justify-end gap-4">
             <Link
               href="/pages/projects"
-              className="bg-gray-300 text-black px-4 py-3 rounded-xl hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+              className="text-center bg-gray-300 text-black px-6 py-3 rounded-xl hover:bg-gray-400 transition"
             >
               Cancel
             </Link>
             <button
-              type="button"
-              onClick={handleSubmit}
-              className="bg-emerald-700 text-white px-4 py-3 rounded-xl hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+              type="submit"
+              className="text-center bg-emerald-700 text-white px-6 py-3 rounded-xl hover:bg-emerald-800 transition"
             >
               Update Project
             </button>
@@ -618,21 +581,76 @@ const UpdateProjectPage = ({ params }: { params: { id: string } }) => {
         </form>
       </div>
 
+      {showInviteSecondReaderModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-xl p-6 sm:p-8">
+            <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+              Invite a Second Reader
+            </h2>
+
+            <input
+              type="text"
+              placeholder="Search lecturers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700"
+            />
+
+            {/* Scrollable list inside */}
+            <div className="space-y-4 max-h-60 overflow-y-auto pr-1">
+              {filteredLecturers.map((lecturer) => (
+                <div
+                  key={lecturer._id}
+                  className="flex justify-between items-center bg-gray-100 p-3 rounded-lg"
+                >
+                  <span className="text-base font-medium text-gray-800">
+                    {lecturer.name}
+                  </span>
+                  <button
+                    onClick={() => handleInviteSecondReaderClick(lecturer)}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+                      invitedSecondReaders.includes(lecturer._id)
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-emerald-700 text-white hover:bg-emerald-900"
+                    }`}
+                    disabled={invitedSecondReaders.includes(lecturer._id)}
+                  >
+                    {invitedSecondReaders.includes(lecturer._id)
+                      ? "Invited"
+                      : "Invite"}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowInviteSecondReaderModal(false)}
+                className="bg-gray-300 text-black px-5 py-2 rounded-lg hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50">
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
           <div className="bg-white p-8 rounded-lg max-w-sm w-full">
             <h2 className="text-xl font-semibold mb-4">Confirm Update</h2>
             <p className="mb-4">{modalMessage}</p>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
               <button
                 onClick={handleModalClose}
-                className="bg-red-600 text-white px-6 py-2 rounded-md mr-2"
+                className="bg-red-600 text-white px-4 py-2 rounded-md"
               >
                 Cancel
               </button>
               <button
                 onClick={handleModalConfirm}
-                className="bg-emerald-700 text-white px-6 py-2 rounded-md"
+                className="bg-emerald-700 text-white px-4 py-2 rounded-md"
               >
                 Confirm
               </button>
