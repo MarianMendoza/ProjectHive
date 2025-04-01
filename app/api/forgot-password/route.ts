@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import connectMongo from "@/lib/mongodb";
 import User from "../../models/User";
 import bcrypt from "bcryptjs";
-import { signToken, verifyToken } from "@/lib/tokenUtils"; // Custom utils to sign/verify JWT
+import { signToken, verifyToken } from "@/lib/tokenUtils"; 
 import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
 export async function POST(req: Request) {
-  const startTime = Date.now(); // Start time to measure total execution time
+  const startTime = Date.now(); 
 
   try {
     console.log("Received forgot password request...");
