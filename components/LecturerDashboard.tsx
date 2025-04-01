@@ -55,18 +55,18 @@ export default function LecturerDashboard() {
           const data = await res.json();
           const filteredProjects = data.filter((project: Project) => {
             const isSupervisor =
-              project.projectAssignedTo.supervisorId?._id.toString() === session.user.id;
-          
+              project.projectAssignedTo.supervisorId?._id.toString() ===
+              session.user.id;
+
             const matchesSearchQuery =
               searchQuery === "" ||
               project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
               project.projectAssignedTo?.authorId?.name
                 ?.toLowerCase()
                 .includes(searchQuery.toLowerCase());
-          
+
             return isSupervisor && matchesSearchQuery;
           });
-          
 
           const secondReaderFiltered = data.filter((project: Project) => {
             return (
@@ -127,7 +127,7 @@ export default function LecturerDashboard() {
 
   useEffect(() => {
     fetchProjects();
-  }, [session, status,searchQuery]);
+  }, [session, status, searchQuery]);
 
   useEffect(() => {
     if (projects.length > 0) {
@@ -198,16 +198,16 @@ export default function LecturerDashboard() {
   const columns = [
     {
       name: "Project Title",
-      selector: (row:Project) => row.title,
+      selector: (row: Project) => row.title,
       sortable: true,
       minWidth: "180px",
-      cell: (row:Project) => (
+      cell: (row: Project) => (
         <span className="font-medium text-gray-800">{row.title}</span>
       ),
     },
     {
       name: "Created At",
-      selector: (row:Project) =>
+      selector: (row: Project) =>
         new Date(row.createdAt).toLocaleDateString("en-US", {
           year: "numeric",
           month: "short",
@@ -218,21 +218,21 @@ export default function LecturerDashboard() {
     },
     {
       name: "Supervisor",
-      selector: (row:Project) =>
+      selector: (row: Project) =>
         row.projectAssignedTo.supervisorId?.name || "Not Assigned",
       sortable: true,
       minWidth: "140px",
     },
     {
       name: "Second Reader",
-      selector: (row:Project) =>
+      selector: (row: Project) =>
         row.projectAssignedTo.secondReaderId?.name || "Not Assigned",
       sortable: true,
       minWidth: "140px",
     },
     {
       name: "Students",
-      selector: (row:Project) => (
+      selector: (row: Project) => (
         <div className="text-sm">
           {row.projectAssignedTo.studentsId.length > 0 ? (
             row.projectAssignedTo.studentsId.map((student) => (
@@ -249,7 +249,7 @@ export default function LecturerDashboard() {
     },
     {
       name: "Actions",
-      cell: (row:Project) => (
+      cell: (row: Project) => (
         <div className="flex items-center space-x-2">
           {/* View Deliverables */}
           <Link
@@ -290,108 +290,106 @@ export default function LecturerDashboard() {
 
   return (
     <>
+      {/* Banner */}
       <div className="mb-6">
         <img
-          src={"/iStock-1208275903.jpg"}
+          src="/iStock-1208275903.jpg"
           alt="Student Dashboard Banner"
-          className="w-screen h-64 object-cover rounded-b-lg "
+          className="w-full h-64 object-cover rounded-b-lg"
         />
       </div>
-      <div className="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div className="container mx-auto p-4 md:p-6 grid grid-cols-1 gap-6">
         {isApproved ? (
-          <>
-            {/* Notifications and Project Progress Section - Positioned at the top */}
-            <div className="flex justify-between mb-6 col-span-3">
-              <div className="w-full bg-white p-6">
-                <div className="col-span-3 flex justify-between items-center ">
-                  <div className="flex justify-between gap-3">
-                    <button className="bg-emerald-700 text-sm text-white px-2 py-2 rounded-lg hover:bg-emerald-700 transition duration-200 ease-in-out">
-                      <Link href="/pages/create-project">
-                        Create New Project
-                      </Link>
-                    </button>
-                    
-                  </div>
+          <div className="w-full bg-white p-4 md:p-6 rounded-lg ">
+            {/* Projects Section */}
+            <div className="bg-white py-4 rounded-lg">
+              <h3 className="text-lg font-bold text-center text-gray-800 mb-4">
+                {showArchived
+                  ? "Archived Projects"
+                  : showSecondReader
+                  ? "Second Reader Projects"
+                  : "Your Projects"}
+              </h3>
+
+              {/* Toggle and Search Row */}
+              <div className="flex flex-col lg:flex-row justify-between gap-4 mb-4">
+                <div className="flex flex-wrap gap-2">
+                  <button className="bg-emerald-700 text-sm text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition duration-200 ease-in-out w-full md:w-auto">
+                    <Link href="/pages/create-project">Create New Project</Link>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowArchived(!showArchived);
+                      setShowSecondReader(false);
+                    }}
+                    className={`px-3 w-full lg:w-auto py-2 rounded-lg text-sm transition duration-200 ${
+                      showArchived
+                        ? "bg-emerald-700 text-white"
+                        : "bg-gray-200 text-black"
+                    }`}
+                  >
+                    Archived Projects
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSecondReader(!showSecondReader);
+                      setShowArchived(false);
+                    }}
+                    className={`px-3 py-2 w-full lg:w-auto rounded-lg text-sm transition duration-200 ${
+                      showSecondReader
+                        ? "bg-emerald-700 text-white"
+                        : "bg-gray-200 text-black"
+                    }`}
+                  >
+                    Second Reader Projects
+                  </button>
                 </div>
-                {/* Your Projects Section */}
-                <div className="bg-white shadow-lg p-2 w-auto mt-2 col-span-3">
-                  <h3 className="text-lg font-bold text-center text-gray-800">
-                    {showArchived
-                      ? "Archived Projects"
-                      : showSecondReader
-                      ? "Second Reader Projects"
-                      : "Your Projects"}
-                  </h3>
-                  <div className=" justify-between flex ">
-                    <div className="flex justify-between px-1 py-1 gap-2">
-                      <button
-                        onClick={() => {
-                          setShowArchived(!showArchived);
-                          setShowSecondReader(false); // Ensure only one toggle is active
-                        }}
-                        className={`px-1 py-1 rounded-lg text-sm transition duration-200 ${
-                          showArchived
-                            ? "bg-emerald-700 text-white"
-                            : "bg-gray-200 text-black"
-                        }`}
-                      >
-                       Archived Projects
-                      </button>
 
-                      <button
-                        onClick={() => {
-                          setShowSecondReader(!showSecondReader);
-                          setShowArchived(false); // Ensure only one toggle is active
-                        }}
-                        className={`px-1 py-2 rounded-lg text-sm transition duration-200 ${
-                          showSecondReader
-                            ? "bg-emerald-700 text-white"
-                            : "bg-gray-200 text-black"
-                        }`}
-                      >
-                       Second Reader Projects
-                      </button>
-                    </div>
-
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search Projects..."
-                      className="w-1/3 px-1 py-0.5 mt-1 mb-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
-                    />
-                  </div>
-                  <DataTable
-                    columns={columns}
-                    data={filteredProjects}
-                    pagination
-                    highlightOnHover
-                    pointerOnHover
-                    responsive
+                <div className="w-full lg:w-1/3">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search Projects..."
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-700 transition duration-200 ease-in-out"
                   />
                 </div>
               </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <DataTable
+                  columns={columns}
+                  data={filteredProjects}
+                  pagination
+                  highlightOnHover
+                  pointerOnHover
+                  responsive
+                />
+              </div>
             </div>
-          </>
+          </div>
         ) : (
-          <h2 className="text-2xl font-bold leading-9 tracking-tight text-red-700">
+          <h2 className="text-xl md:text-2xl font-bold text-center text-red-700">
             Waiting for admin approval. Please check back later.
           </h2>
         )}
 
+        {/* Delete Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+            <div className="bg-white p-6 rounded-lg max-w-md w-full">
               <h2 className="text-xl font-semibold text-center text-gray-800 mb-4">
                 Confirm Deletion
               </h2>
               <p className="text-center text-gray-700 mb-6">
                 Are you sure you want to delete this project?
               </p>
-              <div className="flex justify-between">
+              <div className="flex flex-col sm:flex-row justify-between gap-3">
                 <button
                   onClick={closeModal}
-                  className="bg-gray-300 text-black px-6 py-2 rounded-lg hover:bg-gray-400 transition duration-200 ease-in-out"
+                  className="bg-gray-300 text-black px-5 py-2 rounded-lg hover:bg-gray-400 transition"
                 >
                   Cancel
                 </button>
@@ -399,7 +397,7 @@ export default function LecturerDashboard() {
                   onClick={() => {
                     if (projectToDelete) handleDelete(projectToDelete);
                   }}
-                  className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition duration-200 ease-in-out"
+                  className="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition"
                 >
                   Confirm Delete
                 </button>
