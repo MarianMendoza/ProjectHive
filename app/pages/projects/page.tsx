@@ -4,6 +4,7 @@ import { Project } from "@/types/projects";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/app/provider";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { User } from "@/types/users";
 import { createNotification } from "@/app/utils/notificationUtils";
 
@@ -20,6 +21,7 @@ const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showConfirmModal, setshowConfirmModal] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
   const [message, setMessage] = useState("");
 
   const [appliedStudents, setAppliedStudents] = useState<{
@@ -98,10 +100,10 @@ const ProjectsPage = () => {
     fetchProgrammes();
     fetchProjects();
   }, [session, searchQuery, statusFilter, programmeFilter]); // Dependency array to re-run effect on searchQuery or statusFilter change
-    const handleProjectClick = (project:Project) => {
-      setSelectedProject(project);
-      setShowProjectModal(true); // Open modal on mobile
-    };
+  const handleProjectClick = (project: Project) => {
+    setSelectedProject(project);
+    setShowProjectModal(true); // Open modal on mobile
+  };
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
@@ -234,11 +236,11 @@ const ProjectsPage = () => {
         <img
           src={"/iStock-1357672566.jpg"}
           alt="Student Dashboard Banner"
-          className="w-screen h-64 object-cover rounded-b-lg "
+          className="w-full h-64 object-cover rounded-b-lg"
         />
       </div>
       <div className="container mx-auto p-4">
-        <div className="flex justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-6 bg-white ">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-6 bg-white">
           <div className="w-full md:w-1/3">
             <input
               type="text"
@@ -250,7 +252,7 @@ const ProjectsPage = () => {
           </div>
 
           {/* Right side: Filters and Create Project Button */}
-          <div className="flex space-x-4 w-full md:w-auto">
+          <div className="flex flex-col md:flex-row md:mb-2 space-x-4 w-full md:w-auto">
             {/* Status Filter */}
             <div className="w-full md:w-48">
               <select
@@ -264,34 +266,33 @@ const ProjectsPage = () => {
               </select>
             </div>
 
-            <div className="flex space-x-4 w-full md:w-auto">
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="bg-emerald-700 text-white px-3.5 rounded-lg hover:bg-emerald-800 transition duration-200 ease-in-out w-full text-center"
+                className={`text-white p-2 rounded-lg hover:bg-opacity-80 transition duration-200 ease-in-out w-full md:w-auto text-center ${
+                  showFilters
+                    ? "bg-emerald-700 hover:bg-emerald-800"
+                    : "bg-gray-700 hover:bg-gray-800"
+                }`}
               >
                 {showFilters ? "Hide Filters" : "More Filters"}
               </button>
-            </div>
 
-            {session && (
-              <button>
-                <Link
-                  href={`/pages/create-project`}
-                  className="bg-teal-800 text-white p-3.5 rounded-lg hover:bg-teal-900 transition duration-200 ease-in-out w-full md:w-auto text-center"
-                >
-                  Create New Project
-                </Link>
-              </button>
-            )}
+              {/* Conditional Create Project Button */}
+              {session && (
+                <button className="bg-teal-800 p-2 text-white rounded-lg hover:bg-teal-900 transition duration-200 ease-in-out w-full md:w-auto text-center">
+                  <Link href={`/pages/create-project`}>Create New Project</Link>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="w-full mt-3 bg-white mb-5 ">
-
+        <div className="w-full mt-3 bg-white md:mb-2 lg:mb-5">
           {showFilters && (
-            <div className="p-2 flex gap-3 justify-end w-full ">
-              <h3 className="text-lg font-semibold">Select Program</h3>
-              <div className="flex gap-4">
+            <div className="p-2 flex flex-col md:flex-row gap-3 justify-between w-full">
+              <h3 className="text-lg font-semibold md:w-1/3">Select Program</h3>
+              <div className="flex flex-col md:flex-row md:w-2/3 gap-4">
                 <label className="inline-flex items-center space-x-2">
                   <input
                     type="radio"
@@ -326,9 +327,9 @@ const ProjectsPage = () => {
 
         {loading && <p>Loading...</p>}
 
-        <div className="flex gap-8">
+        <div className="flex flex-col-reverse md:flex-row gap-8">
           {/* Project List */}
-          <div className="w-1/3 overflow-y-auto h-screen">
+          <div className="w-full md:w-1/3 overflow-y-auto h-screen">
             <div className="grid grid-cols-1 p-2 gap-y-8 my-9">
               {!loading &&
                 projects.map((project) => (
@@ -375,7 +376,7 @@ const ProjectsPage = () => {
           </div>
 
           {/* Selected Project Details */}
-          <div className="w-2/3 p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto">
+          <div className="hidden lg:block w-full md:w-2/3 p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto">
             {selectedProject ? (
               <>
                 <h2 className="text-2xl font-semibold text-emerald-800">
@@ -406,7 +407,7 @@ const ProjectsPage = () => {
                           selectedProject.projectAssignedTo.authorId._id && (
                           <button
                             // onClick={() => setAssignShowModal(true)}
-                            className="px-3 "
+                            className="px-3"
                           >
                             ✏️
                           </button>
@@ -469,7 +470,6 @@ const ProjectsPage = () => {
 
                 <p>
                   <strong>Program: </strong>
-
                   {selectedProject.programme
                     ? selectedProject.programme
                     : " N/A"}
@@ -523,6 +523,88 @@ const ProjectsPage = () => {
               </p>
             )}
           </div>
+
+          <div className="md:hidden ">
+            <div
+              className={`fixed bottom-0 left-0 w-screen bg-white rounded-t-md border border-t-2 px-6 transition-all duration-500 ease-in-out ${
+                showDetails
+                  ? "transform translate-y-0"
+                  : "transform translate-y-100"
+              }`}
+              style={{ zIndex: 9999 }}
+            >
+              {!showDetails && (
+                <button
+                  onClick={() => setShowDetails(!showDetails)} // Toggle the details visibility
+                  className="text-black p-2 rounded-t-md bg-white border border-gray-100 left-0 w-screen fixed bottom-0 text-center flex items-center justify-center transition-all duration-300"
+                >
+                  <span
+                    className="text-2xl text-gray-800"
+                    aria-label="Expand More Project Details"
+                  >
+                    <FaArrowUp />
+                  </span>
+                </button>
+              )}
+              {showDetails && (
+                <button
+                  onClick={() => setShowDetails(!showDetails)} // Toggle the details visibility
+                  className="bg-gray-100 text-white p-2 w-full rounded-md flex items-center justify-center text-center mt-2"
+                >
+                  <span
+                    className="text-2xl text-gray-800"
+                    aria-label="Collapse Project Details"
+                  >
+                    <FaArrowDown />
+                  </span>
+                </button>
+              )}
+
+              {showDetails && selectedProject && (
+                <div className="p-6 mt-4 max-h-[80vh] overflow-y-auto transition-all duration-300">
+                  <h2 className="text-2xl font-semibold text-emerald-800">
+                    {selectedProject.title || "No Project Selected"}
+                  </h2>
+
+                  <div className="overflow-y-scroll mt-4">
+                    <p className="text-lg">
+                      <strong>Author:</strong>{" "}
+                      {selectedProject.projectAssignedTo?.authorId?.name ||
+                        "Not assigned"}
+                    </p>
+                    <p className="text-lg">
+                      <strong>Status:</strong>{" "}
+                      {selectedProject.status ? "Open" : "Closed"}
+                    </p>
+                    <p className="text-lg">
+                      <strong>Program:</strong>{" "}
+                      {selectedProject.programme || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Abstract:</strong>{" "}
+                      {selectedProject.abstract || "No description"}
+                    </p>
+                    <p>
+                      <strong>Description:</strong>{" "}
+                      {selectedProject.description || "No description"}
+                    </p>
+                    <div className="flex flex-row mt-4 gap-4">
+                      {session?.user.role === "Student" &&
+                        selectedProject.status === true &&
+                        selectedProject.visibility !== "Private" && (
+                          <button
+                            onClick={() => handleApply(selectedProject._id)}
+                            className="bg-emerald-800 text-white p-2 rounded-md w-full"
+                          >
+                            Apply
+                          </button>
+                        )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {showModal && (
@@ -555,7 +637,7 @@ const ProjectsPage = () => {
         )}
 
         {showConfirmModal && (
-          <div className="modal fixed w-full inset-0 flex justify-center items-center bg-black bg-opacity-50 ">
+          <div className="modal fixed w-full inset-0 flex justify-center items-center bg-black bg-opacity-50">
             <div className="modal-content bg-white p-8 rounded-2xl w-96 max-w-full shadow-lg">
               <h2 className="text-1xl font-semibold text-gray-800 mb-4">
                 Send a message to{" "}
@@ -569,7 +651,7 @@ const ProjectsPage = () => {
               />
               <div className="mt-6 flex justify-end space-x-4">
                 <button
-                  className="bg-red-600 text-white px-6 py-3 rounded-md font-medium  focus:bg-red-700"
+                  className="bg-red-600 text-white px-6 py-3 rounded-md font-medium focus:bg-red-700"
                   onClick={() => setshowConfirmModal(false)}
                 >
                   Cancel

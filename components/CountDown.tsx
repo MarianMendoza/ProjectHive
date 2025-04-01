@@ -59,38 +59,38 @@ const Countdown = (): JSX.Element => {
         </div>
       ) : (
         <>
-        <h2 className="text-2xl font-bold text-center text-teal-700 md:text-3xl lg:text-4xl">
+          <h2 className="text-2xl font-bold text-center text-teal-700 md:text-3xl lg:text-4xl">
             Days till we open our Hive
           </h2>
           <p className="text-center py-3 text-teal-600">
             Our busy bee days end in 🐝:
           </p>
-        <div className="mt-8 flex justify-center gap-10 text-center">
-          <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
-              {timeLeft.days}
+          <div className="mt-8 flex flex-col sm:flex-row sm:justify-center gap-10 text-center">
+            <div className="flex flex-col items-center">
+              <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+                {timeLeft.days}
+              </div>
+              <span className="text-teal-700 text-lg">Days</span>
             </div>
-            <span className="text-teal-700 text-lg">Days</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
-              {timeLeft.hours}
+            <div className="flex flex-col items-center">
+              <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+                {timeLeft.hours}
+              </div>
+              <span className="text-teal-700 text-lg">Hours</span>
             </div>
-            <span className="text-teal-700 text-lg">Hours</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
-              {timeLeft.minutes}
+            <div className="flex flex-col items-center">
+              <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+                {timeLeft.minutes}
+              </div>
+              <span className="text-teal-700 text-lg">Minutes</span>
             </div>
-            <span className="text-teal-700 text-lg">Minutes</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
-              {timeLeft.seconds}
+            <div className="flex flex-col items-center">
+              <div className="text-5xl font-bold text-teal-700 bg-teal-100 rounded-lg w-24 h-24 flex items-center justify-center mb-2">
+                {timeLeft.seconds}
+              </div>
+              <span className="text-teal-700 text-lg">Seconds</span>
             </div>
-            <span className="text-teal-700 text-lg">Seconds</span>
           </div>
-        </div>
         </>
       )}
     </section>

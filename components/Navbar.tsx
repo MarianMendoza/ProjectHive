@@ -82,12 +82,6 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/pages/open-day"
-              className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
-            >
-              Open Day
-            </Link>
-            <Link
               href="/pages/projects"
               className="block py-2 px-4 text-gray-800 hover:bg-gray-100 rounded"
             >

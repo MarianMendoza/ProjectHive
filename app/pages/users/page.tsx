@@ -13,7 +13,6 @@ const UsersPage = () => {
   const [selectedLecturer, setSelectedLecturer] = useState<User | null>(null);
   const [courseFilter, setCourseFilter] = useState<string>("All");
   const [course, setCourses] = useState<string[]>([]);
-
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -151,32 +150,34 @@ const UsersPage = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-
-          <div className="w-1/2 gap-3 flex justify-end">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="bg-emerald-700 sm:w-1/4 w-10 text-white p-2 rounded-lg hover:bg-emerald-800 transition duration-200 ease-in-out text-center"
-            >
-              {showFilters ? "Hide Filters" : "More Filters"}
-            </button>
-
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full sm:w-1/4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-700"
-            >
-              <option value="All">All Roles</option>
-              <option value="student">Student</option>
-              <option value="lecturer">Lecturer</option>
-            </select>
-          </div>
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="w-full sm:w-1/4 px-4 py-2 flex flex-col md:flex-row border rounded focus:outline-none focus:ring-2 focus:ring-teal-700"
+          >
+            <option value="All">All Roles</option>
+            <option value="student">Student</option>
+            <option value="lecturer">Lecturer</option>
+          </select>
+        </div>
+        <div className="w-full gap-3 flex flex-col sm:w-1/2 sm:flex-row justify-end">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`text-white p-2 rounded-sm hover:bg-opacity-80 transition duration-200 ease-in-out w-full text-center ${
+                  showFilters
+                    ? "bg-emerald-700 hover:bg-emerald-800"
+                    : "bg-gray-700 hover:bg-gray-800"
+                }`}
+          >
+            {showFilters ? "Hide Filters" : "More Filters"}
+          </button>
         </div>
 
         <div className="w-full mt-3 bg-white mb-5 ">
           {showFilters && (
-            <div className="p-2 flex gap-3 w-full ">
-              <h3 className="text-lg font-semibold">Select Program</h3>
-              <div className="flex gap-4">
+            <div className="p-2 flex flex-col md:flex-row gap-3 w-full ">
+              <h3 className="text-lg font-semibold md:w-1/3">Select Program</h3>
+              <div className="flex gap-4 flex-col md:flex-row md:w-2/3">
                 <label className="inline-flex items-center space-x-2">
                   <input
                     type="radio"

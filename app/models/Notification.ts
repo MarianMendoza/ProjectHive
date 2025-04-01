@@ -5,7 +5,7 @@ export interface INotification extends Document {
   receiversId: mongoose.Types.ObjectId[];
   message: string; // Notification message
   messageUser: string;
-  type: "ApplicationStudent" | "StudentAccept" |"StudentDecline"|"Closed" | "InvitationSecondReader" | "DeclineSecondReader" |"AcceptSecondReader" | "UnassignSecondReader" | "InvitationSupervisor"| "SupervisorDecline" | "SupervisorAccept" | "outlineDocumentPublished" | "extendedAbstractPublished" | "finalReportPublished" | "SubmitSupervisor" | "SubmitSecondReader" | "SupervisorSigned" | "SecondReaderSigned" | "LecturerCreated" | "ApproveLecturer" | "DeclineLecturer" ; // Type of notification
+  type: "ApplicationStudent" | "StudentAccept" |"StudentDecline"|"Closed" | "InvitationSecondReader" | "DeclineSecondReader" |"AcceptSecondReader" | "UnassignSecondReader" | "InvitationSupervisor"| "SupervisorDecline" | "SupervisorAccept" | "outlineDocumentPublished" | "extendedAbstractPublished" | "finalReportPublished" | "SubmitSupervisor" | "SubmitSecondReader" | "SupervisorSigned" | "SecondReaderSigned" | "LecturerCreated" | "ApproveLecturer" | "DeclineLecturer"| "WithdrawSecondReader" | "WithdrawSupervisor" | "WithdrawStudent" | "DeadlineReminders" | "System" ; // Type of notification
   relatedProjectId: mongoose.Types.ObjectId | null ; // Optional: Associated project ID
   isRead: boolean; // Whether the notification has been read
   timestamp: Date; // When the notification was created
@@ -16,7 +16,7 @@ const NotificationSchema: Schema = new Schema({
   receiversId: [{ type: mongoose.Types.ObjectId, ref: "User", required: true }], // Reference to the user
   message: { type: String, required: false }, // Notification message
   messageUser : {type: String, required: false},
-  type: { type: String, enum: ["ApplicationStudent", "StudentAccept","StudentDecline","Closed", "InvitationSecondReader", "DeclineSecondReader","AcceptSecondReader", "UnassignSecondReader", "InvitationSupervisor", "SupervisorDecline", "SupervisorAccept" , "outlineDocumentPublished",  "extendedAbstractPublished" , "finalReportPublished" , "SubmitSupervisor", "SubmitSecondReader", "SupervisorSigned" , "SecondReaderSigned", "LecturerCreated" , "ApproveLecturer" , "DeclineLecturer"] }, // Type of notification
+  type: { type: String, enum: ["ApplicationStudent", "StudentAccept","StudentDecline","Closed", "InvitationSecondReader", "DeclineSecondReader","AcceptSecondReader", "UnassignSecondReader", "InvitationSupervisor", "SupervisorDecline", "SupervisorAccept" , "outlineDocumentPublished",  "extendedAbstractPublished" , "finalReportPublished" , "SubmitSupervisor", "SubmitSecondReader", "SupervisorSigned" , "SecondReaderSigned", "LecturerCreated" , "ApproveLecturer" , "DeclineLecturer","WithdrawSecondReader" , "WithdrawSupervisor" , "WithdrawStudent" , "DeadlineReminders" , "System"] }, // Type of notification
   relatedProjectId: { type: mongoose.Types.ObjectId, ref: "Projects", default: null , required: false }, // Optional reference to a project
   isRead: { type: Boolean, default: false }, // Default to unread
   timestamp: { type: Date, default: Date.now }, // Auto-set creation date
