@@ -306,10 +306,10 @@ export const startServer = async () => {
   //   checkUpcomingDeadlines(io);
   // }, 1000 * 60 * 60 * 24); // every 24 hours
 
-  // Run every 10 minutes
-  setInterval(() => {
-    checkUpcomingDeadlines(io);
-  }, 1000 * 60 * 10); // 1000 ms * 60 sec * 10 min
+  // // Run every 10 minutes
+  // setInterval(() => {
+  //   checkUpcomingDeadlines(io);
+  // }, 1000 * 60 * 10); // 1000 ms * 60 sec * 10 min
 
   // setInterval(() => {
   //   checkUpcomingDeadlines(io);
