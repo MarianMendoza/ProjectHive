@@ -131,6 +131,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch("/api/users");
       const data = await res.json();
+      
       const receiversId: string[] = data.map((user:any) => user._id);
 
       if (socket){
